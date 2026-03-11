@@ -1,0 +1,404 @@
+/* 全局样式 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* 布局样式 */
+.main-layout {
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  padding: 24px;
+  background: #fff;
+  min-height: calc(100vh - 64px);
+}
+
+/* 卡片样式 */
+.place-card {
+  margin-bottom: 16px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.place-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.place-card .ant-card-cover img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.diary-card {
+  margin-bottom: 16px;
+  transition: all 0.3s;
+}
+
+.diary-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 搜索样式 */
+.search-container {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 地图样式 */
+.map-container {
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* 统计图表样式 */
+.stats-card {
+  text-align: center;
+  padding: 24px;
+}
+
+.stats-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #1890ff;
+  margin-bottom: 8px;
+}
+
+.stats-label {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 标签样式 */
+.tag-container {
+  margin-top: 8px;
+}
+
+.tag-container .ant-tag {
+  margin-bottom: 4px;
+}
+
+/* 评分样式 */
+.rating-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-stars {
+  color: #faad14;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 16px;
+  }
+  
+  .search-container {
+    padding: 16px;
+  }
+  
+  .place-card .ant-card-cover img {
+    height: 150px;
+  }
+  
+  .map-container {
+    height: 300px;
+  }
+}
+
+/* 加载动画 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* 空状态样式 */
+.empty-container {
+  text-align: center;
+  padding: 48px 24px;
+  color: #999;
+}
+
+.empty-container .anticon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+/* 头部导航样式 */
+.header-nav {
+  background: #001529;
+  padding: 0 24px;
+}
+
+.header-nav .ant-menu {
+  background: transparent;
+  border-bottom: none;
+}
+
+.header-nav .ant-menu-item {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.header-nav .ant-menu-item:hover,
+.header-nav .ant-menu-item-selected {
+  color: #fff;
+}
+
+/* 侧边栏样式 */
+.sidebar {
+  background: #fff;
+  border-right: 1px solid #f0f0f0;
+}
+
+.sidebar .ant-menu {
+  border-right: none;
+}
+
+/* 内容区域样式 */
+.page-header {
+  background: #fff;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+  color: #262626;
+}
+
+/* 操作按钮样式 */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.action-buttons .ant-btn {
+  border-radius: 6px;
+}
+
+/* 筛选器样式 */
+.filter-container {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 详情页样式 */
+.detail-container {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-header {
+  padding: 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-content {
+  padding: 24px;
+}
+
+.detail-sidebar {
+  background: #fafafa;
+  padding: 24px;
+  border-left: 1px solid #f0f0f0;
+}
+
+/* 表单样式 */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 24px;
+}
+
+/* 文件上传样式 */
+.upload-container {
+  text-align: center;
+  padding: 24px;
+  border: 2px dashed #d9d9d9;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: all 0.3s;
+}
+
+.upload-container:hover {
+  border-color: #1890ff;
+  background: #f0f8ff;
+}
+
+.upload-icon {
+  font-size: 48px;
+  color: #d9d9d9;
+  margin-bottom: 16px;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 路径动画相关样式 */
+.custom-marker {
+  transition: all 0.3s ease;
+}
+
+.custom-marker:hover {
+  transform: scale(1.1);
+}
+
+/* 路径线动画效果 */
+.leaflet-interactive {
+  transition: stroke-width 0.2s ease;
+}
+
+.leaflet-interactive:hover {
+  stroke-width: 7 !important;
+  cursor: pointer;
+}
+
+/* 动画控制面板样式 */
+.animation-control-panel {
+  background: linear-gradient(135deg, #f0f2f5 0%, #e6f7ff 100%);
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.animation-control-panel:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 脉冲动画优化 */
+@keyframes pulse {
+  0% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); 
+  }
+  50% { 
+    transform: scale(1.1); 
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); 
+  }
+  100% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); 
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.custom-marker.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 路径绘制动画 */
+@keyframes drawPath {
+  from {
+    stroke-dashoffset: 100%;
+  }
+  to {
+    stroke-dashoffset: 0%;
+  }
+}
+
+.animated-path {
+  stroke-dasharray: 5, 5;
+  animation: drawPath 2s linear infinite;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .animation-control-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .animation-control-panel > div {
+    margin-bottom: 8px;
+  }
+  
+  .animation-control-panel > div:last-child {
+    margin-bottom: 0;
+  }
+} 

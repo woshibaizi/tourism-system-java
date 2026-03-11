@@ -1,0 +1,758 @@
+[
+  {
+    "id": "building_344376272",
+    "name": "17号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95722528,
+      "lng": 116.3492608
+    },
+    "description": "教学楼 - 17号楼",
+    "rating": 3.9
+  },
+  {
+    "id": "building_344376266",
+    "name": "8号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957202900000006,
+      "lng": 116.3497809
+    },
+    "description": "教学楼 - 8号楼",
+    "rating": 4.4
+  },
+  {
+    "id": "building_344376267",
+    "name": "4号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95686278,
+      "lng": 116.34988004000002
+    },
+    "description": "宿舍楼 - 4号楼",
+    "rating": 3.6
+  },
+  {
+    "id": "building_344376268",
+    "name": "10号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9568669,
+      "lng": 116.3511864
+    },
+    "description": "宿舍楼 - 10号楼",
+    "rating": 4.6
+  },
+  {
+    "id": "building_344376261",
+    "name": "9号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95722212,
+      "lng": 116.35066056000001
+    },
+    "description": "教学楼 - 9号楼",
+    "rating": 4.0
+  },
+  {
+    "id": "building_399041101",
+    "name": "11号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9568771,
+      "lng": 116.35219784
+    },
+    "description": "宿舍楼 - 11号楼",
+    "rating": 4.8
+  },
+  {
+    "id": "building_399046292",
+    "name": "12号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95695968571429,
+      "lng": 116.35326301428573
+    },
+    "description": "教学楼 - 12号楼",
+    "rating": 4.2
+  },
+  {
+    "id": "building_399046291",
+    "name": "22号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.956868580000005,
+      "lng": 116.35357452000001
+    },
+    "description": "宿舍楼 - None",
+    "rating": 3.6
+  },
+  {
+    "id": "building_399046293",
+    "name": "23号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957053200000004,
+      "lng": 116.35386958
+    },
+    "description": "宿舍楼 - None",
+    "rating": 4.1
+  },
+  {
+    "id": "building_399009831",
+    "name": "明光楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95719684,
+      "lng": 116.35477190000002
+    },
+    "description": "教学楼 - 明光楼",
+    "rating": 4.2
+  },
+  {
+    "id": "building_344376271",
+    "name": "16号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95776066,
+      "lng": 116.34925286
+    },
+    "description": "教学楼 - 16号楼",
+    "rating": 3.5
+  },
+  {
+    "id": "building_344376270",
+    "name": "15号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95829526,
+      "lng": 116.34923696000001
+    },
+    "description": "教学楼 - 15号楼",
+    "rating": 3.5
+  },
+  {
+    "id": "building_344376265",
+    "name": "7号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957651420000005,
+      "lng": 116.34977726
+    },
+    "description": "教学楼 - 7号楼",
+    "rating": 4.3
+  },
+  {
+    "id": "building_344376264",
+    "name": "2号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95799272,
+      "lng": 116.34976420000001
+    },
+    "description": "教学楼 - 2号楼",
+    "rating": 4.7
+  },
+  {
+    "id": "building_344376263",
+    "name": "27号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95830316,
+      "lng": 116.34974078
+    },
+    "description": "教学楼 - None",
+    "rating": 3.8
+  },
+  {
+    "id": "building_344376262",
+    "name": "14号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95855154,
+      "lng": 116.34969166
+    },
+    "description": "教学楼 - 14号楼",
+    "rating": 4.5
+  },
+  {
+    "id": "building_344376259",
+    "name": "28号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.958061542857145,
+      "lng": 116.35062724285714
+    },
+    "description": "教学楼 - None",
+    "rating": 4.9
+  },
+  {
+    "id": "building_344376269",
+    "name": "28号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.958815416666674,
+      "lng": 116.34919554999999
+    },
+    "description": "教学楼 -28号楼",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399046289",
+    "name": "教三楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95903866470588,
+      "lng": 116.3502741764706
+    },
+    "description": "教学楼 - 教三楼",
+    "rating": 3.9
+  },
+  {
+    "id": "building_363833971",
+    "name": "教四楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96056334285714,
+      "lng": 116.35008660476188
+    },
+    "description": "教学楼 - 教四楼",
+    "rating": 3.6
+  },
+  {
+    "id": "building_265030109",
+    "name": "学生1号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961095646153844,
+      "lng": 116.3496417076923
+    },
+    "description": "宿舍楼 - 学生1号公寓",
+    "rating": 4.3
+  },
+  {
+    "id": "building_265030110",
+    "name": "学生2号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96111426923077,
+      "lng": 116.35050226153845
+    },
+    "description": "宿舍楼 - 学生2号公寓",
+    "rating": 4.3
+  },
+  {
+    "id": "building_265030104",
+    "name": "学生13号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96177026,
+      "lng": 116.34905874
+    },
+    "description": "宿舍楼 - 学生13号公寓",
+    "rating": 3.9
+  },
+  {
+    "id": "building_265030103",
+    "name": "留学生2号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96263332,
+      "lng": 116.3490194
+    },
+    "description": "宿舍楼 - 留学生2号公寓",
+    "rating": 4.1
+  },
+  {
+    "id": "building_265030106",
+    "name": "学生3号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96154896,
+      "lng": 116.34957560000001
+    },
+    "description": "宿舍楼 - 学生3号公寓",
+    "rating": 3.8
+  },
+  {
+    "id": "building_265030105",
+    "name": "学生5号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96206782857142,
+      "lng": 116.34961075714284
+    },
+    "description": "宿舍楼 - 学生5号公寓",
+    "rating": 4.9
+  },
+  {
+    "id": "building_265030108",
+    "name": "学生4号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96157042,
+      "lng": 116.35043759999999
+    },
+    "description": "宿舍楼 - 学生4号公寓",
+    "rating": 4.2
+  },
+  {
+    "id": "building_265030107",
+    "name": "学生8号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96209796000001,
+      "lng": 116.35045128000002
+    },
+    "description": "宿舍楼 - 学生8号公寓",
+    "rating": 3.8
+  },
+  {
+    "id": "building_399010162",
+    "name": "留学生1号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96253082,
+      "lng": 116.34953082000001
+    },
+    "description": "其他建筑 - 留学生1号公寓",
+    "rating": 4.7
+  },
+  {
+    "id": "building_344376260",
+    "name": "7号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9575967,
+      "lng": 116.35065847999999
+    },
+    "description": "教学楼 - 7号楼",
+    "rating": 4.6
+  },
+  {
+    "id": "building_344376666",
+    "name": "5号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95732506923077,
+      "lng": 116.35190078461538
+    },
+    "description": "宿舍楼 - 5号楼",
+    "rating": 4.2
+  },
+  {
+    "id": "building_344376665",
+    "name": "4号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95775274615385,
+      "lng": 116.35187795384617
+    },
+    "description": "宿舍楼 - 4号楼",
+    "rating": 3.6
+  },
+  {
+    "id": "building_344376664",
+    "name": "2号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95825276,
+      "lng": 116.35177478
+    },
+    "description": "教学楼 - 2号楼",
+    "rating": 4.6
+  },
+  {
+    "id": "building_344376663",
+    "name": "1号楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95862524,
+      "lng": 116.35170272
+    },
+    "description": "教学楼 - 1号楼",
+    "rating": 4.7
+  },
+  {
+    "id": "building_399038557",
+    "name": "21号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9573328,
+      "lng": 116.35280918000001
+    },
+    "description": "宿舍楼 - 21号楼",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399038558",
+    "name": "13号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95743761999999,
+      "lng": 116.35328431999999
+    },
+    "description": "宿舍楼 - 13号楼",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399038556",
+    "name": "30号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95774818,
+      "lng": 116.35286706
+    },
+    "description": "宿舍楼 - 30号楼",
+    "rating": 4.5
+  },
+  {
+    "id": "building_399041102",
+    "name": "北京邮电大学幼儿园",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95818091538461,
+      "lng": 116.35310089230767
+    },
+    "description": "教学楼 - 北京邮电大学幼儿园",
+    "rating": 3.6
+  },
+  {
+    "id": "building_399038561",
+    "name": "19号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.958626179999996,
+      "lng": 116.35278095999999
+    },
+    "description": "宿舍楼 - 19号楼",
+    "rating": 4.7
+  },
+  {
+    "id": "building_253330141",
+    "name": "教二楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95914305714286,
+      "lng": 116.35184315
+    },
+    "description": "教学楼 - 教二楼",
+    "rating": 4.0
+  },
+  {
+    "id": "building_399008789",
+    "name": "主教学楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95995346923077,
+      "lng": 116.35218096923077
+    },
+    "description": "教学楼 - 主教学楼",
+    "rating": 4.1
+  },
+  {
+    "id": "building_399038562",
+    "name": "科学会堂",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95993568,
+      "lng": 116.35279726000002
+    },
+    "description": "教学楼 - 科学会堂",
+    "rating": 4.7
+  },
+  {
+    "id": "building_399041104",
+    "name": "北京交通大学附属中学分校宿舍楼1",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957662428571425,
+      "lng": 116.35388428571427
+    },
+    "description": "宿舍楼 - 北京交通大学附属中学分校",
+    "rating": 4.9
+  },
+  {
+    "id": "building_399038559",
+    "name": "北京交通大学附属中学分校宿舍楼2",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95791637000001,
+      "lng": 116.35404901
+    },
+    "description": "宿舍楼 - 北京交通大学附属中学分校",
+    "rating": 3.9
+  },
+  {
+    "id": "building_399041103",
+    "name": "32号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95776094,
+      "lng": 116.35476532
+    },
+    "description": "宿舍楼 - 32号楼",
+    "rating": 4.9
+  },
+  {
+    "id": "building_399038560",
+    "name": "33号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.958238888888886,
+      "lng": 116.35388825555555
+    },
+    "description": "宿舍楼 - 33号楼",
+    "rating": 4.1
+  },
+  {
+    "id": "building_399008982",
+    "name": "后勤处",
+    "type": "办公楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96069124444444,
+      "lng": 116.35135893333336
+    },
+    "description": "办公楼 - 后勤处",
+    "rating": 4.1
+  },
+  {
+    "id": "building_399008979",
+    "name": "教一楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96055533333333,
+      "lng": 116.35174187333334
+    },
+    "description": "教学楼 - 教一楼",
+    "rating": 3.7
+  },
+  {
+    "id": "building_399008980",
+    "name": "行政办公楼",
+    "type": "办公楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96071198333333,
+      "lng": 116.35174589999998
+    },
+    "description": "办公楼 - 行政办公楼",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399008981",
+    "name": "财务处",
+    "type": "办公楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96076298,
+      "lng": 116.35136231999999
+    },
+    "description": "办公楼 - 财务处",
+    "rating": 4.8
+  },
+  {
+    "id": "building_399018202",
+    "name": "家属28号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96185084,
+      "lng": 116.35381643999999
+    },
+    "description": "宿舍楼 - 家属28号楼",
+    "rating": 4.8
+  },
+  {
+    "id": "building_399018593",
+    "name": "学生29号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961476958064516,
+      "lng": 116.35442373225806
+    },
+    "description": "宿舍楼 - 学生29号公寓",
+    "rating": 4.3
+  },
+  {
+    "id": "building_399046290",
+    "name": "34号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96193656,
+      "lng": 116.35447968000001
+    },
+    "description": "宿舍楼 - 34号楼",
+    "rating": 3.9
+  },
+  {
+    "id": "building_399018201",
+    "name": "家属27号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96261986,
+      "lng": 116.35377286
+    },
+    "description": "宿舍楼 - 家属27号楼",
+    "rating": 4.1
+  },
+  {
+    "id": "building_399018596",
+    "name": "26号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962331688888895,
+      "lng": 116.35436880000003
+    },
+    "description": "宿舍楼 - 26号楼",
+    "rating": 3.9
+  },
+  {
+    "id": "building_265030100",
+    "name": "国际汉语培训中心",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96296031666667,
+      "lng": 116.34979845
+    },
+    "description": "教学楼 - 国际汉语培训中心",
+    "rating": 3.8
+  },
+  {
+    "id": "building_399013936",
+    "name": "学生11号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9632844,
+      "lng": 116.34951057999999
+    },
+    "description": "宿舍楼 - 学生11号公寓",
+    "rating": 4.9
+  },
+  {
+    "id": "building_399014219",
+    "name": "学生10号公寓",
+    "type": "宿舍楼 ",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96321245,
+      "lng": 116.35032051666666
+    },
+    "description": "宿舍楼  - 学生10号公寓",
+    "rating": 3.8
+  },
+  {
+    "id": "building_399015107",
+    "name": "经管楼",
+    "type": "教学楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96322664,
+      "lng": 116.35119654
+    },
+    "description": "教学楼 - 经管楼",
+    "rating": 4.1
+  },
+  {
+    "id": "building_399015104",
+    "name": "学生6号公寓",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96331951111111,
+      "lng": 116.3520491
+    },
+    "description": "宿舍楼 - 学生6号公寓",
+    "rating": 4.5
+  },
+  {
+    "id": "building_399042378",
+    "name": "23号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.963481939999994,
+      "lng": 116.35275726
+    },
+    "description": "宿舍楼 - 23号楼",
+    "rating": 4.6
+  },
+  {
+    "id": "building_399018595",
+    "name": "25号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96298120909091,
+      "lng": 116.35432999090908
+    },
+    "description": "宿舍楼 - 25号楼",
+    "rating": 4.9
+  },
+  {
+    "id": "building_399042379",
+    "name": "24号楼",
+    "type": "宿舍楼",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96353146,
+      "lng": 116.35370407999999
+    },
+    "description": "宿舍楼 - 24号楼",
+    "rating": 3.5
+  }
+]

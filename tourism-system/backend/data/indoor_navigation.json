@@ -1,0 +1,784 @@
+{
+  "building": {
+    "id": "teaching_building_001",
+    "name": "教学楼A",
+    "floors": 6,
+    "description": "3层教学楼，包含30个房间"
+  },
+  "nodes": [
+    {
+      "id": "entrance",
+      "name": "大门",
+      "floor": 1,
+      "type": "entrance",
+      "x": 0,
+      "y": 50,
+      "description": "教学楼主入口"
+    },
+    {
+      "id": "elevator_1f",
+      "name": "一楼电梯",
+      "floor": 1,
+      "type": "elevator",
+      "x": 50,
+      "y": 50,
+      "description": "一楼电梯入口"
+    },
+    {
+      "id": "elevator_2f",
+      "name": "二楼电梯",
+      "floor": 2,
+      "type": "elevator",
+      "x": 50,
+      "y": 50,
+      "description": "二楼电梯出口"
+    },
+    {
+      "id": "elevator_3f",
+      "name": "三楼电梯",
+      "floor": 3,
+      "type": "elevator",
+      "x": 50,
+      "y": 50,
+      "description": "三楼电梯出口"
+    },
+    {
+      "id": "stair_1f",
+      "name": "一楼楼梯",
+      "floor": 1,
+      "type": "stair",
+      "x": 100,
+      "y": 50,
+      "description": "一楼楼梯入口"
+    },
+    {
+      "id": "stair_2f",
+      "name": "二楼楼梯",
+      "floor": 2,
+      "type": "stair",
+      "x": 100,
+      "y": 50,
+      "description": "二楼楼梯出口"
+    },
+    {
+      "id": "stair_3f",
+      "name": "三楼楼梯",
+      "floor": 3,
+      "type": "stair",
+      "x": 100,
+      "y": 50,
+      "description": "三楼楼梯出口"
+    },
+    {
+      "id": "corridor_1f_left",
+      "name": "一楼左走廊",
+      "floor": 1,
+      "type": "corridor",
+      "x": 25,
+      "y": 50,
+      "description": "一楼左侧走廊"
+    },
+    {
+      "id": "corridor_1f_right",
+      "name": "一楼右走廊",
+      "floor": 1,
+      "type": "corridor",
+      "x": 75,
+      "y": 50,
+      "description": "一楼右侧走廊"
+    },
+    {
+      "id": "corridor_2f_left",
+      "name": "二楼左走廊",
+      "floor": 2,
+      "type": "corridor",
+      "x": 25,
+      "y": 50,
+      "description": "二楼左侧走廊"
+    },
+    {
+      "id": "corridor_2f_right",
+      "name": "二楼右走廊",
+      "floor": 2,
+      "type": "corridor",
+      "x": 75,
+      "y": 50,
+      "description": "二楼右侧走廊"
+    },
+    {
+      "id": "corridor_3f_left",
+      "name": "三楼左走廊",
+      "floor": 3,
+      "type": "corridor",
+      "x": 25,
+      "y": 50,
+      "description": "三楼左侧走廊"
+    },
+    {
+      "id": "corridor_3f_right",
+      "name": "三楼右走廊",
+      "floor": 3,
+      "type": "corridor",
+      "x": 75,
+      "y": 50,
+      "description": "三楼右侧走廊"
+    },
+    {
+      "id": "room_101",
+      "name": "101教室",
+      "floor": 1,
+      "type": "room",
+      "x": 10,
+      "y": 30,
+      "description": "一楼101教室"
+    },
+    {
+      "id": "room_102",
+      "name": "102教室",
+      "floor": 1,
+      "type": "room",
+      "x": 10,
+      "y": 70,
+      "description": "一楼102教室"
+    },
+    {
+      "id": "room_103",
+      "name": "103教室",
+      "floor": 1,
+      "type": "room",
+      "x": 20,
+      "y": 30,
+      "description": "一楼103教室"
+    },
+    {
+      "id": "room_104",
+      "name": "104教室",
+      "floor": 1,
+      "type": "room",
+      "x": 20,
+      "y": 70,
+      "description": "一楼104教室"
+    },
+    {
+      "id": "room_105",
+      "name": "105教室",
+      "floor": 1,
+      "type": "room",
+      "x": 30,
+      "y": 30,
+      "description": "一楼105教室"
+    },
+    {
+      "id": "room_106",
+      "name": "106教室",
+      "floor": 1,
+      "type": "room",
+      "x": 80,
+      "y": 30,
+      "description": "一楼106教室"
+    },
+    {
+      "id": "room_107",
+      "name": "107教室",
+      "floor": 1,
+      "type": "room",
+      "x": 80,
+      "y": 70,
+      "description": "一楼107教室"
+    },
+    {
+      "id": "room_108",
+      "name": "108教室",
+      "floor": 1,
+      "type": "room",
+      "x": 90,
+      "y": 30,
+      "description": "一楼108教室"
+    },
+    {
+      "id": "room_109",
+      "name": "109教室",
+      "floor": 1,
+      "type": "room",
+      "x": 90,
+      "y": 70,
+      "description": "一楼109教室"
+    },
+    {
+      "id": "room_110",
+      "name": "110教室",
+      "floor": 1,
+      "type": "room",
+      "x": 95,
+      "y": 50,
+      "description": "一楼110教室"
+    },
+    {
+      "id": "room_201",
+      "name": "201教室",
+      "floor": 2,
+      "type": "room",
+      "x": 10,
+      "y": 30,
+      "description": "二楼201教室"
+    },
+    {
+      "id": "room_202",
+      "name": "202教室",
+      "floor": 2,
+      "type": "room",
+      "x": 10,
+      "y": 70,
+      "description": "二楼202教室"
+    },
+    {
+      "id": "room_203",
+      "name": "203教室",
+      "floor": 2,
+      "type": "room",
+      "x": 20,
+      "y": 30,
+      "description": "二楼203教室"
+    },
+    {
+      "id": "room_204",
+      "name": "204教室",
+      "floor": 2,
+      "type": "room",
+      "x": 20,
+      "y": 70,
+      "description": "二楼204教室"
+    },
+    {
+      "id": "room_205",
+      "name": "205教室",
+      "floor": 2,
+      "type": "room",
+      "x": 30,
+      "y": 30,
+      "description": "二楼205教室"
+    },
+    {
+      "id": "room_206",
+      "name": "206教室",
+      "floor": 2,
+      "type": "room",
+      "x": 80,
+      "y": 30,
+      "description": "二楼206教室"
+    },
+    {
+      "id": "room_207",
+      "name": "207教室",
+      "floor": 2,
+      "type": "room",
+      "x": 80,
+      "y": 70,
+      "description": "二楼207教室"
+    },
+    {
+      "id": "room_208",
+      "name": "208教室",
+      "floor": 2,
+      "type": "room",
+      "x": 90,
+      "y": 30,
+      "description": "二楼208教室"
+    },
+    {
+      "id": "room_209",
+      "name": "209教室",
+      "floor": 2,
+      "type": "room",
+      "x": 90,
+      "y": 70,
+      "description": "二楼209教室"
+    },
+    {
+      "id": "room_210",
+      "name": "210教室",
+      "floor": 2,
+      "type": "room",
+      "x": 95,
+      "y": 50,
+      "description": "二楼210教室"
+    },
+    {
+      "id": "room_301",
+      "name": "301教室",
+      "floor": 3,
+      "type": "room",
+      "x": 10,
+      "y": 30,
+      "description": "三楼301教室"
+    },
+    {
+      "id": "room_302",
+      "name": "302教室",
+      "floor": 3,
+      "type": "room",
+      "x": 10,
+      "y": 70,
+      "description": "三楼302教室"
+    },
+    {
+      "id": "room_303",
+      "name": "303教室",
+      "floor": 3,
+      "type": "room",
+      "x": 20,
+      "y": 30,
+      "description": "三楼303教室"
+    },
+    {
+      "id": "room_304",
+      "name": "304教室",
+      "floor": 3,
+      "type": "room",
+      "x": 20,
+      "y": 70,
+      "description": "三楼304教室"
+    },
+    {
+      "id": "room_305",
+      "name": "305教室",
+      "floor": 3,
+      "type": "room",
+      "x": 30,
+      "y": 30,
+      "description": "三楼305教室"
+    },
+    {
+      "id": "room_306",
+      "name": "306教室",
+      "floor": 3,
+      "type": "room",
+      "x": 80,
+      "y": 30,
+      "description": "三楼306教室"
+    },
+    {
+      "id": "room_307",
+      "name": "307教室",
+      "floor": 3,
+      "type": "room",
+      "x": 80,
+      "y": 70,
+      "description": "三楼307教室"
+    },
+    {
+      "id": "room_308",
+      "name": "308教室",
+      "floor": 3,
+      "type": "room",
+      "x": 90,
+      "y": 30,
+      "description": "三楼308教室"
+    },
+    {
+      "id": "room_309",
+      "name": "309教室",
+      "floor": 3,
+      "type": "room",
+      "x": 90,
+      "y": 70,
+      "description": "三楼309教室"
+    },
+    {
+      "id": "room_310",
+      "name": "310教室",
+      "floor": 3,
+      "type": "room",
+      "x": 95,
+      "y": 50,
+      "description": "三楼310教室"
+    }
+  ],
+  "connections": [
+    {
+      "from": "entrance",
+      "to": "elevator_1f",
+      "distance": 50,
+      "congestion_factor": 1.0,
+      "description": "从大门到一楼电梯"
+    },
+    {
+      "from": "entrance",
+      "to": "corridor_1f_left",
+      "distance": 30,
+      "congestion_factor": 1.2,
+      "description": "从大门到一楼左走廊"
+    },
+    {
+      "from": "entrance",
+      "to": "corridor_1f_right",
+      "distance": 30,
+      "congestion_factor": 1.2,
+      "description": "从大门到一楼右走廊"
+    },
+    {
+      "from": "elevator_1f",
+      "to": "elevator_2f",
+      "distance": 20,
+      "congestion_factor": 1.1,
+      "description": "电梯从一楼到二楼"
+    },
+    {
+      "from": "elevator_2f",
+      "to": "elevator_3f",
+      "distance": 20,
+      "congestion_factor": 1.1,
+      "description": "电梯从二楼到三楼"
+    },
+    {
+      "from": "elevator_1f",
+      "to": "elevator_3f",
+      "distance": 40,
+      "congestion_factor": 1.1,
+      "description": "电梯从一楼直达三楼"
+    },
+    {
+      "from": "elevator_1f",
+      "to": "corridor_1f_left",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼电梯到左走廊"
+    },
+    {
+      "from": "elevator_1f",
+      "to": "corridor_1f_right",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼电梯到右走廊"
+    },
+    {
+      "from": "elevator_2f",
+      "to": "corridor_2f_left",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼电梯到左走廊"
+    },
+    {
+      "from": "elevator_2f",
+      "to": "corridor_2f_right",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼电梯到右走廊"
+    },
+    {
+      "from": "elevator_3f",
+      "to": "corridor_3f_left",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼电梯到左走廊"
+    },
+    {
+      "from": "elevator_3f",
+      "to": "corridor_3f_right",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼电梯到右走廊"
+    },
+    {
+      "from": "corridor_1f_left",
+      "to": "room_101",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼左走廊到101教室"
+    },
+    {
+      "from": "corridor_1f_left",
+      "to": "room_102",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼左走廊到102教室"
+    },
+    {
+      "from": "corridor_1f_left",
+      "to": "room_103",
+      "distance": 15,
+      "congestion_factor": 1.0,
+      "description": "一楼左走廊到103教室"
+    },
+    {
+      "from": "corridor_1f_left",
+      "to": "room_104",
+      "distance": 15,
+      "congestion_factor": 1.0,
+      "description": "一楼左走廊到104教室"
+    },
+    {
+      "from": "corridor_1f_left",
+      "to": "room_105",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "一楼左走廊到105教室"
+    },
+    {
+      "from": "corridor_1f_right",
+      "to": "room_106",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "一楼右走廊到106教室"
+    },
+    {
+      "from": "corridor_1f_right",
+      "to": "room_107",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "一楼右走廊到107教室"
+    },
+    {
+      "from": "corridor_1f_right",
+      "to": "room_108",
+      "distance": 20,
+      "congestion_factor": 1.0,
+      "description": "一楼右走廊到108教室"
+    },
+    {
+      "from": "corridor_1f_right",
+      "to": "room_109",
+      "distance": 20,
+      "congestion_factor": 1.0,
+      "description": "一楼右走廊到109教室"
+    },
+    {
+      "from": "corridor_1f_right",
+      "to": "room_110",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼右走廊到110教室"
+    },
+    {
+      "from": "corridor_2f_left",
+      "to": "room_201",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼左走廊到201教室"
+    },
+    {
+      "from": "corridor_2f_left",
+      "to": "room_202",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼左走廊到202教室"
+    },
+    {
+      "from": "corridor_2f_left",
+      "to": "room_203",
+      "distance": 15,
+      "congestion_factor": 1.0,
+      "description": "二楼左走廊到203教室"
+    },
+    {
+      "from": "corridor_2f_left",
+      "to": "room_204",
+      "distance": 15,
+      "congestion_factor": 1.0,
+      "description": "二楼左走廊到204教室"
+    },
+    {
+      "from": "corridor_2f_left",
+      "to": "room_205",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "二楼左走廊到205教室"
+    },
+    {
+      "from": "corridor_2f_right",
+      "to": "room_206",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "二楼右走廊到206教室"
+    },
+    {
+      "from": "corridor_2f_right",
+      "to": "room_207",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "二楼右走廊到207教室"
+    },
+    {
+      "from": "corridor_2f_right",
+      "to": "room_208",
+      "distance": 20,
+      "congestion_factor": 1.0,
+      "description": "二楼右走廊到208教室"
+    },
+    {
+      "from": "corridor_2f_right",
+      "to": "room_209",
+      "distance": 20,
+      "congestion_factor": 1.0,
+      "description": "二楼右走廊到209教室"
+    },
+    {
+      "from": "corridor_2f_right",
+      "to": "room_210",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼右走廊到210教室"
+    },
+    {
+      "from": "corridor_3f_left",
+      "to": "room_301",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼左走廊到301教室"
+    },
+    {
+      "from": "corridor_3f_left",
+      "to": "room_302",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼左走廊到302教室"
+    },
+    {
+      "from": "corridor_3f_left",
+      "to": "room_303",
+      "distance": 15,
+      "congestion_factor": 1.0,
+      "description": "三楼左走廊到303教室"
+    },
+    {
+      "from": "corridor_3f_left",
+      "to": "room_304",
+      "distance": 15,
+      "congestion_factor": 1.0,
+      "description": "三楼左走廊到304教室"
+    },
+    {
+      "from": "corridor_3f_left",
+      "to": "room_305",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "三楼左走廊到305教室"
+    },
+    {
+      "from": "corridor_3f_right",
+      "to": "room_306",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "三楼右走廊到306教室"
+    },
+    {
+      "from": "corridor_3f_right",
+      "to": "room_307",
+      "distance": 10,
+      "congestion_factor": 1.0,
+      "description": "三楼右走廊到307教室"
+    },
+    {
+      "from": "corridor_3f_right",
+      "to": "room_308",
+      "distance": 20,
+      "congestion_factor": 1.0,
+      "description": "三楼右走廊到308教室"
+    },
+    {
+      "from": "corridor_3f_right",
+      "to": "room_309",
+      "distance": 20,
+      "congestion_factor": 1.0,
+      "description": "三楼右走廊到309教室"
+    },
+    {
+      "from": "corridor_3f_right",
+      "to": "room_310",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼右走廊到310教室"
+    },
+    {
+      "from": "entrance",
+      "to": "stair_1f",
+      "distance": 60,
+      "congestion_factor": 1.0,
+      "description": "从大门到一楼楼梯"
+    },
+    {
+      "from": "stair_1f",
+      "to": "stair_2f",
+      "distance": 15,
+      "congestion_factor": 1.2,
+      "description": "楼梯从一楼到二楼"
+    },
+    {
+      "from": "stair_2f",
+      "to": "stair_3f",
+      "distance": 15,
+      "congestion_factor": 1.2,
+      "description": "楼梯从二楼到三楼"
+    },
+    {
+      "from": "stair_1f",
+      "to": "stair_3f",
+      "distance": 30,
+      "congestion_factor": 1.3,
+      "description": "楼梯从一楼直达三楼"
+    },
+    {
+      "from": "stair_1f",
+      "to": "corridor_1f_right",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼楼梯到右走廊"
+    },
+    {
+      "from": "stair_2f",
+      "to": "corridor_2f_right",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼楼梯到右走廊"
+    },
+    {
+      "from": "stair_3f",
+      "to": "corridor_3f_right",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼楼梯到右走廊"
+    },
+    {
+      "from": "corridor_1f_left",
+      "to": "corridor_1f_right",
+      "distance": 50,
+      "congestion_factor": 1.0,
+      "description": "一楼左右走廊连接"
+    },
+    {
+      "from": "corridor_2f_left",
+      "to": "corridor_2f_right",
+      "distance": 50,
+      "congestion_factor": 1.0,
+      "description": "二楼左右走廊连接"
+    },
+    {
+      "from": "corridor_3f_left",
+      "to": "corridor_3f_right",
+      "distance": 50,
+      "congestion_factor": 1.0,
+      "description": "三楼左右走廊连接"
+    },
+    {
+      "from": "stair_1f",
+      "to": "corridor_1f_left",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "一楼楼梯到左走廊"
+    },
+    {
+      "from": "stair_2f",
+      "to": "corridor_2f_left",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "二楼楼梯到左走廊"
+    },
+    {
+      "from": "stair_3f",
+      "to": "corridor_3f_left",
+      "distance": 25,
+      "congestion_factor": 1.0,
+      "description": "三楼楼梯到左走廊"
+    }
+  ]
+} 

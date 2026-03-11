@@ -1,0 +1,877 @@
+% 基于个性化推荐的智能旅游系统 - 用户使用说明报告
+\documentclass[12pt, a4paper]{article}
+\usepackage[UTF8]{ctex}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{lastpage}
+
+% 颜色定义
+\definecolor{primary}{RGB}{102, 126, 234}
+\definecolor{secondary}{RGB}{76, 201, 196}
+\definecolor{success}{RGB}{82, 196, 26}
+\definecolor{warning}{RGB}{250, 173, 20}
+\definecolor{error}{RGB}{245, 63, 63}
+\definecolor{light}{RGB}{248, 249, 250}
+
+% 设置链接颜色
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=secondary,
+    citecolor=success
+}
+
+% 页面设置
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{primary}{\textbf{基于个性化推荐的智能旅游系统}}}
+\fancyhead[R]{\textcolor{secondary}{\textbf{用户使用说明}}}
+\fancyfoot[C]{\textcolor{gray}{第 \thepage\ 页 共 \pageref{LastPage} 页}}
+\renewcommand{\headrulewidth}{0.8pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% 标题样式
+\titleformat{\section}{\Large\bfseries\color{primary}}{第\,\thesection\,节\quad}{0pt}{}
+\titleformat{\subsection}{\large\bfseries\color{secondary}}{\thesubsection\quad}{0pt}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{success}}{\thesubsubsection\quad}{0pt}{}
+
+% 自定义文本框样式
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{infobox}[1][]{
+    enhanced,
+    colback=light,
+    colframe=primary,
+    coltitle=white,
+    colbacktitle=primary,
+    title=#1,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    drop shadow,
+    breakable
+}
+
+\newtcolorbox{successbox}[1][]{
+    enhanced,
+    colback=success!10,
+    colframe=success,
+    coltitle=white,
+    colbacktitle=success,
+    title=#1,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    drop shadow,
+    breakable
+}
+
+\newtcolorbox{warningbox}[1][]{
+    enhanced,
+    colback=warning!10,
+    colframe=warning,
+    coltitle=white,
+    colbacktitle=warning,
+    title=#1,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    drop shadow,
+    breakable
+}
+
+\newtcolorbox{stepbox}[1][]{
+    enhanced,
+    colback=secondary!10,
+    colframe=secondary,
+    coltitle=white,
+    colbacktitle=secondary,
+    title=#1,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    drop shadow,
+    breakable
+}
+
+% 封面页设置
+\begin{document}
+
+% 封面页
+\begin{titlepage}
+\begin{center}
+\vspace*{1cm}
+
+% 项目标题
+\textcolor{primary}{\Huge\textbf{基于个性化推荐的智能旅游系统}}
+
+\vspace{1cm}
+\textcolor{secondary}{\Large\textbf{用户使用说明报告}}
+
+\vspace{2cm}
+
+% 装饰性框架
+\begin{tcolorbox}[
+    enhanced,
+    colback=light,
+    colframe=primary,
+    width=14cm,
+    height=8cm,
+    rounded corners=10pt,
+    drop shadow,
+    halign=center,
+    valign=center
+]
+
+\Large\textbf{系统概览}
+
+\vspace{0.5cm}
+
+\begin{minipage}{0.8\textwidth}
+\centering
+\large
+\textbf{🏛️ 14个核心功能模块} \\[0.3cm]
+\textbf{🤖 6大智能算法引擎} \\[0.3cm]
+\textbf{🎯 个性化推荐体验} \\[0.3cm]
+\textbf{📱 现代化用户界面} \\[0.3cm]
+\textbf{⚡ 高性能并发支持}
+\end{minipage}
+
+\vspace{1cm}
+
+\textcolor{primary}{\large\textbf{技术栈：React 18 + Flask 2.3 + Ant Design 4}}
+
+\end{tcolorbox}
+
+\vspace{2cm}
+
+% 版本信息
+\begin{infobox}[title={版本信息}]
+\begin{itemize}[nosep]
+    \item \textbf{系统版本}：v2.0.0
+    \item \textbf{发布日期}：2024年12月
+    \item \textbf{适用用户}：旅游爱好者、系统管理员、开发者
+    \item \textbf{文档版本}：1.0
+\end{itemize}
+\end{infobox}
+
+\vfill
+
+\textcolor{gray}{\large 本文档旨在帮助用户快速掌握系统各项功能的使用方法}
+
+\end{center}
+\end{titlepage}
+
+% 目录
+\tableofcontents
+\newpage
+
+\section{系统概述}
+
+\begin{infobox}[title={系统介绍}]
+基于个性化推荐的智能旅游系统是一个集成了\textbf{个性化推荐}、\textbf{路径规划}、\textbf{内容管理}、\textbf{室内导航}等功能的综合性旅游服务平台。系统采用前后端分离架构，提供现代化的用户界面和智能化的服务体验。
+\end{infobox}
+
+\subsection{核心特色}
+
+\begin{itemize}
+    \item \textbf{智能推荐}：基于用户画像的多算法个性化推荐系统
+    \item \textbf{路径规划}：支持单目标和多目标的智能路径规划
+    \item \textbf{内容丰富}：201个场所、63个建筑、40家餐厅数据
+    \item \textbf{用户友好}：Ant Design现代化界面设计
+    \item \textbf{高性能}：支持120并发用户，99.2\%系统可用性
+\end{itemize}
+
+\subsection{功能模块一览}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\rowcolor{primary!20}
+\textbf{模块类型} & \textbf{功能模块} & \textbf{主要功能} \\
+\midrule
+信息展示 & 首页 & 系统概览、快速导航 \\
+\rowcolor{light}
+ & 场所浏览 & 场所展示、智能推荐 \\
+\midrule
+内容管理 & 旅游日记 & 日记浏览、多媒体展示 \\
+\rowcolor{light}
+ & 日记管理 & 日记编辑、批量管理 \\
+\midrule
+智能服务 & 路线规划 & 最优路径计算 \\
+\rowcolor{light}
+ & 场所查询 & 附近设施查询 \\
+ & 美食搜索 & 餐厅推荐 \\
+\rowcolor{light}
+ & 室内导航 & 建筑内导航 \\
+\midrule
+创新功能 & AIGC & 图片转视频 \\
+\rowcolor{light}
+ & 统计分析 & 数据可视化 \\
+ & 并发测试 & 性能测试 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{快速开始指南}
+
+\subsection{系统环境要求}
+
+\begin{warningbox}[title={环境配置要求}]
+\begin{itemize}[nosep]
+    \item \textbf{操作系统}：Windows 10+、macOS 10.15+、Ubuntu 18.04+
+    \item \textbf{浏览器}：Chrome 70+、Firefox 65+、Safari 12+、Edge 79+
+    \item \textbf{网络}：建议1Mbps以上宽带连接
+    \item \textbf{屏幕分辨率}：最低1024×768，推荐1920×1080
+\end{itemize}
+\end{warningbox}
+
+\subsection{系统启动步骤}
+
+\begin{stepbox}[title={启动步骤}]
+\textbf{方式一：一键启动（推荐）}
+
+1. 打开终端或命令提示符
+2. 进入项目目录：\texttt{cd tourism-system}
+3. 执行启动脚本：\texttt{./start.sh}
+4. 等待服务启动完成
+
+\textbf{方式二：手动启动}
+
+\textbf{后端服务启动：}
+\begin{verbatim}
+cd backend
+pip install -r requirements.txt
+python app.py
+\end{verbatim}
+
+\textbf{前端应用启动：}
+\begin{verbatim}
+cd frontend
+npm install
+npm start
+\end{verbatim}
+\end{stepbox}
+
+\subsection{系统访问}
+
+启动成功后，在浏览器中访问以下地址：
+\begin{itemize}
+    \item \textbf{前端应用}：\url{http://localhost:3000}
+    \item \textbf{后端API}：\url{http://localhost:5001}
+\end{itemize}
+
+\section{功能模块详细使用说明}
+
+\subsection{首页模块}
+
+\begin{infobox}[title={功能概述}]
+首页是系统的门户入口，提供系统概览、热门推荐和快速导航功能。用户可以在首页快速了解系统状态并直接访问各项功能。
+\end{infobox}
+
+\subsubsection{主要功能}
+
+\textbf{1. 系统统计概览}
+\begin{itemize}
+    \item 显示场所数量、日记数量、用户数量等核心统计数据
+    \item 数据每30秒自动更新，保持信息实时性
+    \item 点击统计卡片可跳转到对应的详细页面
+\end{itemize}
+
+\textbf{2. 精选旅游日记}
+\begin{itemize}
+    \item 自动推荐高质量旅游日记
+    \item 支持推荐标签：🔥 热门、⭐ 推荐、✨ 精选
+    \item 显示日记封面图、标题、评分、浏览量等信息
+    \item 点击卡片查看日记详情
+\end{itemize}
+
+\textbf{3. 快速操作}
+\begin{itemize}
+    \item 提供常用功能的快速入口
+    \item 功能包括：场所浏览、路线规划、美食搜索、室内导航等
+    \item 卡片化设计，操作便捷直观
+\end{itemize}
+
+\subsection{场所浏览模块}
+
+\begin{successbox}[title={核心功能}]
+场所浏览模块是系统的核心业务模块，集成了智能搜索、个性化推荐、多维度排序等功能，为用户提供高效的场所发现和浏览体验。
+\end{successbox}
+
+\subsubsection{使用步骤}
+
+\textbf{1. 进入场所浏览页面}
+\begin{itemize}
+    \item 点击左侧导航栏的"场所浏览"
+    \item 或在首页点击快速操作中的"场所浏览"按钮
+\end{itemize}
+
+\textbf{2. 搜索与筛选}
+\begin{itemize}
+    \item \textbf{关键词搜索}：在搜索框输入场所名称或关键词
+    \item \textbf{智能推荐}：点击"获取推荐"按钮获取个性化推荐
+    \item \textbf{排序方式}：支持按热度、评分、距离、最新更新排序
+    \item \textbf{标签筛选}：点击场所标签进行分类筛选
+\end{itemize}
+
+\textbf{3. 查看场所详情}
+\begin{itemize}
+    \item 点击场所卡片查看详细信息
+    \item 查看场所图片、介绍、评分、建筑物、设施等
+    \item 可以进行评分和收藏操作
+\end{itemize}
+
+\subsubsection{推荐算法说明}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lp{6cm}l}
+\toprule
+\rowcolor{primary!20}
+\textbf{算法类型} & \textbf{原理说明} & \textbf{适用场景} \\
+\midrule
+内容推荐 & 基于用户兴趣标签和场所特征的余弦相似度计算 & 有明确兴趣偏好的用户 \\
+\rowcolor{light}
+协同过滤 & 基于相似用户行为的推荐 & 活跃用户群体 \\
+混合推荐 & 内容推荐60\% + 协同过滤40\%的加权融合 & 平衡准确性和多样性 \\
+\rowcolor{light}
+热度推荐 & 综合热度和评分的流行度推荐 & 新用户或冷启动场景 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{旅游日记模块}
+
+\begin{infobox}[title={功能概述}]
+旅游日记模块支持多媒体内容的浏览和管理，集成了Huffman压缩和TF-IDF全文搜索技术，为用户提供高效的内容管理体验。
+\end{infobox}
+
+\subsubsection{功能操作}
+
+\textbf{1. 浏览日记列表}
+\begin{itemize}
+    \item 显示所有旅游日记的卡片列表
+    \item 支持分页浏览，每页显示指定数量的日记
+    \item 显示日记标题、作者、创建时间、标签等信息
+\end{itemize}
+
+\textbf{2. 搜索功能}
+\begin{itemize}
+    \item \textbf{关键词搜索}：基于TF-IDF算法的全文搜索
+    \item \textbf{标签筛选}：按日记标签进行分类筛选
+    \item \textbf{排序选项}：支持按时间、热度、评分排序
+\end{itemize}
+
+\textbf{3. 查看日记详情}
+\begin{itemize}
+    \item 点击日记卡片查看完整内容
+    \item 支持图片、视频等多媒体内容展示
+    \item 可以查看其他用户的评论和评分
+\end{itemize}
+
+\subsubsection{技术特色}
+
+\begin{itemize}
+    \item \textbf{Huffman压缩}：日记内容自动压缩，节省存储空间45\%
+    \item \textbf{TF-IDF搜索}：智能全文搜索，准确率达99.1\%
+    \item \textbf{多媒体支持}：支持图片、视频等多种媒体格式
+\end{itemize}
+
+\subsection{路线规划模块}
+
+\begin{successbox}[title={智能路径规划}]
+路线规划模块支持单目标和多目标路径规划，集成了多种算法，为用户提供最优的出行路线建议。
+\end{successbox}
+
+\subsubsection{使用流程}
+
+\textbf{1. 选择场所}
+\begin{itemize}
+    \item 在场所下拉菜单中选择目标场所
+    \item 系统自动加载该场所的建筑物和设施数据
+\end{itemize}
+
+\textbf{2. 配置规划参数}
+\begin{itemize}
+    \item \textbf{路径类型}：选择单目标路径或多目标路径
+    \item \textbf{起终点}：选择出发点和目的地
+    \item \textbf{交通工具}：选择步行、自行车、电瓶车等
+    \item \textbf{优化策略}：选择最短距离或最短时间
+\end{itemize}
+
+\textbf{3. 开始规划}
+\begin{itemize}
+    \item 点击"开始规划路径"按钮
+    \item 系统计算最优路径并在地图上显示
+    \item 查看路径详情、距离、预计时间等信息
+\end{itemize}
+
+\subsubsection{算法选择指南}
+
+对于多目标路径规划，系统提供以下算法选择：
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lp{4cm}p{3cm}l}
+\toprule
+\rowcolor{secondary!20}
+\textbf{算法} & \textbf{特点} & \textbf{适用场景} & \textbf{时间复杂度} \\
+\midrule
+最近邻算法 & 速度最快，贪心策略 & 快速规划，<8个点 & O(n²) \\
+\rowcolor{light}
+动态规划 & 保证最优解 & 精确规划，<8个点 & O(n²2ⁿ) \\
+模拟退火 & 平衡速度与质量 & 10+个目标点 & O(iterations) \\
+\rowcolor{light}
+遗传算法 & 全局搜索能力强 & 复杂优化场景 & O(generations) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{设施查询模块}
+
+\begin{infobox}[title={智能设施查询}]
+设施查询模块基于空间数据分析，提供基于地理位置的设施搜索和推荐服务，帮助用户快速找到附近的各类设施。
+\end{infobox}
+
+\subsubsection{查询步骤}
+
+\textbf{1. 选择查询范围}
+\begin{itemize}
+    \item 选择目标场所（如清华大学、颐和园等）
+    \item 选择起始建筑物作为查询中心
+\end{itemize}
+
+\textbf{2. 设置查询条件}
+\begin{itemize}
+    \item 选择设施类型（如餐厅、厕所、ATM、停车场等）
+    \item 系统支持查询所有类型或特定类型的设施
+\end{itemize}
+
+\textbf{3. 查看查询结果}
+\begin{itemize}
+    \item 系统按距离排序显示可达设施
+    \item 显示设施名称、类型、距离等信息
+    \item 支持分页浏览查询结果
+\end{itemize}
+
+\subsubsection{查询算法}
+
+\begin{itemize}
+    \item \textbf{最近邻搜索}：基于欧几里得距离的最近设施查找
+    \item \textbf{路径距离计算}：考虑实际道路网络的路径距离
+    \item \textbf{智能排序}：综合距离、设施质量等因素排序
+\end{itemize}
+
+\subsection{美食搜索模块}
+
+\begin{successbox}[title={美食推荐系统}]
+美食搜索模块集成了40家餐厅数据，支持多维度搜索和推荐，为用户提供个性化的美食推荐服务。
+\end{successbox}
+
+\subsubsection{搜索功能}
+
+\textbf{1. 关键词搜索}
+\begin{itemize}
+    \item 在搜索框输入餐厅名称或菜系名称
+    \item 支持模糊搜索和智能匹配
+\end{itemize}
+
+\textbf{2. 筛选条件}
+\begin{itemize}
+    \item \textbf{菜系分类}：中餐、西餐、日料、韩料等
+    \item \textbf{价格区间}：按价格范围筛选餐厅
+    \item \textbf{评分筛选}：按用户评分筛选高质量餐厅
+\end{itemize}
+
+\textbf{3. 排序方式}
+\begin{itemize}
+    \item 按评分排序：优先显示高评分餐厅
+    \item 按距离排序：显示最近的餐厅
+    \item 按人气排序：显示热门餐厅
+\end{itemize}
+
+\subsection{室内导航模块}
+
+\begin{infobox}[title={室内导航系统}]
+室内导航模块支持建筑物内部的路径规划，集成了658行室内导航数据，为用户提供精确的楼层间导航服务。
+\end{infobox}
+
+\subsubsection{导航功能}
+
+\textbf{1. 选择建筑物}
+\begin{itemize}
+    \item 从建筑物列表中选择目标建筑
+    \item 系统加载该建筑的楼层信息和内部设施
+\end{itemize}
+
+\textbf{2. 设置导航参数}
+\begin{itemize}
+    \item 选择起始楼层和目标楼层
+    \item 选择起始位置和目标位置
+    \item 系统自动规划最优路径
+\end{itemize}
+
+\textbf{3. 导航结果}
+\begin{itemize}
+    \item 显示详细的导航路径
+    \item 包括楼层切换、转弯指示等信息
+    \item 估算到达时间和行走距离
+\end{itemize}
+
+\subsection{AIGC内容生成模块}
+
+\begin{warningbox}[title={AI内容生成}]
+AIGC模块提供图片到视频的智能转换功能，基于OpenCV技术，为用户提供创新的多媒体内容生成体验。
+\end{warningbox}
+
+\subsubsection{使用步骤}
+
+\textbf{1. 图片上传}
+\begin{itemize}
+    \item 支持JPG格式图片的批量上传
+    \item 可通过拖拽方式快速上传多张图片
+    \item 系统自动验证图片格式和大小
+\end{itemize}
+
+\textbf{2. 视频转换}
+\begin{itemize}
+    \item 点击"开始转换"按钮启动视频生成
+    \item 系统自动将图片序列合成为MP4视频
+    \item 实时显示转换进度和状态
+\end{itemize}
+
+\textbf{3. 结果下载}
+\begin{itemize}
+    \item 转换完成后可预览生成的视频
+    \item 支持下载MP4格式的视频文件
+    \item 视频参数：848×480分辨率，30fps帧率
+\end{itemize}
+
+\subsubsection{技术参数}
+
+\begin{itemize}
+    \item \textbf{支持格式}：JPG输入，MP4输出
+    \item \textbf{视频参数}：848×480分辨率，30fps
+    \item \textbf{显示时长}：每张图片显示1秒
+    \item \textbf{处理引擎}：OpenCV图像处理库
+\end{itemize}
+
+\subsection{统计分析模块}
+
+\begin{successbox}[title={数据可视化分析}]
+统计分析模块提供全面的数据统计和可视化功能，使用Recharts图表库，为用户提供直观的数据分析体验。
+\end{successbox}
+
+\subsubsection{统计内容}
+
+\textbf{1. 系统数据概览}
+\begin{itemize}
+    \item 场所数量、用户数量、日记数量等核心指标
+    \item 数据增长趋势和变化情况
+    \item 实时更新的系统状态监控
+\end{itemize}
+
+\textbf{2. 热门排行榜}
+\begin{itemize}
+    \item 热门场所排行：基于访问量和评分排序
+    \item 活跃用户排行：基于用户活跃度排序
+    \item 热门日记排行：基于浏览量和评分排序
+\end{itemize}
+
+\textbf{3. 性能分析}
+\begin{itemize}
+    \item 算法性能统计：Top-K优化效果分析
+    \item 压缩算法统计：Huffman压缩效果展示
+    \item 系统响应时间和负载监控
+\end{itemize}
+
+\subsection{并发测试模块}
+
+\begin{infobox}[title={性能压力测试}]
+并发测试模块提供多线程压力测试功能，帮助管理员验证系统在高并发场景下的性能表现和稳定性。
+\end{infobox}
+
+\subsubsection{测试配置}
+
+\textbf{1. 测试参数设置}
+\begin{itemize}
+    \item \textbf{请求数量}：设置总请求数（1-100）
+    \item \textbf{最大并发}：设置同时并发线程数（1-20）
+    \item \textbf{测试类型}：选择基础测试或压力测试
+\end{itemize}
+
+\textbf{2. 测试执行}
+\begin{itemize}
+    \item 点击"开始测试"按钮启动并发测试
+    \item 实时显示测试进度和执行状态
+    \item 支持随时停止正在进行的测试
+\end{itemize}
+
+\textbf{3. 结果分析}
+\begin{itemize}
+    \item \textbf{QPS统计}：每秒处理请求数
+    \item \textbf{响应时间}：平均响应时间和最大响应时间
+    \item \textbf{成功率}：请求成功率和错误率统计
+    \item \textbf{并发性能}：并发处理能力评估
+\end{itemize}
+
+\section{操作技巧与最佳实践}
+
+\subsection{高效使用技巧}
+
+\begin{successbox}[title={提升使用效率的技巧}]
+\textbf{1. 导航栏固定功能}
+\begin{itemize}[nosep]
+    \item 侧边栏和顶部导航栏采用固定定位，滚动页面时始终可见
+    \item 无需滚动到页面顶部即可快速切换功能模块
+    \item 侧边栏支持收起/展开，节省屏幕空间
+\end{itemize}
+
+\textbf{2. 搜索优化}
+\begin{itemize}[nosep]
+    \item 使用关键词搜索时，支持拼音首字母和模糊匹配
+    \item 搜索结果会高亮显示匹配的关键词
+    \item 善用筛选条件，可以快速缩小搜索范围
+\end{itemize}
+
+\textbf{3. 个性化推荐}
+\begin{itemize}[nosep]
+    \item 多使用推荐功能，系统会根据使用习惯优化推荐效果
+    \item 对推荐结果进行评分，有助于提升后续推荐质量
+    \item 混合推荐算法适合大多数用户，新用户建议使用热度推荐
+\end{itemize}
+\end{successbox}
+
+\subsection{性能优化建议}
+
+\begin{warningbox}[title={系统性能优化}]
+\textbf{1. 浏览器优化}
+\begin{itemize}[nosep]
+    \item 推荐使用Chrome或Firefox最新版本以获得最佳性能
+    \item 定期清理浏览器缓存，避免页面加载缓慢
+    \item 启用硬件加速功能，提升图形渲染性能
+\end{itemize}
+
+\textbf{2. 网络优化}
+\begin{itemize}[nosep]
+    \item 确保网络连接稳定，建议使用有线网络
+    \item 在网络较慢时，可以减少同时打开的页面数量
+    \item 大文件上传时避免同时进行其他网络操作
+\end{itemize}
+
+\textbf{3. 使用习惯}
+\begin{itemize}[nosep]
+    \item 善用分页功能，避免一次性加载过多数据
+    \item 在进行并发测试时，建议逐步增加并发数
+    \item 定期查看统计分析页面，了解系统使用情况
+\end{itemize}
+\end{warningbox}
+
+\section{常见问题解答}
+
+\subsection{系统访问问题}
+
+\begin{infobox}[title={Q1: 无法访问系统页面}]
+\textbf{问题描述}：在浏览器中输入地址后无法打开系统页面
+
+\textbf{解决方案}：
+\begin{enumerate}[nosep]
+    \item 确认后端服务已启动：访问\url{http://localhost:5001/api/health}检查后端状态
+    \item 确认前端服务已启动：检查\texttt{npm start}命令是否成功执行
+    \item 检查端口占用：确保3000和5001端口未被其他程序占用
+    \item 重启浏览器：清除缓存后重新访问
+    \item 检查防火墙设置：确保防火墙未阻止本地端口访问
+\end{enumerate}
+\end{infobox}
+
+\begin{infobox}[title={Q2: 页面加载缓慢}]
+\textbf{问题描述}：页面加载时间过长或响应缓慢
+
+\textbf{解决方案}：
+\begin{enumerate}[nosep]
+    \item 检查网络连接状态和速度
+    \item 关闭不必要的浏览器标签页
+    \item 清理浏览器缓存和Cookie
+    \item 检查系统资源使用情况，关闭其他占用资源的程序
+    \item 尝试使用不同的浏览器访问
+\end{enumerate}
+\end{infobox}
+
+\subsection{功能使用问题}
+
+\begin{successbox}[title={Q3: 推荐功能不准确}]
+\textbf{问题描述}：个性化推荐结果与期望不符
+
+\textbf{解决方案}：
+\begin{enumerate}[nosep]
+    \item 多次使用推荐功能，系统需要学习用户偏好
+    \item 对推荐结果进行评分，帮助系统优化算法
+    \item 尝试不同的推荐算法（内容推荐、协同过滤、混合推荐）
+    \item 更新用户兴趣标签，确保用户画像准确
+    \item 新用户建议先使用热度推荐建立基础数据
+\end{enumerate}
+\end{successbox}
+
+\begin{successbox}[title={Q4: 路径规划失败}]
+\textbf{问题描述}：路径规划功能无法计算出有效路径
+
+\textbf{解决方案}：
+\begin{enumerate}[nosep]
+    \item 确认起点和终点在同一个场所内
+    \item 检查选择的建筑物或设施是否存在
+    \item 尝试不同的交通工具选项
+    \item 确认起终点之间存在可通行的路径
+    \item 对于多目标规划，确保目标点数量合理（建议<15个）
+\end{enumerate}
+\end{successbox}
+
+\subsection{技术问题}
+
+\begin{warningbox}[title={Q5: AIGC视频转换失败}]
+\textbf{问题描述}：图片上传成功但视频转换过程中出现错误
+
+\textbf{解决方案}：
+\begin{enumerate}[nosep]
+    \item 确认上传的图片格式为JPG
+    \item 检查图片文件大小，单个文件不超过10MB
+    \item 确保上传的图片数量合理（建议5-30张）
+    \item 检查系统磁盘空间是否充足
+    \item 如果问题持续，尝试重新上传图片
+\end{enumerate}
+\end{warningbox}
+
+\begin{warningbox}[title={Q6: 并发测试异常}]
+\textbf{问题描述}：并发测试过程中出现大量错误或系统卡死
+
+\textbf{解决方案}：
+\begin{enumerate}[nosep]
+    \item 降低并发数和请求数，逐步增加测试强度
+    \item 确保系统资源充足，关闭其他占用资源的程序
+    \item 检查网络连接稳定性
+    \item 在测试前确保系统处于正常状态
+    \item 如果问题严重，重启后端服务后再次测试
+\end{enumerate}
+\end{warningbox}
+
+\section{系统维护与故障处理}
+
+\subsection{日常维护}
+
+\begin{stepbox}[title={定期维护任务}]
+\textbf{1. 数据备份}
+\begin{itemize}[nosep]
+    \item 定期备份\texttt{backend/data/}目录下的数据文件
+    \item 建议每周进行一次完整备份
+    \item 重要操作前进行临时备份
+\end{itemize}
+
+\textbf{2. 日志管理}
+\begin{itemize}[nosep]
+    \item 定期查看后端服务日志，及时发现异常
+    \item 清理过期的日志文件，节省存储空间
+    \item 记录系统使用情况和性能数据
+\end{itemize}
+
+\textbf{3. 性能监控}
+\begin{itemize}[nosep]
+    \item 定期使用并发测试功能验证系统性能
+    \item 关注统计分析页面的性能指标
+    \item 及时处理性能瓶颈和异常情况
+\end{itemize}
+\end{stepbox}
+
+\subsection{故障诊断}
+
+\begin{table}[H]
+\centering
+\begin{longtable}{|p{3cm}|p{4cm}|p{6cm}|}
+\hline
+\rowcolor{error!20}
+\textbf{故障类型} & \textbf{症状表现} & \textbf{处理方法} \\
+\hline
+\endhead
+服务无响应 & 页面无法加载，API调用失败 & 1. 检查服务进程状态 2. 重启后端服务 3. 检查端口占用 \\
+\hline
+\rowcolor{light}
+数据加载错误 & 页面显示异常，数据缺失 & 1. 检查数据文件完整性 2. 恢复备份数据 3. 重新启动服务 \\
+\hline
+性能下降 & 响应缓慢，功能卡顿 & 1. 检查系统资源使用 2. 重启服务释放内存 3. 优化并发参数 \\
+\hline
+\rowcolor{light}
+功能异常 & 特定功能无法正常工作 & 1. 查看错误日志 2. 重新访问页面 3. 重启相关服务 \\
+\hline
+\end{longtable}
+\end{table}
+
+\section{技术支持与联系方式}
+
+\subsection{支持渠道}
+
+\begin{infobox}[title={获取技术支持}]
+\textbf{1. 文档资源}
+\begin{itemize}[nosep]
+    \item 系统技术文档：\texttt{docs/}目录下的详细技术文档
+    \item API接口文档：\url{http://localhost:5001/api/docs}
+    \item 项目README：\texttt{README.md}文件
+\end{itemize}
+
+\textbf{2. 在线帮助}
+\begin{itemize}[nosep]
+    \item GitHub项目页面：查看最新更新和问题反馈
+    \item 系统统计页面：了解系统状态和性能指标
+    \item 并发测试页面：验证系统性能和稳定性
+\end{itemize}
+\end{infobox}
+
+\subsection{问题反馈}
+
+如果遇到本文档未涵盖的问题，请按以下格式提供问题信息：
+
+\begin{itemize}
+    \item \textbf{操作系统}：Windows/macOS/Linux版本信息
+    \item \textbf{浏览器}：浏览器类型和版本号
+    \item \textbf{问题描述}：详细描述问题现象和复现步骤
+    \item \textbf{错误信息}：提供相关的错误提示或日志信息
+    \item \textbf{操作环境}：网络状况、系统负载等环境信息
+\end{itemize}
+
+\subsection{系统更新}
+
+\begin{successbox}[title={版本更新说明}]
+\textbf{当前版本}：v2.0.0
+
+\textbf{主要特性}：
+\begin{itemize}[nosep]
+    \item 14个核心功能模块全面集成
+    \item 6大智能算法引擎优化
+    \item 现代化UI设计和用户体验
+    \item 高性能并发支持和稳定性保障
+\end{itemize}
+
+\textbf{后续更新计划}：
+\begin{itemize}[nosep]
+    \item 增加更多AI功能和算法优化
+    \item 扩展数据规模和内容丰富度
+    \item 提升系统性能和用户体验
+    \item 增加移动端适配和离线功能
+\end{itemize}
+\end{successbox}
+
+\vfill
+
+\begin{center}
+\textcolor{gray}{\large 感谢使用基于个性化推荐的智能旅游系统！}
+
+\textcolor{secondary}{\textbf{祝您使用愉快！}}
+\end{center}
+
+\end{document}

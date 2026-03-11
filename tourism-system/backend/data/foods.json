@@ -1,0 +1,402 @@
+[
+  {
+    "id": "food_001",
+    "name": "老北京炸酱面",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2850,
+    "description": "正宗老北京风味炸酱面，面条劲道，酱香浓郁",
+    "price": "18元",
+    "location": "学一食堂二楼"
+  },
+  {
+    "id": "food_002",
+    "name": "麻辣香锅",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 3200,
+    "description": "川味麻辣香锅，配菜丰富，麻辣鲜香",
+    "price": "25元",
+    "location": "学二食堂一楼"
+  },
+  {
+    "id": "food_003",
+    "name": "意大利面",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1890,
+    "description": "经典意大利面条，番茄肉酱浓郁",
+    "price": "22元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_004",
+    "name": "宫保鸡丁",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2650,
+    "description": "经典川菜，鸡肉嫩滑，花生香脆",
+    "price": "20元",
+    "location": "学一食堂一楼"
+  },
+  {
+    "id": "food_005",
+    "name": "汉堡套餐",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2100,
+    "description": "美式汉堡配薯条和可乐，分量足",
+    "price": "28元",
+    "location": "快餐店"
+  },
+  {
+    "id": "food_006",
+    "name": "红烧肉",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 3100,
+    "description": "传统红烧肉，肥瘦相间，入口即化",
+    "price": "24元",
+    "location": "学二食堂二楼"
+  },
+  {
+    "id": "food_007",
+    "name": "凯撒沙拉",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1650,
+    "description": "新鲜蔬菜配凯撒酱，健康美味",
+    "price": "16元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_008",
+    "name": "水煮鱼",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2950,
+    "description": "四川特色水煮鱼，鱼肉鲜嫩，汤汁麻辣",
+    "price": "32元",
+    "location": "川菜窗口"
+  },
+  {
+    "id": "food_009",
+    "name": "牛排套餐",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2400,
+    "description": "嫩煎牛排配土豆泥和蔬菜",
+    "price": "45元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_010",
+    "name": "糖醋里脊",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2750,
+    "description": "酸甜可口的糖醋里脊，外酥内嫩",
+    "price": "22元",
+    "location": "学一食堂二楼"
+  },
+  {
+    "id": "food_011",
+    "name": "披萨",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2200,
+    "description": "意式薄底披萨，芝士浓郁",
+    "price": "35元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_012",
+    "name": "麻婆豆腐",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2300,
+    "description": "经典川菜，豆腐嫩滑，麻辣鲜香",
+    "price": "15元",
+    "location": "川菜窗口"
+  },
+  {
+    "id": "food_013",
+    "name": "三明治",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1800,
+    "description": "新鲜蔬菜和火腿制作的三明治",
+    "price": "12元",
+    "location": "快餐店"
+  },
+  {
+    "id": "food_014",
+    "name": "回锅肉",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2850,
+    "description": "四川传统回锅肉，肥瘦相间，香辣下饭",
+    "price": "26元",
+    "location": "川菜窗口"
+  },
+  {
+    "id": "food_015",
+    "name": "意式焗饭",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1950,
+    "description": "芝士焗饭，香浓可口",
+    "price": "24元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_016",
+    "name": "鱼香肉丝",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2600,
+    "description": "经典川菜，酸甜微辣，下饭神器",
+    "price": "18元",
+    "location": "学二食堂一楼"
+  },
+  {
+    "id": "food_017",
+    "name": "炸鸡翅",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2350,
+    "description": "香脆炸鸡翅，外酥内嫩",
+    "price": "20元",
+    "location": "快餐店"
+  },
+  {
+    "id": "food_018",
+    "name": "蒜蓉西兰花",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 1750,
+    "description": "清爽素菜，营养健康",
+    "price": "12元",
+    "location": "学一食堂一楼"
+  },
+  {
+    "id": "food_019",
+    "name": "奶昔",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1600,
+    "description": "浓郁香草奶昔，口感顺滑",
+    "price": "15元",
+    "location": "饮品店"
+  },
+  {
+    "id": "food_020",
+    "name": "土豆丝",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2100,
+    "description": "酸辣土豆丝，爽脆开胃",
+    "price": "10元",
+    "location": "学二食堂二楼"
+  },
+  {
+    "id": "food_021",
+    "name": "芝士蛋糕",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1850,
+    "description": "免烤芝士蛋糕，口感丝滑",
+    "price": "18元",
+    "location": "甜品店"
+  },
+  {
+    "id": "food_022",
+    "name": "小笼包",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 3150,
+    "description": "上海风味小笼包，汤汁鲜美",
+    "price": "16元",
+    "location": "包子铺"
+  },
+  {
+    "id": "food_023",
+    "name": "咖啡",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2050,
+    "description": "现磨美式咖啡，香浓提神",
+    "price": "12元",
+    "location": "咖啡厅"
+  },
+  {
+    "id": "food_024",
+    "name": "煎饺",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2450,
+    "description": "底部金黄的煎饺，外酥内嫩",
+    "price": "14元",
+    "location": "包子铺"
+  },
+  {
+    "id": "food_025",
+    "name": "担担面",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2780,
+    "description": "四川特色担担面，麻辣鲜香",
+    "price": "19元",
+    "location": "川菜窗口"
+  },
+  {
+    "id": "food_026",
+    "name": "法式吐司",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1920,
+    "description": "香甜法式吐司配枫糖浆",
+    "price": "16元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_027",
+    "name": "口水鸡",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2680,
+    "description": "四川口水鸡，麻辣爽口",
+    "price": "23元",
+    "location": "川菜窗口"
+  },
+  {
+    "id": "food_028",
+    "name": "烤鸡腿",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2250,
+    "description": "香烤鸡腿，外焦里嫩",
+    "price": "18元",
+    "location": "快餐店"
+  },
+  {
+    "id": "food_029",
+    "name": "蛋炒饭",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2400,
+    "description": "经典蛋炒饭，粒粒分明",
+    "price": "12元",
+    "location": "学一食堂一楼"
+  },
+  {
+    "id": "food_030",
+    "name": "意式咖啡",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1780,
+    "description": "浓郁意式浓缩咖啡",
+    "price": "15元",
+    "location": "咖啡厅"
+  },
+  {
+    "id": "food_031",
+    "name": "酸菜鱼",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 3050,
+    "description": "酸菜鱼片，酸辣开胃",
+    "price": "30元",
+    "location": "川菜窗口"
+  },
+  {
+    "id": "food_032",
+    "name": "烤面包",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1650,
+    "description": "香脆烤面包配黄油",
+    "price": "8元",
+    "location": "西餐厅"
+  },
+  {
+    "id": "food_033",
+    "name": "青椒肉丝",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2350,
+    "description": "家常青椒肉丝，清香爽口",
+    "price": "16元",
+    "location": "学二食堂一楼"
+  },
+  {
+    "id": "food_034",
+    "name": "热狗",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1950,
+    "description": "美式热狗配芥末酱",
+    "price": "14元",
+    "location": "快餐店"
+  },
+  {
+    "id": "food_035",
+    "name": "白切鸡",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2550,
+    "description": "广式白切鸡，清淡鲜美",
+    "price": "25元",
+    "location": "学二食堂二楼"
+  },
+  {
+    "id": "food_036",
+    "name": "薯条",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 2150,
+    "description": "金黄薯条，香脆可口",
+    "price": "10元",
+    "location": "快餐店"
+  },
+  {
+    "id": "food_037",
+    "name": "蒸蛋羹",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 1850,
+    "description": "嫩滑蒸蛋羹，营养丰富",
+    "price": "8元",
+    "location": "学一食堂二楼"
+  },
+  {
+    "id": "food_038",
+    "name": "果汁",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1750,
+    "description": "新鲜果汁，维生素丰富",
+    "price": "12元",
+    "location": "饮品店"
+  },
+  {
+    "id": "food_039",
+    "name": "红烧茄子",
+    "placeId": "place_001",
+    "cuisine": "中式",
+    "popularity": 2200,
+    "description": "红烧茄子，软糯香甜",
+    "price": "14元",
+    "location": "学一食堂一楼"
+  },
+  {
+    "id": "food_040",
+    "name": "华夫饼",
+    "placeId": "place_001",
+    "cuisine": "西式",
+    "popularity": 1880,
+    "description": "比利时华夫饼配蜂蜜",
+    "price": "20元",
+    "location": "甜品店"
+  }
+] 

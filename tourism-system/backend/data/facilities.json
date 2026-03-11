@@ -1,0 +1,2450 @@
+[
+  {
+    "id": "facility_1816255835",
+    "name": "电话亭",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9568428,
+      "lng": 116.3492157
+    },
+    "description": "其他 - None",
+    "rating": 3.1
+  },
+  {
+    "id": "facility_9699368112",
+    "name": "明光桥北",
+    "type": "公交站",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571803,
+      "lng": 116.3491248
+    },
+    "description": "公交站 - 明光桥北",
+    "rating": 4.5
+  },
+  {
+    "id": "facility_9699353706",
+    "name": "北京邮电大学南门",
+    "type": "公交站",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9566845,
+      "lng": 116.35254
+    },
+    "description": "公交站 - 北京邮电大学南门",
+    "rating": 4.8
+  },
+  {
+    "id": "facility_4238854716",
+    "name": "马记粤式快餐",
+    "type": "饭店",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9568094,
+      "lng": 116.3538842
+    },
+    "description": "饭店 - 马记粤式快餐",
+    "rating": 3.1
+  },
+  {
+    "id": "facility_9699368113",
+    "name": "明光桥北",
+    "type": "公交站",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9575295,
+      "lng": 116.3491188
+    },
+    "description": "公交站 - 明光桥北",
+    "rating": 4.6
+  },
+  {
+    "id": "facility_3511264385",
+    "name": "零壹时光咖啡馆",
+    "type": "咖啡馆",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9582958,
+      "lng": 116.3505065
+    },
+    "description": "咖啡厅 - 零壹时光咖啡馆",
+    "rating": 4.6
+  },
+  {
+    "id": "facility_2463866303",
+    "name": "邮局",
+    "type": "邮局",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9599047,
+      "lng": 116.3492655
+    },
+    "description": "邮局 - 邮局",
+    "rating": 3.1
+  },
+  {
+    "id": "facility_2463866312",
+    "name": "毛主席像",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9598167,
+      "lng": 116.3506977
+    },
+    "description": "其他 - 毛主席像",
+    "rating": 3.6
+  },
+  {
+    "id": "facility_3511264388",
+    "name": "二手书店",
+    "type": "书店",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9579667,
+      "lng": 116.3510448
+    },
+    "description": "书店 - 二手书店",
+    "rating": 3.4
+  },
+  {
+    "id": "facility_3511264387",
+    "name": "中国移动",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9580455,
+      "lng": 116.3510298
+    },
+    "description": "其他设施 - 中国移动",
+    "rating": 4.9
+  },
+  {
+    "id": "facility_3511264386",
+    "name": "南区超市",
+    "type": "超市",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9581307,
+      "lng": 116.3510136
+    },
+    "description": "超市 - 南区超市",
+    "rating": 4.4
+  },
+  {
+    "id": "facility_8810354632",
+    "name": "音乐喷泉",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9598892,
+      "lng": 116.3516116
+    },
+    "description": "其他设施 - 音乐喷泉",
+    "rating": 3.5
+  },
+  {
+    "id": "facility_5184510886",
+    "name": "Isaac Newton",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9621727,
+      "lng": 116.3510789
+    },
+    "description": "其他设施 - Isaac Newton",
+    "rating": 4.7
+  },
+  {
+    "id": "facility_6146512085",
+    "name": "麦当劳",
+    "type": "饭店",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9622611,
+      "lng": 116.3513657
+    },
+    "description": "饭店 - 麦当劳",
+    "rating": 4.7
+  },
+  {
+    "id": "facility_6041100036",
+    "name": "楼上楼茶餐厅",
+    "type": "饭店",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961991,
+      "lng": 116.352893
+    },
+    "description": "饭店 - 楼上楼茶餐厅",
+    "rating": 4.5
+  },
+  {
+    "id": "facility_7426396546",
+    "name": "便利蜂",
+    "type": "商店",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9633892,
+      "lng": 116.349096
+    },
+    "description": "商店 - 便利蜂",
+    "rating": 4.7
+  },
+  {
+    "id": "facility_11834538799",
+    "name": "京东物流",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.963389,
+      "lng": 116.35231
+    },
+    "description": "其他建筑 - 京东物流",
+    "rating": 4.8
+  },
+  {
+    "id": "building_959801254",
+    "name": "北京中仁中医医院",
+    "type": "医院",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95684784,
+      "lng": 116.35440557999998
+    },
+    "description": "医院 - 北京中仁中医医院",
+    "rating": 4.8
+  },
+  {
+    "id": "building_344376258",
+    "name": "宏途书店",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95824918,
+      "lng": 116.35055038
+    },
+    "description": "其他建筑 - 宏途书店",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399006367",
+    "name": "中国移动通信",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96006585714286,
+      "lng": 116.34908215714286
+    },
+    "description": "其他建筑 - 中国移动通信",
+    "rating": 4.6
+  },
+  {
+    "id": "building_399008788",
+    "name": "中国邮政储蓄银行（鸿通楼）",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96058582,
+      "lng": 116.34911328000001
+    },
+    "description": "其他建筑 - 中国邮政储蓄银行（鸿通楼）",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399013934",
+    "name": "综合食堂",
+    "type": "食堂",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9625994,
+      "lng": 116.35035106000001
+    },
+    "description": "食堂 - 综合食堂",
+    "rating": 4.4
+  },
+  {
+    "id": "building_399009425",
+    "name": "可信网络通信协同创新中心",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95920425,
+      "lng": 116.35275739999999
+    },
+    "description": "其他建筑 - 可信网络通信协同创新中心",
+    "rating": 4.8
+  },
+  {
+    "id": "building_399008790",
+    "name": "图书馆",
+    "type": "图书馆",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961481430769226,
+      "lng": 116.35203784615383
+    },
+    "description": "图书馆 - 图书馆",
+    "rating": 4.0
+  },
+  {
+    "id": "building_265030101",
+    "name": "学生发展中心",
+    "type": "服务中心",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96208872,
+      "lng": 116.35162546
+    },
+    "description": "服务中心 - 学生发展中心",
+    "rating": 4.7
+  },
+  {
+    "id": "building_265030102",
+    "name": "Maan Coffee",
+    "type": "咖啡馆",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9623063,
+      "lng": 116.35133026000001
+    },
+    "description": "咖啡馆 - Maan Coffee",
+    "rating": 4.6
+  },
+  {
+    "id": "building_399015106",
+    "name": "学生活动中心",
+    "type": "服务中心",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962739799999994,
+      "lng": 116.35114136
+    },
+    "description": "服务中心- 学生活动中心",
+    "rating": 4.6
+  },
+  {
+    "id": "building_399017728",
+    "name": "综合服务楼",
+    "type": "服务中心",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962813677777774,
+      "lng": 116.35178936666665
+    },
+    "description": "服务中心 - 综合服务楼",
+    "rating": 4.3
+  },
+  {
+    "id": "building_399018200",
+    "name": "北京邮电大学学生餐厅",
+    "type": "食堂",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96202798,
+      "lng": 116.35289636
+    },
+    "description": "食堂 - 北京邮电大学学生餐厅",
+    "rating": 4.0
+  },
+  {
+    "id": "building_582551389",
+    "name": "教工餐厅",
+    "type": "食堂",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962238899999996,
+      "lng": 116.35207751428571
+    },
+    "description": "食堂 - 教工餐厅",
+    "rating": 4.7
+  },
+  {
+    "id": "building_399017729",
+    "name": "北邮科技酒店",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96309349999999,
+      "lng": 116.34905789999999
+    },
+    "description": "其他 - 北邮科技酒店",
+    "rating": 4.6
+  },
+  {
+    "id": "building_399017963",
+    "name": "外包楼",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.963363300000005,
+      "lng": 116.3490404
+    },
+    "description": "其他建筑 -外包楼",
+    "rating": 3.9
+  },
+  {
+    "id": "building_582551392",
+    "name": "北邮邮驿站",
+    "type": "其他",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.963480679999996,
+      "lng": 116.35119979999999
+    },
+    "description": "其他建筑 - 北邮邮驿站",
+    "rating": 3.8
+  },
+  {
+    "id": "toilet_facility_344376267_001",
+    "name": "4号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95677285689617,
+      "lng": 116.34989771895478
+    },
+    "description": "厕所 - 位于4号楼内",
+    "rating": 3.8
+  },
+  {
+    "id": "toilet_facility_344376268_002",
+    "name": "10号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95681498701959,
+      "lng": 116.35112290360571
+    },
+    "description": "厕所 - 位于10号楼内",
+    "rating": 3.1
+  },
+  {
+    "id": "toilet_facility_399041101_003",
+    "name": "11号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.956783307446315,
+      "lng": 116.35219118577645
+    },
+    "description": "厕所 - 位于11号楼内",
+    "rating": 4.1
+  },
+  {
+    "id": "toilet_facility_399046291_004",
+    "name": "宿舍楼厕所4",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95684388471927,
+      "lng": 116.35355553229238
+    },
+    "description": "厕所 - 位于None内",
+    "rating": 4.4
+  },
+  {
+    "id": "toilet_facility_399046293_005",
+    "name": "宿舍楼厕所5",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95706343045838,
+      "lng": 116.35382684679337
+    },
+    "description": "厕所 - 位于None内",
+    "rating": 4.0
+  },
+  {
+    "id": "toilet_facility_265030109_006",
+    "name": "学生1号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96111710677171,
+      "lng": 116.34962342124993
+    },
+    "description": "厕所 - 位于学生1号公寓内",
+    "rating": 4.5
+  },
+  {
+    "id": "toilet_facility_265030110_007",
+    "name": "学生2号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96110221036271,
+      "lng": 116.35051937411079
+    },
+    "description": "厕所 - 位于学生2号公寓内",
+    "rating": 3.7
+  },
+  {
+    "id": "toilet_facility_265030104_008",
+    "name": "学生13号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961846480222626,
+      "lng": 116.34910563591549
+    },
+    "description": "厕所 - 位于学生13号公寓内",
+    "rating": 3.9
+  },
+  {
+    "id": "toilet_facility_265030103_009",
+    "name": "留学生2号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96255692344086,
+      "lng": 116.34904070636742
+    },
+    "description": "厕所 - 位于留学生2号公寓内",
+    "rating": 3.7
+  },
+  {
+    "id": "toilet_facility_265030106_010",
+    "name": "学生3号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96148899987272,
+      "lng": 116.34948925106154
+    },
+    "description": "厕所 - 位于学生3号公寓内",
+    "rating": 3.9
+  },
+  {
+    "id": "toilet_facility_265030105_011",
+    "name": "学生5号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96214888478495,
+      "lng": 116.34964707196607
+    },
+    "description": "厕所 - 位于学生5号公寓内",
+    "rating": 3.9
+  },
+  {
+    "id": "toilet_facility_265030108_012",
+    "name": "学生4号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96155112611205,
+      "lng": 116.35035287670391
+    },
+    "description": "厕所 - 位于学生4号公寓内",
+    "rating": 3.0
+  },
+  {
+    "id": "toilet_facility_265030107_013",
+    "name": "学生8号公寓厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962000211158276,
+      "lng": 116.35038775734213
+    },
+    "description": "厕所 - 位于学生8号公寓内",
+    "rating": 4.1
+  },
+  {
+    "id": "toilet_facility_344376666_014",
+    "name": "5号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95735804109802,
+      "lng": 116.35188471143604
+    },
+    "description": "厕所 - 位于5号楼内",
+    "rating": 4.5
+  },
+  {
+    "id": "toilet_facility_344376665_015",
+    "name": "4号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9577966413355,
+      "lng": 116.35193775350211
+    },
+    "description": "厕所 - 位于4号楼内",
+    "rating": 3.4
+  },
+  {
+    "id": "toilet_facility_399038557_016",
+    "name": "21号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9573275653987,
+      "lng": 116.3527514083538
+    },
+    "description": "厕所 - 位于21号楼内",
+    "rating": 4.1
+  },
+  {
+    "id": "toilet_facility_399038558_017",
+    "name": "13号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9575292505151,
+      "lng": 116.3533400532414
+    },
+    "description": "厕所 - 位于13号楼内",
+    "rating": 4.3
+  },
+  {
+    "id": "toilet_facility_399038556_018",
+    "name": "宿舍楼厕所18",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95781203871549,
+      "lng": 116.35281611501108
+    },
+    "description": "厕所 - 位于None内",
+    "rating": 3.7
+  },
+  {
+    "id": "toilet_facility_399038561_019",
+    "name": "19号楼厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95857563966967,
+      "lng": 116.3528755731374
+    },
+    "description": "厕所 - 位于19号楼内",
+    "rating": 4.0
+  },
+  {
+    "id": "toilet_facility_399038562_020",
+    "name": "科学会堂厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96001988395051,
+      "lng": 116.3527088286168
+    },
+    "description": "厕所 - 位于科学会堂内",
+    "rating": 4.3
+  },
+  {
+    "id": "toilet_facility_399041104_021",
+    "name": "北京交通大学附属中学分校厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957637255811804,
+      "lng": 116.35380705086314
+    },
+    "description": "厕所 - 位于北京交通大学附属中学分校内",
+    "rating": 3.8
+  },
+  {
+    "id": "toilet_facility_399038559_022",
+    "name": "北京交通大学附属中学分校厕所",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957844105977586,
+      "lng": 116.35399885002651
+    },
+    "description": "厕所 - 位于北京交通大学附属中学分校内",
+    "rating": 3.2
+  },
+  {
+    "id": "toilet_facility_399041103_023",
+    "name": "宿舍楼厕所23",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.95783563035878,
+      "lng": 116.35479878074288
+    },
+    "description": "厕所 - 位于None内",
+    "rating": 3.7
+  },
+  {
+    "id": "toilet_facility_399038560_024",
+    "name": "宿舍楼厕所24",
+    "type": "洗手间",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.958165434766016,
+      "lng": 116.35395289788082
+    },
+    "description": "厕所 - 位于None内",
+    "rating": 3.8
+  },
+  {
+    "id": "toilet_facility_265030101_025",
+    "name": "学生发展中心厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96213948629392,
+      "lng": 116.35159048295596
+    },
+    "description": "厕所 - 位于学生发展中心内",
+    "rating": 3.2
+  },
+  {
+    "id": "toilet_facility_399015106_026",
+    "name": "学生活动中心厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96271437187907,
+      "lng": 116.35112448308564
+    },
+    "description": "厕所 - 位于学生活动中心内",
+    "rating": 4.1
+  },
+  {
+    "id": "toilet_facility_399018202_027",
+    "name": "家属28号楼厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96175200402402,
+      "lng": 116.35380717188447
+    },
+    "description": "厕所 - 位于家属28号楼内",
+    "rating": 4.3
+  },
+  {
+    "id": "toilet_facility_399018593_028",
+    "name": "学生29号公寓厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96146285868539,
+      "lng": 116.35439745866934
+    },
+    "description": "厕所 - 位于学生29号公寓内",
+    "rating": 3.5
+  },
+  {
+    "id": "toilet_facility_399046290_029",
+    "name": "宿舍楼厕所29",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961923490134616,
+      "lng": 116.35451442947888
+    },
+    "description": "厕所 - 位于None内",
+    "rating": 4.2
+  },
+  {
+    "id": "toilet_facility_399018201_030",
+    "name": "家属27号楼厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962604080032044,
+      "lng": 116.35370348268341
+    },
+    "description": "厕所 - 位于家属27号楼内",
+    "rating": 4.5
+  },
+  {
+    "id": "toilet_facility_399018596_031",
+    "name": "26号楼厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9622883440812,
+      "lng": 116.35436247226934
+    },
+    "description": "厕所 - 位于26号楼内",
+    "rating": 4.5
+  },
+  {
+    "id": "toilet_facility_265030100_032",
+    "name": "国际汉语培训中心厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962958068048856,
+      "lng": 116.34978492857958
+    },
+    "description": "厕所 - 位于国际汉语培训中心内",
+    "rating": 3.3
+  },
+  {
+    "id": "toilet_facility_399015104_033",
+    "name": "学生6号公寓厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.963412145078266,
+      "lng": 116.35209934522945
+    },
+    "description": "厕所 - 位于学生6号公寓内",
+    "rating": 4.3
+  },
+  {
+    "id": "toilet_facility_399042378_034",
+    "name": "23号楼厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96340202476338,
+      "lng": 116.35275563925929
+    },
+    "description": "厕所 - 位于23号楼内",
+    "rating": 3.6
+  },
+  {
+    "id": "toilet_facility_399018595_035",
+    "name": "25号楼厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.963046255698714,
+      "lng": 116.35427842530996
+    },
+    "description": "厕所 - 位于25号楼内",
+    "rating": 4.1
+  },
+  {
+    "id": "toilet_facility_399042379_036",
+    "name": "24号楼厕所",
+    "type": "厕所",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.96345314861042,
+      "lng": 116.35374516995121
+    },
+    "description": "厕所 - 位于24号楼内",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_001",
+    "name": "intersection_001",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9566624,
+      "lng": 116.3490707
+    },
+    "description": "道路交叉口",
+    "rating": 2.6
+  },
+  {
+    "id": "intersection_002",
+    "name": "intersection_002",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9567884,
+      "lng": 116.3483872
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_003",
+    "name": "intersection_003",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9565666,
+      "lng": 116.349074
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_004",
+    "name": "intersection_004",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9567925,
+      "lng": 116.3508374
+    },
+    "description": "道路交叉口",
+    "rating": 4.1
+  },
+  {
+    "id": "intersection_005",
+    "name": "intersection_005",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9564444,
+      "lng": 116.3508374
+    },
+    "description": "道路交叉口",
+    "rating": 3.9
+  },
+  {
+    "id": "intersection_006",
+    "name": "intersection_006",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9570142,
+      "lng": 116.3518339
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_007",
+    "name": "intersection_007",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9566498,
+      "lng": 116.3518371
+    },
+    "description": "道路交叉口",
+    "rating": 4.3
+  },
+  {
+    "id": "intersection_008",
+    "name": "intersection_008",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571433,
+      "lng": 116.3518296
+    },
+    "description": "道路交叉口",
+    "rating": 3.0
+  },
+  {
+    "id": "intersection_009",
+    "name": "intersection_009",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571448,
+      "lng": 116.3512011
+    },
+    "description": "道路交叉口",
+    "rating": 4.4
+  },
+  {
+    "id": "intersection_010",
+    "name": "intersection_010",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571432,
+      "lng": 116.3526763
+    },
+    "description": "道路交叉口",
+    "rating": 3.1
+  },
+  {
+    "id": "intersection_011",
+    "name": "intersection_011",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571473,
+      "lng": 116.3530908
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_012",
+    "name": "intersection_012",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9573407,
+      "lng": 116.3530875
+    },
+    "description": "道路交叉口",
+    "rating": 2.9
+  },
+  {
+    "id": "intersection_013",
+    "name": "intersection_013",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9572385,
+      "lng": 116.3530892
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_014",
+    "name": "intersection_014",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9572458,
+      "lng": 116.3536553
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_015",
+    "name": "intersection_015",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9566999,
+      "lng": 116.3649393
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_016",
+    "name": "intersection_016",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.956616,
+      "lng": 116.3648266
+    },
+    "description": "道路交叉口",
+    "rating": 2.5
+  },
+  {
+    "id": "intersection_017",
+    "name": "intersection_017",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9589794,
+      "lng": 116.3489692
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_018",
+    "name": "intersection_018",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9573177,
+      "lng": 116.3494217
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_019",
+    "name": "intersection_019",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9573383,
+      "lng": 116.3502549
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_020",
+    "name": "intersection_020",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9578195,
+      "lng": 116.3494077
+    },
+    "description": "道路交叉口",
+    "rating": 2.8
+  },
+  {
+    "id": "intersection_021",
+    "name": "intersection_021",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9578361,
+      "lng": 116.3502368
+    },
+    "description": "道路交叉口",
+    "rating": 4.2
+  },
+  {
+    "id": "intersection_022",
+    "name": "intersection_022",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9583869,
+      "lng": 116.351151
+    },
+    "description": "道路交叉口",
+    "rating": 4.7
+  },
+  {
+    "id": "intersection_023",
+    "name": "intersection_023",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9581278,
+      "lng": 116.3493992
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_024",
+    "name": "intersection_024",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9581446,
+      "lng": 116.3502255
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_025",
+    "name": "intersection_025",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9583773,
+      "lng": 116.3493835
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_026",
+    "name": "intersection_026",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9583896,
+      "lng": 116.3502096
+    },
+    "description": "道路交叉口",
+    "rating": 4.8
+  },
+  {
+    "id": "intersection_027",
+    "name": "intersection_027",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9599117,
+      "lng": 116.3488127
+    },
+    "description": "道路交叉口",
+    "rating": 4.6
+  },
+  {
+    "id": "intersection_028",
+    "name": "intersection_028",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9597597,
+      "lng": 116.3490066
+    },
+    "description": "道路交叉口",
+    "rating": 4.4
+  },
+  {
+    "id": "intersection_029",
+    "name": "intersection_029",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9597728,
+      "lng": 116.3493692
+    },
+    "description": "道路交叉口",
+    "rating": 4.8
+  },
+  {
+    "id": "intersection_030",
+    "name": "intersection_030",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9587364,
+      "lng": 116.3494182
+    },
+    "description": "道路交叉口",
+    "rating": 3.6
+  },
+  {
+    "id": "intersection_031",
+    "name": "intersection_031",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9598126,
+      "lng": 116.3501595
+    },
+    "description": "道路交叉口",
+    "rating": 4.8
+  },
+  {
+    "id": "intersection_032",
+    "name": "intersection_032",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9604305,
+      "lng": 116.3501438
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_033",
+    "name": "intersection_033",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9593257,
+      "lng": 116.3501709
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_034",
+    "name": "intersection_034",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9598447,
+      "lng": 116.3510875
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_035",
+    "name": "intersection_035",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9602895,
+      "lng": 116.3486791
+    },
+    "description": "道路交叉口",
+    "rating": 4.6
+  },
+  {
+    "id": "intersection_036",
+    "name": "intersection_036",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9602992,
+      "lng": 116.3490743
+    },
+    "description": "道路交叉口",
+    "rating": 4.2
+  },
+  {
+    "id": "intersection_037",
+    "name": "intersection_037",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9600582,
+      "lng": 116.3490792
+    },
+    "description": "道路交叉口",
+    "rating": 2.8
+  },
+  {
+    "id": "intersection_038",
+    "name": "intersection_038",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9608725,
+      "lng": 116.3493082
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_039",
+    "name": "intersection_039",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9648667,
+      "lng": 116.3487025
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_040",
+    "name": "intersection_040",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9625319,
+      "lng": 116.3492262
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_041",
+    "name": "intersection_041",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9619069,
+      "lng": 116.3492546
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_042",
+    "name": "intersection_042",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9619329,
+      "lng": 116.3500568
+    },
+    "description": "道路交叉口",
+    "rating": 4.4
+  },
+  {
+    "id": "intersection_043",
+    "name": "intersection_043",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9608878,
+      "lng": 116.3501004
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_044",
+    "name": "intersection_044",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9627818,
+      "lng": 116.3499895
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_045",
+    "name": "intersection_045",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962352,
+      "lng": 116.3492457
+    },
+    "description": "道路交叉口",
+    "rating": 4.2
+  },
+  {
+    "id": "intersection_046",
+    "name": "intersection_046",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9623989,
+      "lng": 116.3509594
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_047",
+    "name": "intersection_047",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9578815,
+      "lng": 116.3549506
+    },
+    "description": "道路交叉口",
+    "rating": 4.4
+  },
+  {
+    "id": "intersection_048",
+    "name": "intersection_048",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571578,
+      "lng": 116.3491248
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_049",
+    "name": "intersection_049",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9575234,
+      "lng": 116.3511876
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_050",
+    "name": "intersection_050",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.957543,
+      "lng": 116.3525109
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_051",
+    "name": "intersection_051",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9577129,
+      "lng": 116.351667
+    },
+    "description": "道路交叉口",
+    "rating": 2.9
+  },
+  {
+    "id": "intersection_052",
+    "name": "intersection_052",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9580237,
+      "lng": 116.3511657
+    },
+    "description": "道路交叉口",
+    "rating": 2.9
+  },
+  {
+    "id": "intersection_053",
+    "name": "intersection_053",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9580318,
+      "lng": 116.3524854
+    },
+    "description": "道路交叉口",
+    "rating": 4.7
+  },
+  {
+    "id": "intersection_054",
+    "name": "intersection_054",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9583794,
+      "lng": 116.352472
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_055",
+    "name": "intersection_055",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9571416,
+      "lng": 116.352535
+    },
+    "description": "道路交叉口",
+    "rating": 2.9
+  },
+  {
+    "id": "intersection_056",
+    "name": "intersection_056",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9575604,
+      "lng": 116.3536239
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_057",
+    "name": "intersection_057",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9578775,
+      "lng": 116.3524975
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_058",
+    "name": "intersection_058",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9578938,
+      "lng": 116.3532656
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_059",
+    "name": "intersection_059",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9583827,
+      "lng": 116.3547505
+    },
+    "description": "道路交叉口",
+    "rating": 4.1
+  },
+  {
+    "id": "intersection_060",
+    "name": "intersection_060",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9588351,
+      "lng": 116.353168
+    },
+    "description": "道路交叉口",
+    "rating": 3.6
+  },
+  {
+    "id": "intersection_061",
+    "name": "intersection_061",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9603457,
+      "lng": 116.351052
+    },
+    "description": "道路交叉口",
+    "rating": 3.1
+  },
+  {
+    "id": "intersection_062",
+    "name": "intersection_062",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.959312,
+      "lng": 116.3493792
+    },
+    "description": "道路交叉口",
+    "rating": 3.9
+  },
+  {
+    "id": "intersection_063",
+    "name": "intersection_063",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9593787,
+      "lng": 116.3531552
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_064",
+    "name": "intersection_064",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9598696,
+      "lng": 116.3518393
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_065",
+    "name": "intersection_065",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.959355,
+      "lng": 116.3518606
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_066",
+    "name": "intersection_066",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9598727,
+      "lng": 116.3519023
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_067",
+    "name": "intersection_067",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9593655,
+      "lng": 116.3524656
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_068",
+    "name": "intersection_068",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9588188,
+      "lng": 116.3524885
+    },
+    "description": "道路交叉口",
+    "rating": 4.3
+  },
+  {
+    "id": "intersection_069",
+    "name": "intersection_069",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9609937,
+      "lng": 116.3531173
+    },
+    "description": "道路交叉口",
+    "rating": 3.0
+  },
+  {
+    "id": "intersection_070",
+    "name": "intersection_070",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9583865,
+      "lng": 116.3534148
+    },
+    "description": "道路交叉口",
+    "rating": 4.3
+  },
+  {
+    "id": "intersection_071",
+    "name": "intersection_071",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9573328,
+      "lng": 116.3546459
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_072",
+    "name": "intersection_072",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.960303,
+      "lng": 116.3493338
+    },
+    "description": "道路交叉口",
+    "rating": 4.4
+  },
+  {
+    "id": "intersection_073",
+    "name": "intersection_073",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9603946,
+      "lng": 116.3531314
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_074",
+    "name": "intersection_074",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9609281,
+      "lng": 116.3510338
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_075",
+    "name": "intersection_075",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9609793,
+      "lng": 116.3525175
+    },
+    "description": "道路交叉口",
+    "rating": 4.4
+  },
+  {
+    "id": "intersection_076",
+    "name": "intersection_076",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9593668,
+      "lng": 116.3525394
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_077",
+    "name": "intersection_077",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9606141,
+      "lng": 116.3525453
+    },
+    "description": "道路交叉口",
+    "rating": 3.9
+  },
+  {
+    "id": "intersection_078",
+    "name": "intersection_078",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9606129,
+      "lng": 116.3531262
+    },
+    "description": "道路交叉口",
+    "rating": 2.8
+  },
+  {
+    "id": "intersection_079",
+    "name": "intersection_079",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9610308,
+      "lng": 116.3549132
+    },
+    "description": "道路交叉口",
+    "rating": 4.6
+  },
+  {
+    "id": "intersection_080",
+    "name": "intersection_080",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9615987,
+      "lng": 116.3524825
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_081",
+    "name": "intersection_081",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9610165,
+      "lng": 116.3542224
+    },
+    "description": "道路交叉口",
+    "rating": 3.6
+  },
+  {
+    "id": "intersection_082",
+    "name": "intersection_082",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9619767,
+      "lng": 116.3524682
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_083",
+    "name": "intersection_083",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9614088,
+      "lng": 116.3510073
+    },
+    "description": "道路交叉口",
+    "rating": 4.0
+  },
+  {
+    "id": "intersection_084",
+    "name": "intersection_084",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9614105,
+      "lng": 116.3510704
+    },
+    "description": "道路交叉口",
+    "rating": 4.8
+  },
+  {
+    "id": "intersection_085",
+    "name": "intersection_085",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9627408,
+      "lng": 116.3509428
+    },
+    "description": "道路交叉口",
+    "rating": 2.8
+  },
+  {
+    "id": "intersection_086",
+    "name": "intersection_086",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9624079,
+      "lng": 116.3512153
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_087",
+    "name": "intersection_087",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9619441,
+      "lng": 116.3512411
+    },
+    "description": "道路交叉口",
+    "rating": 2.6
+  },
+  {
+    "id": "intersection_088",
+    "name": "intersection_088",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9624461,
+      "lng": 116.352445
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_089",
+    "name": "intersection_089",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9632716,
+      "lng": 116.3523861
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_090",
+    "name": "intersection_090",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9622969,
+      "lng": 116.3524524
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_091",
+    "name": "intersection_091",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9623448,
+      "lng": 116.3535417
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_092",
+    "name": "intersection_092",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9602552,
+      "lng": 116.3531327
+    },
+    "description": "道路交叉口",
+    "rating": 3.6
+  },
+  {
+    "id": "intersection_093",
+    "name": "intersection_093",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9610265,
+      "lng": 116.3547033
+    },
+    "description": "道路交叉口",
+    "rating": 4.2
+  },
+  {
+    "id": "intersection_094",
+    "name": "intersection_094",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9661197,
+      "lng": 116.3546694
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_095",
+    "name": "intersection_095",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9566326,
+      "lng": 116.3551204
+    },
+    "description": "道路交叉口",
+    "rating": 4.7
+  },
+  {
+    "id": "intersection_096",
+    "name": "intersection_096",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9616516,
+      "lng": 116.3541734
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_097",
+    "name": "intersection_097",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9616626,
+      "lng": 116.3546647
+    },
+    "description": "道路交叉口",
+    "rating": 4.2
+  },
+  {
+    "id": "intersection_098",
+    "name": "intersection_098",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9631676,
+      "lng": 116.3534948
+    },
+    "description": "道路交叉口",
+    "rating": 2.5
+  },
+  {
+    "id": "intersection_099",
+    "name": "intersection_099",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9616368,
+      "lng": 116.3536182
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_100",
+    "name": "intersection_100",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9631733,
+      "lng": 116.3540595
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_101",
+    "name": "intersection_101",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9621291,
+      "lng": 116.3541472
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_102",
+    "name": "intersection_102",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962129,
+      "lng": 116.3546393
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_103",
+    "name": "intersection_103",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9636074,
+      "lng": 116.3545534
+    },
+    "description": "道路交叉口",
+    "rating": 2.8
+  },
+  {
+    "id": "intersection_104",
+    "name": "intersection_104",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9624436,
+      "lng": 116.3541208
+    },
+    "description": "道路交叉口",
+    "rating": 4.1
+  },
+  {
+    "id": "intersection_105",
+    "name": "intersection_105",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9624457,
+      "lng": 116.3546209
+    },
+    "description": "道路交叉口",
+    "rating": 3.4
+  },
+  {
+    "id": "intersection_106",
+    "name": "intersection_106",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9630859,
+      "lng": 116.3493254
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_107",
+    "name": "intersection_107",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9630973,
+      "lng": 116.3499693
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_108",
+    "name": "intersection_108",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9635253,
+      "lng": 116.3499422
+    },
+    "description": "道路交叉口",
+    "rating": 2.6
+  },
+  {
+    "id": "intersection_109",
+    "name": "intersection_109",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9627622,
+      "lng": 116.3492637
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_110",
+    "name": "intersection_110",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9628075,
+      "lng": 116.3509397
+    },
+    "description": "道路交叉口",
+    "rating": 3.6
+  },
+  {
+    "id": "intersection_111",
+    "name": "intersection_111",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9635495,
+      "lng": 116.3509046
+    },
+    "description": "道路交叉口",
+    "rating": 4.0
+  },
+  {
+    "id": "intersection_112",
+    "name": "intersection_112",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9630222,
+      "lng": 116.3524039
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_113",
+    "name": "intersection_113",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9629825,
+      "lng": 116.3509343
+    },
+    "description": "道路交叉口",
+    "rating": 3.2
+  },
+  {
+    "id": "intersection_114",
+    "name": "intersection_114",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9630124,
+      "lng": 116.3518799
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_115",
+    "name": "intersection_115",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9627803,
+      "lng": 116.3518882
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_116",
+    "name": "intersection_116",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9630092,
+      "lng": 116.3517072
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_117",
+    "name": "intersection_117",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9634669,
+      "lng": 116.3516897
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_118",
+    "name": "intersection_118",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9631471,
+      "lng": 116.352395
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_119",
+    "name": "intersection_119",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9631968,
+      "lng": 116.3545773
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_120",
+    "name": "intersection_120",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9631642,
+      "lng": 116.3531618
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_121",
+    "name": "intersection_121",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9633977,
+      "lng": 116.3545641
+    },
+    "description": "道路交叉口",
+    "rating": 2.9
+  },
+  {
+    "id": "intersection_122",
+    "name": "intersection_122",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9627869,
+      "lng": 116.3540919
+    },
+    "description": "道路交叉口",
+    "rating": 3.9
+  },
+  {
+    "id": "intersection_123",
+    "name": "intersection_123",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9628033,
+      "lng": 116.3546001
+    },
+    "description": "道路交叉口",
+    "rating": 4.5
+  },
+  {
+    "id": "intersection_124",
+    "name": "intersection_124",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9587689,
+      "lng": 116.3511504
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  },
+  {
+    "id": "intersection_125",
+    "name": "intersection_125",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9593264,
+      "lng": 116.3511321
+    },
+    "description": "道路交叉口",
+    "rating": 4.8
+  },
+  {
+    "id": "intersection_126",
+    "name": "intersection_126",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9603772,
+      "lng": 116.3525759
+    },
+    "description": "道路交叉口",
+    "rating": 4.0
+  },
+  {
+    "id": "intersection_127",
+    "name": "intersection_127",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.961355,
+      "lng": 116.3493045
+    },
+    "description": "道路交叉口",
+    "rating": 2.7
+  },
+  {
+    "id": "intersection_128",
+    "name": "intersection_128",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9613824,
+      "lng": 116.3501086
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_129",
+    "name": "intersection_129",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9619124,
+      "lng": 116.3510133
+    },
+    "description": "道路交叉口",
+    "rating": 4.1
+  },
+  {
+    "id": "intersection_130",
+    "name": "intersection_130",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.962107,
+      "lng": 116.3500753
+    },
+    "description": "道路交叉口",
+    "rating": 3.9
+  },
+  {
+    "id": "intersection_131",
+    "name": "intersection_131",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9623989,
+      "lng": 116.3500377
+    },
+    "description": "道路交叉口",
+    "rating": 3.3
+  },
+  {
+    "id": "intersection_132",
+    "name": "intersection_132",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9621276,
+      "lng": 116.3509496
+    },
+    "description": "道路交叉口",
+    "rating": 3.6
+  },
+  {
+    "id": "intersection_133",
+    "name": "intersection_133",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9621070,
+      "lng": 116.3500753
+    },
+    "description": "道路交叉口",
+    "rating": 3.5
+  },
+  {
+    "id": "intersection_134",
+    "name": "intersection_134",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9623989,
+      "lng": 116.3500377
+    },
+    "description": "道路交叉口",
+    "rating": 3.7
+  },
+  {
+    "id": "intersection_135",
+    "name": "intersection_135",
+    "type": "路口",
+    "placeId": "place_001",
+    "location": {
+      "lat": 39.9621276,
+      "lng": 116.3509496
+    },
+    "description": "道路交叉口",
+    "rating": 3.8
+  }
+] 

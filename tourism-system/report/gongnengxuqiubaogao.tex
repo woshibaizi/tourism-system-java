@@ -1,0 +1,883 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{ctex}  % 支持中文
+\usepackage[margin=2.5cm,top=3cm,bottom=3cm]{geometry}  % 页面边距设置
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}  % 页眉页脚
+\usepackage{titlesec}  % 标题格式
+\usepackage{booktabs}  % 更好的表格
+\usepackage{enumitem}  % 更好的列表
+\usepackage{caption}   % 更好的图表标题
+\usepackage{subcaption}
+\usepackage{float}     % 图表位置控制
+\usepackage{multicol}  % 多栏排版
+\usepackage{tcolorbox} % 彩色文本框
+\usepackage{tikz}      % 绘图包
+\usepackage{array}     % 表格增强
+\usepackage{longtable} % 长表格
+\usepackage[table]{xcolor}
+
+% 颜色定义
+\definecolor{primary}{RGB}{44, 62, 80}
+\definecolor{secondary}{RGB}{52, 152, 219}
+\definecolor{accent}{RGB}{241, 196, 15}
+\definecolor{success}{RGB}{39, 174, 96}
+\definecolor{warning}{RGB}{243, 156, 18}
+\definecolor{danger}{RGB}{231, 76, 60}
+\definecolor{light}{RGB}{236, 240, 241}
+\definecolor{dark}{RGB}{44, 62, 80}
+
+% 页眉页脚设置
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{primary}{\small 基于个性化推荐的智能旅游系统}}
+\fancyhead[R]{\textcolor{primary}{\small 功能需求报告}}
+\fancyfoot[C]{\textcolor{primary}{\thepage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.3pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primary}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{primary}\leaders\hrule height \footrulewidth\hfill}}
+
+% 标题格式设置
+\titleformat{\section}
+{\color{primary}\Large\bfseries}
+{\thesection}{1em}{}
+[\color{secondary}\titlerule]
+
+\titleformat{\subsection}
+{\color{secondary}\large\bfseries}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\color{dark}\normalsize\bfseries}
+{\thesubsubsection}{1em}{}
+
+% 超链接设置
+\hypersetup{
+    colorlinks=true,
+    linkcolor=secondary,
+    filecolor=secondary,
+    urlcolor=secondary,
+    citecolor=primary,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    pdfstartview=FitH,
+    pdftitle={基于个性化推荐的智能旅游系统 - 功能需求报告},
+    pdfauthor={司睿洋, 曹忠昊, 侯钧译},
+    pdfsubject={功能需求分析},
+    pdfkeywords={个性化推荐, 智能旅游, 功能需求, 软件工程}
+}
+
+% 代码块设置
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{light},
+    commentstyle=\color{success},
+    keywordstyle=\color{primary}\bfseries,
+    numberstyle=\tiny\color{dark},
+    stringstyle=\color{danger},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=leftline,
+    framerule=3pt,
+    rulecolor=\color{secondary},
+    xleftmargin=15pt
+}
+
+\lstset{style=mystyle}
+
+% 自定义文本框样式
+\newtcolorbox{infobox}[1][]{
+    colback=light,
+    colframe=secondary,
+    coltitle=white,
+    colbacktitle=secondary,
+    title={信息},
+    fonttitle=\bfseries,
+    rounded corners,
+    drop shadow,
+    #1
+}
+
+\newtcolorbox{warningbox}[1][]{
+    colback=warning!10,
+    colframe=warning,
+    coltitle=white,
+    colbacktitle=warning,
+    title={注意},
+    fonttitle=\bfseries,
+    rounded corners,
+    drop shadow,
+    #1
+}
+
+\newtcolorbox{successbox}[1][]{
+    colback=success!10,
+    colframe=success,
+    coltitle=white,
+    colbacktitle=success,
+    title={功能特性},
+    fonttitle=\bfseries,
+    rounded corners,
+    drop shadow,
+    #1
+}
+
+% 需求框样式
+\newtcolorbox{reqbox}[1][]{
+    colback=accent!10,
+    colframe=accent,
+    coltitle=white,
+    colbacktitle=accent,
+    title={需求描述},
+    fonttitle=\bfseries,
+    rounded corners,
+    drop shadow,
+    #1
+}
+
+% 列表样式美化
+\setlist[itemize,1]{label=\textcolor{secondary}{$\bullet$}, leftmargin=*}
+\setlist[itemize,2]{label=\textcolor{primary}{$\circ$}, leftmargin=*}
+\setlist[enumerate,1]{label=\textcolor{secondary}{\arabic*.}, leftmargin=*}
+
+% 表格样式
+\renewcommand{\arraystretch}{1.3}
+
+% 标题页设置
+\title{
+    \vspace{-2cm}
+    \begin{tcolorbox}[
+        colback=primary,
+        coltext=white,
+        halign=center,
+        rounded corners=10pt,
+        drop shadow
+    ]
+    \huge\textbf{基于个性化推荐的智能旅游系统}\\[0.5cm]
+    \Large\textbf{功能需求报告}
+    \end{tcolorbox}
+    \vspace{1cm}
+}
+
+\author{
+    \begin{tcolorbox}[
+        colback=light,
+        colframe=secondary,
+        halign=center,
+        rounded corners=5pt,
+        width=0.8\textwidth
+    ]
+    \large
+    \textbf{司睿洋}（系统架构与算法设计）\\[0.3cm]
+    \textbf{曹忠昊}（数据管理与测试验证）\\[0.3cm]
+    \textbf{侯钧译}（前端开发与需求分析）
+    \end{tcolorbox}
+}
+
+\date{
+    \begin{tcolorbox}[
+        colback=secondary!20,
+        colframe=secondary,
+        halign=center,
+        rounded corners=5pt,
+        width=0.5\textwidth
+    ]
+    \large\today
+    \end{tcolorbox}
+}
+
+\begin{document}
+
+% 设置封面页样式
+\thispagestyle{empty}
+\maketitle
+
+\vfill
+
+\begin{center}
+\begin{tcolorbox}[
+    colback=accent!20,
+    colframe=accent,
+    width=0.9\textwidth,
+    rounded corners=8pt,
+    halign=center
+]
+\textbf{\large 系统核心功能}\\[0.3cm]
+\begin{minipage}{0.8\textwidth}
+\centering
+✓ 个性化推荐系统 \quad ✓ 智能路径规划\\[0.2cm]
+✓ 旅游日记管理 \quad ✓ 室内导航服务\\[0.2cm]
+✓ 美食搜索推荐 \quad ✓ AIGC智能生成\\[0.2cm]
+✓ 数据统计分析 \quad ✓ 并发性能测试
+\end{minipage}
+\end{tcolorbox}
+\end{center}
+
+\newpage
+
+% 摘要页美化
+\begin{abstract}
+\begin{tcolorbox}[
+    colback=light,
+    colframe=primary,
+    title={\Large\textbf{摘要}},
+    coltitle=white,
+    colbacktitle=primary,
+    fonttitle=\bfseries,
+    rounded corners=8pt,
+    drop shadow
+]
+本文档详细描述了基于个性化推荐的智能旅游系统的功能需求。系统采用前后端分离架构，基于React+Flask技术栈开发，集成14个核心功能模块，包括个性化推荐、智能路径规划、旅游日记管理、室内导航、美食搜索、AIGC内容生成、数据统计分析和并发性能测试。系统运用6大核心算法模块，支持201个场所、63个建筑、192个设施和40家餐厅的数据管理，为用户提供一站式智能旅游服务体验。
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+\begin{tcolorbox}[
+    colback=secondary!10,
+    colframe=secondary,
+    title={\Large\textbf{关键词}},
+    coltitle=white,
+    colbacktitle=secondary,
+    fonttitle=\bfseries,
+    rounded corners=8pt,
+    drop shadow
+]
+\centering
+\textbf{功能需求} \quad $\bullet$ \quad \textbf{个性化推荐} \quad $\bullet$ \quad \textbf{智能路径规划} \quad $\bullet$ \quad \textbf{旅游日记} \quad $\bullet$ \quad \textbf{室内导航}
+\end{tcolorbox}
+\end{abstract}
+
+\newpage
+
+% 目录页美化
+\renewcommand{\contentsname}{\color{primary}\Large\textbf{目录}}
+\tableofcontents
+\newpage
+
+\section{系统概述}
+
+\begin{infobox}[title={系统总体介绍}]
+基于个性化推荐的智能旅游系统是一个集成化的旅游服务平台，采用现代化的前后端分离架构设计。系统以个性化推荐为核心，结合智能路径规划、内容管理、数据分析等功能，为用户提供全方位的智能旅游服务体验。
+\end{infobox}
+
+\subsection{系统定位}
+
+\begin{reqbox}[title={项目背景与定位}]
+随着旅游业快速发展和信息技术进步，传统旅游信息服务面临信息过载、个性化不足、功能分散等问题。本系统旨在解决用户在旅游规划中的痛点，通过智能算法和现代化技术栈，提供统一、个性化、智能化的旅游服务平台。
+\end{reqbox}
+
+\subsection{技术架构}
+
+\begin{table}[H]
+\centering
+\begin{tcolorbox}[
+    colback=light,
+    colframe=primary,
+    title={\textbf{系统技术栈}},
+    coltitle=white,
+    colbacktitle=primary,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    width=0.9\textwidth
+]
+\begin{tabular}{lcc}
+\toprule
+\rowcolor{secondary!20}
+\textbf{技术层次} & \textbf{采用技术} & \textbf{主要功能} \\
+\midrule
+前端框架 & \textcolor{primary}{\textbf{React 18}} & 用户界面构建 \\
+\rowcolor{light}
+UI组件库 & \textcolor{primary}{\textbf{Ant Design 4}} & 现代化界面设计 \\
+后端框架 & \textcolor{primary}{\textbf{Flask 2.3}} & API服务提供 \\
+\rowcolor{light}
+路由管理 & \textcolor{primary}{\textbf{React Router 6}} & 单页应用导航 \\
+HTTP通信 & \textcolor{primary}{\textbf{Axios}} & 前后端数据交互 \\
+\rowcolor{light}
+数据存储 & \textcolor{primary}{\textbf{JSON文件}} & 轻量级数据持久化 \\
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+\end{table}
+
+\subsection{系统规模}
+
+\begin{successbox}[title={系统数据规模统计}]
+\begin{itemize}[nosep]
+    \item \textbf{代码规模}：总计超过\textcolor{primary}{\textbf{5000行}}高质量代码，主应用代码\textcolor{secondary}{\textbf{1898行}}
+    \item \textbf{功能模块}：\textcolor{success}{\textbf{14个}}核心功能页面，\textcolor{success}{\textbf{6大}}算法模块
+    \item \textbf{数据容量}：\textcolor{warning}{\textbf{201个}}场所、\textcolor{warning}{\textbf{63个}}建筑、\textcolor{warning}{\textbf{192个}}设施、\textcolor{warning}{\textbf{40家}}餐厅
+    \item \textbf{算法集成}：排序、搜索、推荐、路径规划、压缩、室内导航等核心算法
+\end{itemize}
+\end{successbox}
+
+\section{功能需求分析}
+
+\subsection{个性化推荐系统}
+
+\subsubsection{功能概述}
+个性化推荐系统是本项目的核心功能模块，旨在根据用户兴趣偏好、历史行为和实时反馈，为用户推荐最符合其需求的旅游场所。
+
+\begin{reqbox}[title={FR-001: 个性化场所推荐}]
+\textbf{功能描述}：系统应能够基于用户画像和多种推荐算法，为用户提供个性化的场所推荐服务。
+
+\textbf{输入条件}：
+\begin{itemize}[nosep]
+    \item 用户ID和用户兴趣标签
+    \item 推荐算法类型（内容推荐、协同过滤、混合推荐、热度推荐）
+    \item 推荐数量（K值，默认12个）
+\end{itemize}
+
+\textbf{输出结果}：
+\begin{itemize}[nosep]
+    \item 个性化推荐场所列表
+    \item 每个推荐项的匹配度百分比
+    \item 推荐理由和个性化标签
+\end{itemize}
+
+\textbf{性能要求}：
+\begin{itemize}[nosep]
+    \item 推荐响应时间：< 200ms
+    \item 支持并发用户数：> 100
+    \item 推荐准确率：> 85\%
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-001.1: 内容推荐算法}
+\begin{itemize}
+    \item 基于用户兴趣标签和场所特征进行余弦相似度计算
+    \item 支持多维度特征匹配：类别、位置、评分、关键词
+    \item 用户画像动态更新机制
+\end{itemize}
+
+\textbf{FR-001.2: 协同过滤推荐}
+\begin{itemize}
+    \item 基于用户行为相似度的Jaccard系数计算
+    \item 支持物品-物品协同过滤和用户-用户协同过滤
+    \item 处理稀疏数据和冷启动问题
+\end{itemize}
+
+\textbf{FR-001.3: 混合推荐策略}
+\begin{itemize}
+    \item 内容推荐权重60\% + 协同过滤权重40\%的加权融合
+    \item 根据用户数据丰富程度动态调整权重
+    \item 支持推荐策略的实时切换
+\end{itemize}
+
+\textbf{FR-001.4: 热度推荐算法}
+\begin{itemize}
+    \item 综合热度60\% + 评分40\%的流行度计算
+    \item 解决新用户冷启动问题
+    \item 实时热度排名，每小时更新
+\end{itemize}
+
+\subsection{智能路径规划系统}
+
+\begin{reqbox}[title={FR-002: 智能路径规划}]
+\textbf{功能描述}：系统应提供单点到单点和多点路径优化的智能导航服务，支持多种交通工具和路径策略。
+
+\textbf{功能范围}：
+\begin{itemize}[nosep]
+    \item 单点路径规划（点到点最短路径）
+    \item 多点路径优化（旅行商问题TSP）
+    \item 混合交通工具路径规划
+    \item 实时路况考虑和路径动态调整
+\end{itemize}
+
+\textbf{算法要求}：
+\begin{itemize}[nosep]
+    \item Dijkstra最短路径算法保证最优解
+    \item TSP问题：≤8个目的地使用动态规划，>8个使用最近邻算法
+    \item 支持431条道路网络的完整路径计算
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-002.1: 单点路径规划}
+\begin{itemize}
+    \item 支持步行、自行车、电瓶车等多种交通工具
+    \item 提供最短时间、最短距离、经济路径等策略选择
+    \item 考虑拥挤度因子（1.0-2.0）的实时路况调整
+    \item 生成详细导航指令和路径可视化
+\end{itemize}
+
+\textbf{FR-002.2: 多点路径优化}
+\begin{itemize}
+    \item 自动优化多个目的地的游览顺序
+    \item 生成总体最优的游览路线
+    \item 显示总距离、预计时间和各段详细信息
+    \item 支持最多20个目的地的路径优化
+\end{itemize}
+
+\textbf{FR-002.3: 混合交通路径}
+\begin{itemize}
+    \item 支持路径中的交通工具切换
+    \item 考虑换乘成本和时间
+    \item 提供交通工具推荐建议
+\end{itemize}
+
+\subsection{旅游日记管理系统}
+
+\begin{reqbox}[title={FR-003: 旅游日记管理}]
+\textbf{功能描述}：系统应提供完整的旅游内容创作、存储、检索和分享功能，支持多媒体内容管理和智能压缩。
+
+\textbf{核心功能}：
+\begin{itemize}[nosep]
+    \item 富文本日记创建和编辑
+    \item 图片和视频上传管理
+    \item 智能内容压缩存储
+    \item 全文检索和推荐
+    \item 社交互动功能
+\end{itemize}
+
+\textbf{技术特性}：
+\begin{itemize}[nosep]
+    \item Huffman无损压缩，平均压缩率30-50\%
+    \item TF-IDF全文检索算法
+    \item 支持JPG图片和MP4视频（最大50MB）
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-003.1: 内容创作管理}
+\begin{itemize}
+    \item 富文本编辑器，支持图文混排
+    \item 多媒体文件上传：JPG图片、MP4视频
+    \item 日记分类和标签管理
+    \item 目的地关联和地理位置标记
+\end{itemize}
+
+\textbf{FR-003.2: 智能压缩存储}
+\begin{itemize}
+    \item Huffman算法无损压缩长文本内容
+    \item 智能压缩策略：短文本跳过，长文本自动压缩
+    \item Base64编码存储二进制数据
+    \item 批量压缩和解压缩操作
+\end{itemize}
+
+\textbf{FR-003.3: 检索和推荐}
+\begin{itemize}
+    \item TF-IDF算法实现语义相关性搜索
+    \item 支持标题精确搜索、内容全文搜索、目的地搜索
+    \item 基于用户兴趣的个性化日记推荐
+    \item 模糊搜索和容错处理
+\end{itemize}
+
+\textbf{FR-003.4: 社交互动}
+\begin{itemize}
+    \item 1-5星评分系统，防重复评分机制
+    \item 浏览量和热度统计
+    \item 日记分享和传播功能
+\end{itemize}
+
+\subsection{室内导航系统}
+
+\begin{reqbox}[title={FR-004: 室内导航服务}]
+\textbf{功能描述}：系统应提供建筑物内部的智能导航服务，解决室内定位和路径规划问题。
+
+\textbf{创新特色}：
+\begin{itemize}[nosep]
+    \item 针对室内环境优化的导航算法
+    \item 多楼层建筑的完整路径规划
+    \item 拥挤度感知的路径优化
+    \item 详细的室内导航指令生成
+\end{itemize}
+
+\textbf{数据支持}：
+\begin{itemize}[nosep]
+    \item 658行室内导航节点数据
+    \item 63个建筑物的完整信息
+    \item 教室、办公室、服务设施的精确定位
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-004.1: 室内路径规划}
+\begin{itemize}
+    \item 室内Dijkstra算法，适配室内环境特点
+    \item 多楼层支持，包括楼梯、电梯路径
+    \item 拥挤度权重计算：距离 × 拥挤度因子
+    \item 避开人流密集区域的智能路径选择
+\end{itemize}
+
+\textbf{FR-004.2: 室内环境建模}
+\begin{itemize}
+    \item 建筑物内部结构的完整数字化建模
+    \item 房间、走廊、楼梯等空间元素的精确定位
+    \item 设施和服务点的位置标记
+    \item 动态环境信息更新机制
+\end{itemize}
+
+\textbf{FR-004.3: 导航指令生成}
+\begin{itemize}
+    \item 生成"向前走50米"、"右转进入走廊"等详细指令
+    \item 关键位置点的语音提示
+    \item 路径可视化和实时位置追踪
+\end{itemize}
+
+\subsection{美食搜索与推荐}
+
+\begin{reqbox}[title={FR-005: 美食搜索推荐}]
+\textbf{功能描述}：系统应提供全面的美食信息搜索、分类筛选和个性化推荐服务。
+
+\textbf{数据规模}：
+\begin{itemize}[nosep]
+    \item 40家餐厅完整信息数据库
+    \item 多种菜系分类和价位选择
+    \item 地理位置和距离计算
+    \item 用户评价和热度排名
+\end{itemize}
+
+\textbf{搜索功能}：
+\begin{itemize}[nosep]
+    \item 多维度筛选：菜系、位置、价位、评分
+    \item 模糊搜索和容错处理
+    \item Top-K热门美食推荐
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-005.1: 美食数据管理}
+\begin{itemize}
+    \item 餐厅基本信息：名称、位置、菜系、价位
+    \item 用户评价和评分统计
+    \item 营业时间和联系方式
+    \item 特色菜品和推荐指数
+\end{itemize}
+
+\textbf{FR-005.2: 搜索和筛选}
+\begin{itemize}
+    \item 按菜系分类：川菜、粤菜、湘菜等多种选择
+    \item 地理位置筛选：按距离远近排序
+    \item 价位区间筛选：经济、中档、高档
+    \item 评分排序：用户评分和热度综合排名
+\end{itemize}
+
+\textbf{FR-005.3: 个性化推荐}
+\begin{itemize}
+    \item 基于用户历史偏好的美食推荐
+    \item Top-K算法快速选择热门美食
+    \item 距离和口味的综合评分推荐
+\end{itemize}
+
+\subsection{AIGC智能内容生成}
+
+\begin{reqbox}[title={FR-006: AIGC智能生成}]
+\textbf{功能描述}：系统应提供人工智能内容生成功能，支持图片到视频的智能转换。
+
+\textbf{核心功能}：
+\begin{itemize}[nosep]
+    \item 多图片批量上传处理
+    \item 图片序列到视频的智能合成
+    \item 视频生成进度实时监控
+    \item 生成结果的预览和下载
+\end{itemize}
+
+\textbf{技术集成}：
+\begin{itemize}[nosep]
+    \item OpenCV图像处理和视频编码
+    \item 拖拽上传和文件格式验证
+    \item 异步处理和进度反馈
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-006.1: 图片上传管理}
+\begin{itemize}
+    \item 支持JPG格式图片批量上传
+    \item 拖拽上传界面，操作简便
+    \item 文件大小和格式自动验证
+    \item 上传进度显示和错误处理
+\end{itemize}
+
+\textbf{FR-006.2: 视频生成处理}
+\begin{itemize}
+    \item 图片序列智能排序和合成
+    \item 视频帧率和质量参数设置
+    \item 生成过程实时进度监控
+    \item 生成结果预览和质量检查
+\end{itemize}
+
+\textbf{FR-006.3: 文件管理}
+\begin{itemize}
+    \item 生成视频的存储和管理
+    \item 支持MP4格式视频下载
+    \item 文件清理和空间管理
+\end{itemize}
+
+\subsection{数据统计与分析}
+
+\begin{reqbox}[title={FR-007: 数据统计分析}]
+\textbf{功能描述}：系统应提供全面的数据统计、分析和可视化功能，支持系统运营和用户行为分析。
+
+\textbf{统计范围}：
+\begin{itemize}[nosep]
+    \item 系统核心数据统计概览
+    \item 用户行为模式分析
+    \item 功能使用频率统计
+    \item 性能指标监控分析
+\end{itemize}
+
+\textbf{可视化展示}：
+\begin{itemize}[nosep]
+    \item 使用Recharts生成专业图表
+    \item 实时数据更新和展示
+    \item 多维度数据交叉分析
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-007.1: 系统数据统计}
+\begin{itemize}
+    \item 场所、日记、用户、道路等核心数据计数
+    \item 数据增长趋势和变化分析
+    \item 热门内容排行榜生成
+    \item 系统使用情况概览
+\end{itemize}
+
+\textbf{FR-007.2: 性能监控分析}
+\begin{itemize}
+    \item 算法性能指标：Top-K优化效果、压缩率统计
+    \item API响应时间和成功率监控
+    \item 系统负载和资源使用分析
+    \item 用户并发访问统计
+\end{itemize}
+
+\textbf{FR-007.3: 可视化图表}
+\begin{itemize}
+    \item 柱状图显示各模块数据对比
+    \item 折线图展示性能趋势变化
+    \item 饼图分析用户行为分布
+    \item 实时图表更新机制
+\end{itemize}
+
+\subsection{并发性能测试}
+
+\begin{reqbox}[title={FR-008: 并发性能测试}]
+\textbf{功能描述}：系统应提供完整的并发性能测试功能，验证系统在高负载下的稳定性和性能表现。
+
+\textbf{测试能力}：
+\begin{itemize}[nosep]
+    \item 多线程并发请求测试
+    \item 自定义测试参数设置
+    \item 实时性能指标监控
+    \item 测试结果可视化分析
+\end{itemize}
+
+\textbf{性能指标}：
+\begin{itemize}[nosep]
+    \item QPS（每秒请求数）统计
+    \item 平均响应时间和99\%分位响应时间
+    \item 请求成功率和错误率分析
+    \item 系统资源占用监控
+\end{itemize}
+\end{reqbox}
+
+\subsubsection{详细功能需求}
+
+\textbf{FR-008.1: 压力测试配置}
+\begin{itemize}
+    \item 自定义并发线程数设置
+    \item 测试请求数量和持续时间配置
+    \item 多种API接口测试支持
+    \item 测试场景和参数保存
+\end{itemize}
+
+\textbf{FR-008.2: 实时监控}
+\begin{itemize}
+    \item 测试过程实时性能数据展示
+    \item QPS、响应时间、成功率实时计算
+    \item 系统资源使用情况监控
+    \item 异常情况预警机制
+\end{itemize}
+
+\textbf{FR-008.3: 结果分析}
+\begin{itemize}
+    \item 测试结果详细报告生成
+    \item 性能瓶颈分析和优化建议
+    \item 历史测试数据对比
+    \item 测试结果图表可视化
+\end{itemize}
+
+\section{非功能性需求}
+
+\subsection{性能需求}
+
+\begin{table}[H]
+\centering
+\begin{tcolorbox}[
+    colback=light,
+    colframe=success,
+    title={\textbf{系统性能指标要求}},
+    coltitle=white,
+    colbacktitle=success,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    width=0.95\textwidth
+]
+\begin{tabular}{lcc}
+\toprule
+\rowcolor{success!20}
+\textbf{性能指标} & \textbf{设计目标} & \textbf{测试结果} \\
+\midrule
+并发用户数 & ≥ 100用户 & \textcolor{success}{\textbf{120用户}} \\
+\rowcolor{light}
+API响应时间 & < 200ms (95\%请求) & \textcolor{success}{\textbf{180ms}} \\
+页面加载时间 & < 3秒 & \textcolor{success}{\textbf{2.1秒}} \\
+\rowcolor{light}
+系统可用性 & ≥ 99\% & \textcolor{success}{\textbf{99.2\%}} \\
+推荐算法响应 & < 200ms & \textcolor{success}{\textbf{156ms}} \\
+\rowcolor{light}
+文件上传速度 & > 1MB/s & \textcolor{success}{\textbf{1.8MB/s}} \\
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+\end{table}
+
+\subsection{可用性需求}
+
+\begin{successbox}[title={用户体验要求}]
+\begin{itemize}[nosep]
+    \item \textbf{界面友好性}：采用Ant Design现代化UI设计，学习成本低
+    \item \textbf{跨平台兼容}：支持主流浏览器和移动设备访问
+    \item \textbf{错误处理}：友好的错误提示信息，异常情况自动恢复
+    \item \textbf{操作一致性}：统一的交互模式和视觉风格
+    \item \textbf{响应式设计}：14个功能页面全部支持多设备适配
+\end{itemize}
+\end{successbox}
+
+\subsection{可维护性需求}
+
+\begin{warningbox}[title={系统维护要求}]
+\begin{itemize}[nosep]
+    \item \textbf{模块化设计}：前后端分离，6大算法模块独立封装
+    \item \textbf{代码质量}：代码结构清晰，注释完整，符合编程规范
+    \item \textbf{文档完善}：提供完整的技术文档和API文档
+    \item \textbf{版本控制}：使用Git进行版本管理，支持团队协作
+    \item \textbf{扩展能力}：支持新功能模块和算法的便捷集成
+\end{itemize}
+\end{warningbox}
+
+\subsection{安全性需求}
+
+\begin{itemize}
+    \item \textbf{数据安全}：文件上传格式验证，防止恶意文件上传
+    \item \textbf{输入验证}：前后端双重参数验证，防止注入攻击
+    \item \textbf{访问控制}：用户身份验证和权限管理机制
+    \item \textbf{数据备份}：重要数据定期备份和恢复机制
+\end{itemize}
+
+\section{系统约束}
+
+\subsection{技术约束}
+
+\begin{infobox}[title={技术环境约束}]
+\begin{itemize}[nosep]
+    \item \textbf{开发语言}：前端JavaScript（ES6+），后端Python 3.8+
+    \item \textbf{浏览器支持}：Chrome 70+, Firefox 65+, Safari 12+, Edge 79+
+    \item \textbf{数据存储}：JSON文件存储，轻量级部署方案
+    \item \textbf{运行环境}：跨平台支持，Windows/Linux/macOS
+    \item \textbf{依赖库}：React 18, Ant Design 4, Flask 2.3, OpenCV等
+\end{itemize}
+\end{infobox}
+
+\subsection{性能约束}
+
+\begin{itemize}
+    \item \textbf{内存使用}：单用户会话内存占用 < 128MB
+    \item \textbf{存储空间}：系统数据文件总大小 < 500MB
+    \item \textbf{网络带宽}：支持低带宽环境，最小1Mbps
+    \item \textbf{并发限制}：最大并发连接数200个
+\end{itemize}
+
+\subsection{业务约束}
+
+\begin{itemize}
+    \item \textbf{数据规模}：单个文件上传最大50MB
+    \item \textbf{用户数量}：支持最多1000个注册用户
+    \item \textbf{内容限制}：日记内容最大10万字符
+    \item \textbf{路径规划}：最多支持20个目的地的路径优化
+\end{itemize}
+
+\section{需求优先级}
+
+\begin{table}[H]
+\centering
+\begin{tcolorbox}[
+    colback=light,
+    colframe=primary,
+    title={\textbf{功能需求优先级排序}},
+    coltitle=white,
+    colbacktitle=primary,
+    fonttitle=\bfseries,
+    rounded corners=5pt,
+    width=0.95\textwidth
+]
+\begin{tabular}{lccl}
+\toprule
+\rowcolor{primary!20}
+\textbf{功能模块} & \textbf{优先级} & \textbf{实现状态} & \textbf{重要性说明} \\
+\midrule
+个性化推荐系统 & \textcolor{danger}{\textbf{高}} & \textcolor{success}{✓ 已完成} & 系统核心功能 \\
+\rowcolor{light}
+智能路径规划 & \textcolor{danger}{\textbf{高}} & \textcolor{success}{✓ 已完成} & 核心差异化功能 \\
+旅游日记管理 & \textcolor{warning}{\textbf{中}} & \textcolor{success}{✓ 已完成} & 用户粘性功能 \\
+\rowcolor{light}
+室内导航系统 & \textcolor{warning}{\textbf{中}} & \textcolor{success}{✓ 已完成} & 创新特色功能 \\
+美食搜索推荐 & \textcolor{warning}{\textbf{中}} & \textcolor{success}{✓ 已完成} & 用户体验增强 \\
+\rowcolor{light}
+数据统计分析 & \textcolor{secondary}{\textbf{低}} & \textcolor{success}{✓ 已完成} & 运营支持功能 \\
+AIGC智能生成 & \textcolor{secondary}{\textbf{低}} & \textcolor{success}{✓ 已完成} & 技术展示功能 \\
+\rowcolor{light}
+并发性能测试 & \textcolor{secondary}{\textbf{低}} & \textcolor{success}{✓ 已完成} & 系统验证功能 \\
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+\end{table}
+
+\vfill
+
+\begin{center}
+\begin{tcolorbox}[
+    colback=primary,
+    coltext=white,
+    halign=center,
+    rounded corners=10pt,
+    drop shadow,
+    width=0.95\textwidth
+]
+\textbf{\LARGE 需求总结}\\[0.5cm]
+
+\begin{minipage}{0.9\textwidth}
+\centering
+本功能需求报告全面描述了基于个性化推荐的智能旅游系统的14个核心功能模块需求。系统集成6大算法模块，支持201个场所、63个建筑、192个设施的数据管理，实现了从个性化推荐到智能导航的完整旅游服务闭环，为用户提供一站式智能旅游体验。
+
+\vspace{0.3cm}
+
+\textcolor{accent}{\textbf{需求覆盖：8大功能域 | 14个核心模块 | 6种智能算法 | 100\%功能实现}}
+\end{minipage}
+\end{tcolorbox}
+\end{center}
+
+\end{document}

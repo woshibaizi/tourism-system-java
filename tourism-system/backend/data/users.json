@@ -1,0 +1,270 @@
+[
+  {
+    "id": "user_001",
+    "username": "张三",
+    "password": "123456",
+    "interests": [
+      "历史文化",
+      "自然风光",
+      "摄影"
+    ],
+    "favoriteCategories": [
+      "景区",
+      "博物馆",
+      "公园"
+    ],
+    "visitHistory": [
+      "place_120",
+      "place_111",
+      "place_163",
+      "place_115",
+      "place_001",
+      "place_119",
+      "place_102",
+      "place_121",
+      "place_150",
+      "place_116",
+      "place_135",
+      "place_118",
+      "place_117",
+      "place_113"
+    ],
+    "ratingHistory": [
+      {
+        "placeId": "place_001",
+        "rating": 4.5,
+        "date": "2025-05-30T13:43:33.213811Z"
+      },
+      {
+        "placeId": "place_121",
+        "rating": 2,
+        "date": "2025-05-30T14:07:22.254124Z"
+      },
+      {
+        "placeId": "place_135",
+        "rating": 4.5,
+        "date": "2025-05-30T15:14:38.797558Z"
+      }
+    ],
+    "diaryRatingHistory": [
+      {
+        "diaryId": "diary_015",
+        "rating": 4,
+        "date": "2025-05-30T13:39:52.930702Z"
+      },
+      {
+        "diaryId": "diary_001",
+        "rating": 4,
+        "date": "2025-05-30T13:40:00.878376Z"
+      }
+    ]
+  },
+  {
+    "id": "user_002",
+    "username": "李四",
+    "password": "123456",
+    "interests": [
+      "美食",
+      "购物",
+      "娱乐"
+    ],
+    "favoriteCategories": [
+      "校园",
+      "商店",
+      "餐厅"
+    ],
+    "visitHistory": [
+      "place_001",
+      "place_087",
+      "place_069",
+      "place_040",
+      "place_011",
+      "place_102",
+      "place_062",
+      "place_081",
+      "place_079",
+      "place_195",
+      "place_083",
+      "place_101",
+      "place_065"
+    ],
+    "ratingHistory": [
+      {
+        "placeId": "place_001",
+        "rating": 5,
+        "date": "2025-05-30T02:29:34.289556Z"
+      },
+      {
+        "placeId": "place_011",
+        "rating": 1,
+        "date": "2025-06-03T00:14:55.609003Z"
+      },
+      {
+        "placeId": "place_195",
+        "rating": 5,
+        "date": "2025-06-03T14:15:53.898174Z"
+      },
+      {
+        "placeId": "place_065",
+        "rating": 2,
+        "date": "2025-06-03T15:31:56.447265Z"
+      }
+    ],
+    "diaryRatingHistory": [
+      {
+        "diaryId": "diary_001",
+        "rating": 2.5,
+        "date": "2025-05-30T02:29:47.740394Z"
+      },
+      {
+        "diaryId": "diary_013",
+        "rating": 5,
+        "date": "2025-06-03T14:21:40.714449Z"
+      }
+    ]
+  },
+  {
+    "id": "user_003",
+    "username": "王五",
+    "password": "123456",
+    "interests": [
+      "运动健身",
+      "科技",
+      "学习"
+    ],
+    "favoriteCategories": [
+      "校园",
+      "图书馆",
+      "体育馆"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_004",
+    "username": "赵六",
+    "password": "123456",
+    "interests": [
+      "艺术",
+      "音乐",
+      "文学"
+    ],
+    "favoriteCategories": [
+      "景区",
+      "艺术馆",
+      "咖啡馆"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_005",
+    "username": "孙七",
+    "password": "123456",
+    "interests": [
+      "旅游",
+      "探险",
+      "户外"
+    ],
+    "favoriteCategories": [
+      "景区",
+      "公园",
+      "山峰"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_006",
+    "username": "周八",
+    "password": "123456",
+    "interests": [
+      "科学",
+      "技术",
+      "创新"
+    ],
+    "favoriteCategories": [
+      "校园",
+      "实验室",
+      "科技馆"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_007",
+    "username": "吴九",
+    "password": "123456",
+    "interests": [
+      "建筑",
+      "设计",
+      "城市规划"
+    ],
+    "favoriteCategories": [
+      "景区",
+      "校园",
+      "建筑群"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_008",
+    "username": "郑十",
+    "password": "123456",
+    "interests": [
+      "环保",
+      "生态",
+      "可持续发展"
+    ],
+    "favoriteCategories": [
+      "公园",
+      "生态园",
+      "绿地"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_009",
+    "username": "钱十一",
+    "password": "123456",
+    "interests": [
+      "社交",
+      "聚会",
+      "交流"
+    ],
+    "favoriteCategories": [
+      "咖啡馆",
+      "餐厅",
+      "活动中心"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  },
+  {
+    "id": "user_010",
+    "username": "陈十二",
+    "password": "123456",
+    "interests": [
+      "教育",
+      "研究",
+      "学术"
+    ],
+    "favoriteCategories": [
+      "校园",
+      "图书馆",
+      "研究所"
+    ],
+    "visitHistory": [],
+    "ratingHistory": [],
+    "diaryRatingHistory": []
+  }
+]
