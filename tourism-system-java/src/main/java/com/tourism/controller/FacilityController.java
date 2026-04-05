@@ -1,15 +1,20 @@
 package com.tourism.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tourism.mapper.BuildingMapper;
 import com.tourism.model.entity.SpotFacility;
+import com.tourism.model.entity.SpotBuilding;
 import com.tourism.mapper.FacilityMapper;
 import com.tourism.utils.GeoUtils;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Tag(name = "设施查询模块")
@@ -18,22 +23,65 @@ import java.util.stream.Collectors;
 public class FacilityController {
 
     private final FacilityMapper facilityMapper;
+    private final BuildingMapper buildingMapper;
 
-    public FacilityController(FacilityMapper facilityMapper) {
+    public FacilityController(FacilityMapper facilityMapper, BuildingMapper buildingMapper) {
         this.facilityMapper = facilityMapper;
+        this.buildingMapper = buildingMapper;
     }
 
     @Operation(summary = "查询场所内所有设施")
     @GetMapping
-    public Result<List<SpotFacility>> listByPlace(
-            @RequestParam String placeId,
-            @RequestParam(required = false) String type) {
+    public Result<Page<SpotFacility>> listByPlace(
+            @RequestParam(required = false) String placeId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
 
-        LambdaQueryWrapper<SpotFacility> wrapper = new LambdaQueryWrapper<SpotFacility>()
-                .eq(SpotFacility::getPlaceId, placeId);
-        if (type != null) {
+        LambdaQueryWrapper<SpotFacility> wrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.hasText(placeId)) {
+            wrapper.eq(SpotFacility::getPlaceId, placeId);
+        }
+        if (StringUtils.hasText(type)) {
             wrapper.eq(SpotFacility::getType, type);
         }
+        if (StringUtils.hasText(keyword)) {
+            wrapper.and(w -> w.like(SpotFacility::getName, keyword)
+                    .or().like(SpotFacility::getDescription, keyword));
+        }
+        wrapper.orderByAsc(SpotFacility::getType).orderByAsc(SpotFacility::getName);
+        return Result.success(facilityMapper.selectPage(new Page<>(page, size), wrapper));
+    }
+
+    @Operation(summary = "获取设施详情")
+    @GetMapping("/{id}")
+    public Result<SpotFacility> detail(@PathVariable String id) {
+        SpotFacility facility = facilityMapper.selectById(id);
+        if (facility == null) {
+            return Result.fail(404, "设施不存在");
+        }
+        return Result.success(facility);
+    }
+
+    @Operation(summary = "搜索设施")
+    @GetMapping("/search")
+    public Result<List<SpotFacility>> search(
+            @RequestParam String query,
+            @RequestParam(required = false) String placeId,
+            @RequestParam(required = false) String type) {
+        LambdaQueryWrapper<SpotFacility> wrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.hasText(placeId)) {
+            wrapper.eq(SpotFacility::getPlaceId, placeId);
+        }
+        if (StringUtils.hasText(type)) {
+            wrapper.eq(SpotFacility::getType, type);
+        }
+        wrapper.and(w -> w.like(SpotFacility::getName, query)
+                .or().like(SpotFacility::getDescription, query))
+                .orderByAsc(SpotFacility::getType)
+                .orderByAsc(SpotFacility::getName)
+                .last("limit 100");
         return Result.success(facilityMapper.selectList(wrapper));
     }
 
@@ -58,5 +106,47 @@ public class FacilityController {
                 .collect(Collectors.toList());
 
         return Result.success(nearby);
+    }
+
+    @Operation(summary = "查询建筑附近的设施（按距离升序）")
+    @PostMapping("/nearest")
+    public Result<List<SpotFacility>> nearest(@RequestBody NearestFacilityRequest request) {
+        if (!StringUtils.hasText(request.buildingId()) || !StringUtils.hasText(request.placeId())) {
+            return Result.fail(400, "buildingId 和 placeId 不能为空");
+        }
+
+        SpotBuilding building = buildingMapper.selectById(request.buildingId());
+        if (building == null) {
+            return Result.fail(404, "建筑物不存在");
+        }
+        if (building.getLat() == null || building.getLng() == null) {
+            return Result.fail(400, "当前建筑物缺少坐标信息");
+        }
+
+        LambdaQueryWrapper<SpotFacility> wrapper = new LambdaQueryWrapper<SpotFacility>()
+                .eq(SpotFacility::getPlaceId, request.placeId());
+        if (StringUtils.hasText(request.facilityType()) && !"all".equalsIgnoreCase(request.facilityType())) {
+            wrapper.eq(SpotFacility::getType, request.facilityType());
+        }
+
+        List<SpotFacility> facilities = facilityMapper.selectList(wrapper);
+        double originLat = building.getLat().doubleValue();
+        double originLng = building.getLng().doubleValue();
+
+        List<SpotFacility> result = facilities.stream()
+                .filter(facility -> facility.getLat() != null && facility.getLng() != null)
+                .peek(facility -> facility.setDistance(GeoUtils.distance(
+                        originLat,
+                        originLng,
+                        facility.getLat().doubleValue(),
+                        facility.getLng().doubleValue()
+                )))
+                .sorted(Comparator.comparing(facility -> facility.getDistance() == null ? Double.MAX_VALUE : facility.getDistance()))
+                .collect(Collectors.toList());
+
+        return Result.success(result);
+    }
+
+    public record NearestFacilityRequest(String buildingId, String placeId, String facilityType) {
     }
 }

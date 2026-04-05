@@ -4,9 +4,12 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/SecurityConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/SwaggerConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/AuthController.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/BuildingController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/DiaryController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/FacilityController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/PlaceController.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/StatsController.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/UserController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/exception/BusinessException.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/exception/GlobalExceptionHandler.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/mapper/BuildingMapper.java
@@ -26,6 +29,8 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/entity/TravelDiary.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/entity/UserBehavior.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/vo/LoginVO.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/vo/PlaceDetailVO.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/vo/UserProfileVO.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/security/JwtAuthenticationFilter.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/security/UserDetailsServiceImpl.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AuthService.java

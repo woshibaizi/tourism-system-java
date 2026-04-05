@@ -1,0 +1,423 @@
+/* 推荐卡片样式 */
+.place-card.highly_recommended,
+.diary-card.highly_recommended {
+  border: 2px solid #ff4d4f;
+  box-shadow: 0 8px 32px rgba(255, 77, 79, 0.25);
+}
+
+.place-card.recommended,
+.diary-card.recommended {
+  border: 2px solid #1890ff;
+  box-shadow: 0 8px 32px rgba(24, 144, 255, 0.25);
+}
+
+.place-card.might_like,
+.diary-card.might_like {
+  border: 2px solid #52c41a;
+  box-shadow: 0 8px 32px rgba(82, 196, 26, 0.25);
+}
+
+.place-card.explore,
+.diary-card.explore {
+  border: 1px solid #e8e8e8;
+}
+
+/* 推荐卡片悬停效果 */
+.place-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.place-card.highly_recommended:hover,
+.diary-card.highly_recommended:hover {
+  box-shadow: 0 12px 40px rgba(255, 77, 79, 0.4);
+}
+
+.place-card.recommended:hover,
+.diary-card.recommended:hover {
+  box-shadow: 0 12px 40px rgba(24, 144, 255, 0.4);
+}
+
+.place-card.might_like:hover,
+.diary-card.might_like:hover {
+  box-shadow: 0 12px 40px rgba(82, 196, 26, 0.4);
+}
+
+.diary-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 首页浮动动画 */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* 渐变动画 */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 卡片进入动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-wrapper {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* 现代化卡片样式 */
+.place-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.place-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.place-card:hover::before {
+  opacity: 1;
+}
+
+/* 卡片内容动画 */
+.place-card .ant-card-body {
+  position: relative;
+  z-index: 2;
+}
+
+.place-card:hover .ant-card-body {
+  transform: translateY(-2px);
+  transition: transform 0.3s ease;
+}
+
+/* 设施卡片样式 */
+.facility-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.facility-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  border-color: #1890ff !important;
+}
+
+.facility-card .ant-card-body {
+  padding: 16px !important;
+}
+
+/* 设施图标动画 */
+.facility-card:hover .ant-avatar {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+/* 距离标签动画 */
+.facility-card:hover .distance-badge {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* 评分星星动画 */
+.facility-card:hover .ant-rate {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* 设施类型标签样式 */
+.facility-card .ant-tag {
+  border-radius: 12px;
+  font-weight: 500;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 分割线样式 */
+.facility-card .ant-divider {
+  margin: 12px 0;
+  border-color: #f0f0f0;
+}
+
+/* 底部信息区域 */
+.facility-info-bottom {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 渐变背景动画 */
+.facility-icon-bg {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.facility-icon-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.facility-card:hover .facility-icon-bg::before {
+  left: 100%;
+}
+
+/* 空状态样式 */
+.empty-state {
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px dashed #d9d9d9;
+  transition: all 0.3s ease;
+}
+
+.empty-state:hover {
+  border-color: #1890ff;
+  background: #f6f8ff;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .facility-card {
+    margin-bottom: 16px;
+  }
+  
+  .facility-card .ant-card-body {
+    padding: 12px !important;
+  }
+}
+
+/* 加载动画优化 */
+.ant-spin-container {
+  transition: opacity 0.3s ease;
+}
+
+.ant-spin-blur {
+  opacity: 0.5;
+}
+
+/* 分页器样式 */
+.ant-pagination {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.ant-pagination-item {
+  border-radius: 6px;
+}
+
+.ant-pagination-item-active {
+  border-color: #1890ff;
+  background: #1890ff;
+}
+
+.ant-pagination-item-active a {
+  color: white;
+}
+
+/* 筛选器样式 */
+.filter-container {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.filter-row .ant-col {
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .filter-row .ant-col {
+    margin-bottom: 0;
+  }
+}
+
+/* 页面头部样式 */
+.page-header {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.page-header .ant-typography {
+  margin-bottom: 8px;
+}
+
+/* 内容包装器 */
+.content-wrapper {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 警告框样式 */
+.ant-alert {
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* 按钮样式优化 */
+.ant-btn-primary {
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+}
+
+.ant-btn-primary:hover {
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 选择器样式 */
+.ant-select {
+  border-radius: 6px;
+}
+
+.ant-select-selector {
+  border-radius: 6px !important;
+}
+
+/* 卡片网格间距调整 */
+.ant-row {
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.ant-col {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* ==================== 侧边栏美化样式 ==================== */
+
+/* 侧边栏主体样式 */
+.sidebar {
+  position: relative;
+  background: #001529 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 菜单项样式优化 */
+.sidebar .ant-menu {
+  background: transparent !important;
+  border-right: none !important;
+}
+
+.sidebar .ant-menu-item {
+  margin: 4px 8px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+.sidebar .ant-menu-item:hover {
+  background: rgba(24, 144, 255, 0.15) !important;
+}
+
+.sidebar .ant-menu-item-selected {
+  background: rgba(24, 144, 255, 0.2) !important;
+}
+
+/* 菜单图标样式 */
+.sidebar .ant-menu-item .anticon {
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.sidebar .ant-menu-item:hover .anticon {
+  color: #40a9ff;
+}
+
+.sidebar .ant-menu-item-selected .anticon {
+  color: #1890ff;
+}
+
+/* 侧边栏标题样式 */
+.sidebar .ant-layout-sider-children > div:first-child {
+  background: rgba(24, 144, 255, 0.1);
+  border-radius: 8px;
+  margin: 16px 12px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(24, 144, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar .ant-layout-sider-children > div:first-child:hover {
+  background: rgba(24, 144, 255, 0.15);
+}
+
+/* 折叠按钮样式 */
+.sidebar .ant-layout-sider-trigger {
+  background: rgba(24, 144, 255, 0.1) !important;
+  border-top: 1px solid rgba(24, 144, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar .ant-layout-sider-trigger:hover {
+  background: rgba(24, 144, 255, 0.2) !important;
+  color: #40a9ff;
+}
+
+/* 折叠状态下的特殊样式 */
+.sidebar.ant-layout-sider-collapsed .ant-menu-item {
+  padding: 0 calc(50% - 16px / 2) !important;
+}
+
+.sidebar.ant-layout-sider-collapsed .ant-menu-item .anticon {
+  font-size: 18px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed !important;
+    z-index: 1000;
+    height: 100vh;
+  }
+}
+

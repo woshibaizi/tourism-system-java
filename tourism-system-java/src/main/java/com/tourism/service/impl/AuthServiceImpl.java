@@ -37,9 +37,11 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(401, "用户名或密码错误");
         }
         LoginVO vo = new LoginVO();
+        vo.setId(user.getId());
         vo.setUserId(user.getId());
         vo.setUsername(user.getUsername());
         vo.setToken(jwtUtils.generateToken(user.getId(), user.getUsername()));
+        vo.setAvatar(user.getAvatar());
         return vo;
     }
 

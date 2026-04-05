@@ -1,9 +1,47 @@
 import axios from 'axios';
 import { message } from 'antd';
 
+const normalizeEnvelope = (payload) => {
+  if (payload && typeof payload.code === 'number') {
+    return {
+      success: payload.code === 200,
+      code: payload.code,
+      message: payload.message,
+      data: payload.data,
+    };
+  }
+
+  return {
+    success: true,
+    code: 200,
+    message: 'success',
+    data: payload,
+  };
+};
+
+const unwrapPageRecords = (response) => {
+  const data = response?.data;
+  if (Array.isArray(data)) {
+    return response;
+  }
+  if (data && Array.isArray(data.records)) {
+    return {
+      ...response,
+      data: data.records,
+      page: {
+        current: data.current,
+        size: data.size,
+        total: data.total,
+        pages: data.pages,
+      },
+    };
+  }
+  return response;
+};
+
 // 创建axios实例
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -13,7 +51,10 @@ const api = axios.create({
 // 请求拦截器
 api.interceptors.request.use(
   (config) => {
-    // 可以在这里添加认证token
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -24,11 +65,13 @@ api.interceptors.request.use(
 // 响应拦截器
 api.interceptors.response.use(
   (response) => {
-    return response.data;
+    return normalizeEnvelope(response.data);
   },
   (error) => {
     const errorMessage = error.response?.data?.message || '网络错误，请稍后重试';
-    message.error(errorMessage);
+    if (!error.config?.skipErrorMessage) {
+      message.error(errorMessage);
+    }
     return Promise.reject(error);
   }
 );
@@ -38,27 +81,31 @@ api.interceptors.response.use(
 export const userAPI = {
   // 获取所有用户
   getUsers: () => api.get('/users'),
-  
+
   // 获取特定用户
   getUser: (userId) => api.get(`/users/${userId}`),
-  
+
   // 用户登录
-  login: (credentials) => api.post('/users/login', credentials),
-  
-  // 更新用户档案
-  updateProfile: (userId, data) => api.put(`/users/${userId}/profile`, data),
+  login: (credentials) => api.post('/auth/login', credentials),
+
+  // 用户注册
+  register: (payload) => api.post('/auth/register', payload),
+
+  // 获取当前用户
+  getCurrentUser: () => api.get('/auth/me'),
 };
 
-// 简化的API导出（为了兼容性）
 export const getUsers = () => userAPI.getUsers();
 export const getUser = (userId) => userAPI.getUser(userId);
 export const login = (credentials) => userAPI.login(credentials);
+export const register = (payload) => userAPI.register(payload);
+export const getCurrentUser = () => userAPI.getCurrentUser();
 
 // ==================== 场所相关API ====================
 
 export const placeAPI = {
   // 获取场所列表
-  getPlaces: (params = {}) => api.get('/places', { params }),
+  getPlaces: async (params = {}) => unwrapPageRecords(await api.get('/places', { params })),
   
   // 获取场所详情
   getPlace: (placeId) => api.get(`/places/${placeId}`),
@@ -97,7 +144,7 @@ export const recordVisit = (placeId, userId) => placeAPI.recordVisit(placeId, us
 
 export const buildingAPI = {
   // 获取建筑物列表
-  getBuildings: (params = {}) => api.get('/buildings', { params }),
+  getBuildings: async (params = {}) => unwrapPageRecords(await api.get('/buildings', { params })),
   
   // 获取建筑物详情
   getBuilding: (buildingId) => api.get(`/buildings/${buildingId}`),
@@ -118,14 +165,21 @@ export const searchBuildings = (query, placeId) => buildingAPI.searchBuildings(q
 
 export const facilityAPI = {
   // 获取设施列表
-  getFacilities: (params = {}) => api.get('/facilities', { params }),
+  getFacilities: async (params = {}) => unwrapPageRecords(await api.get('/facilities', { params })),
   
   // 搜索设施
   searchFacilities: (query, placeId, type) => api.get('/facilities/search', { params: { query, placeId, type } }),
   
   // 获取附近设施
-  getNearbyFacilities: (location, type, maxDistance = 1000) => 
-    api.post('/facilities/nearby', { location, type, maxDistance }),
+  getNearbyFacilities: (location, type, maxDistance = 1000) =>
+    api.get('/facilities/nearby', {
+      params: {
+        lat: location?.lat,
+        lng: location?.lng,
+        type,
+        radius: maxDistance,
+      },
+    }),
   
   // 获取最近设施（基于路径距离）
   getNearestFacilities: (buildingId, placeId, facilityType = 'all') =>
@@ -291,7 +345,7 @@ export const getFileUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
   const basePath = path.startsWith('/') ? path : `/${path}`;
-  return `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}${basePath}`;
+  return `${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}${basePath}`;
 };
 
 // 格式化文件大小

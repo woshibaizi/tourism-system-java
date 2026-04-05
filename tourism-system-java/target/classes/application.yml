@@ -6,9 +6,9 @@ spring:
     name: tourism-system
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/tourism_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: your_password   # TODO: 替换为你的 MySQL 密码
+    url: ${TOURISM_DB_URL:jdbc:mysql://localhost:3306/tourism_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${TOURISM_DB_USERNAME:root}
+    password: ${TOURISM_DB_PASSWORD:your_password}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
@@ -43,8 +43,12 @@ mybatis-plus:
 
 # JWT 配置
 jwt:
-  secret: tourism-system-secret-key-2024-very-long-and-secure
-  expiration: 86400000  # 24小时，毫秒
+  secret: ${TOURISM_JWT_SECRET:tourism-system-secret-key-2024-very-long-and-secure}
+  expiration: ${TOURISM_JWT_EXPIRATION:86400000}
+
+app:
+  cors:
+    allowed-origins: ${TOURISM_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
 
 # Swagger
 springdoc:

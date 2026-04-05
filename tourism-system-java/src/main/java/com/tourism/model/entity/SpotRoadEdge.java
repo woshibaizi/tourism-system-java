@@ -1,12 +1,10 @@
 package com.tourism.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
 @TableName("spot_road_edge")
 public class SpotRoadEdge {
 
@@ -42,4 +40,92 @@ public class SpotRoadEdge {
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getFromNode() {
+        return fromNode;
+    }
+
+    public void setFromNode(String fromNode) {
+        this.fromNode = fromNode;
+    }
+
+    public String getToNode() {
+        return toNode;
+    }
+
+    public void setToNode(String toNode) {
+        this.toNode = toNode;
+    }
+
+    public BigDecimal getDistance() {
+        return distance;
+    }
+
+    public void setDistance(BigDecimal distance) {
+        this.distance = distance;
+    }
+
+    public BigDecimal getIdealSpeed() {
+        return idealSpeed;
+    }
+
+    public void setIdealSpeed(BigDecimal idealSpeed) {
+        this.idealSpeed = idealSpeed;
+    }
+
+    public BigDecimal getCongestionRate() {
+        return congestionRate;
+    }
+
+    public void setCongestionRate(BigDecimal congestionRate) {
+        this.congestionRate = congestionRate;
+    }
+
+    public String getAllowedVehicles() {
+        return allowedVehicles;
+    }
+
+    public void setAllowedVehicles(String allowedVehicles) {
+        this.allowedVehicles = allowedVehicles;
+    }
+
+    public String getRoadType() {
+        return roadType;
+    }
+
+    public void setRoadType(String roadType) {
+        this.roadType = roadType;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
+    }
+
+    public Integer getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

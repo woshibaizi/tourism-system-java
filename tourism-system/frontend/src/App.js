@@ -70,8 +70,11 @@ function App() {
     setIsLoggedIn(true);
     // 保存用户信息到localStorage
     localStorage.setItem('user', JSON.stringify(user));
+    if (user?.token) {
+      localStorage.setItem('token', user.token);
+    }
     localStorage.setItem('isLoggedIn', 'true');
-    navigate('/');
+    navigate('/places');
   };
 
   const handleLogout = () => {
@@ -79,6 +82,7 @@ function App() {
     setIsLoggedIn(false);
     // 清除localStorage中的用户信息
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
     message.success('已退出登录');
   };
