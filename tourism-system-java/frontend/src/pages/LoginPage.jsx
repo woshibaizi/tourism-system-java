@@ -1,15 +1,46 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message, Spin, Typography } from 'antd';
+import { Form, Input, Button, Card, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
 import { login } from '../services/api';
 
 const { Title, Text } = Typography;
 
 function LoginPage({ onLoginSuccess }) {
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const clearErrors = () => {
+    setSubmitError('');
+    form.setFields([
+      { name: 'username', errors: [] },
+      { name: 'password', errors: [] },
+    ]);
+  };
+
+  const showLoginError = (messageText = '登录失败，请稍后重试') => {
+    const normalizedMessage = messageText || '登录失败，请稍后重试';
+
+    if (normalizedMessage.includes('用户名或密码错误') || normalizedMessage.includes('密码错误')) {
+      form.setFields([
+        { name: 'password', errors: ['用户名或密码错误，请重新输入'] },
+      ]);
+      setSubmitError('用户名或密码错误，请检查后重新登录');
+      return;
+    }
+
+    setSubmitError(normalizedMessage);
+    message.error(normalizedMessage);
+  };
+
+  const handleSubmitClick = () => {
+    form.submit();
+  };
 
   const handleLogin = async (values) => {
     setLoading(true);
+    clearErrors();
+
     try {
       const response = await login({
         username: values.username,
@@ -17,13 +48,15 @@ function LoginPage({ onLoginSuccess }) {
       });
 
       if (response.success) {
+        setSubmitError('');
         message.success('登录成功！');
         onLoginSuccess(response.data);
       } else {
-        message.error(response.message || '登录失败');
+        showLoginError(response.message || '登录失败');
       }
     } catch (error) {
-      message.error('网络错误，请稍后重试');
+      const errorMessage = error.response?.data?.message || '网络错误，请稍后重试';
+      showLoginError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -94,8 +127,15 @@ function LoginPage({ onLoginSuccess }) {
         </div>
 
         <Form
+          form={form}
           name="login"
           onFinish={handleLogin}
+          onFinishFailed={() => {
+            setSubmitError('请填写完整的用户名和密码');
+          }}
+          onValuesChange={() => {
+            clearErrors();
+          }}
           autoComplete="off"
           size="large"
           layout="vertical"
@@ -138,6 +178,7 @@ function LoginPage({ onLoginSuccess }) {
             <Button
               type="primary"
               htmlType="submit"
+              onClick={handleSubmitClick}
               loading={loading}
               block
               icon={<LoginOutlined />}
@@ -155,6 +196,12 @@ function LoginPage({ onLoginSuccess }) {
               立即登录
             </Button>
           </Form.Item>
+
+          {submitError ? (
+            <Form.Item style={{ marginTop: '-8px', marginBottom: '8px' }}>
+              <Text style={{ color: '#ff4d4f' }}>{submitError}</Text>
+            </Form.Item>
+          ) : null}
         </Form>
 
         {/* 测试账号信息 */}

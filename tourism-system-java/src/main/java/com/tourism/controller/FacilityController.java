@@ -2,10 +2,10 @@ package com.tourism.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.tourism.mapper.BuildingMapper;
 import com.tourism.model.entity.SpotFacility;
 import com.tourism.model.entity.SpotBuilding;
-import com.tourism.mapper.FacilityMapper;
+import com.tourism.service.BuildingService;
+import com.tourism.service.FacilityService;
 import com.tourism.utils.GeoUtils;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/facilities")
 public class FacilityController {
 
-    private final FacilityMapper facilityMapper;
-    private final BuildingMapper buildingMapper;
+    private final FacilityService facilityService;
+    private final BuildingService buildingService;
 
-    public FacilityController(FacilityMapper facilityMapper, BuildingMapper buildingMapper) {
-        this.facilityMapper = facilityMapper;
-        this.buildingMapper = buildingMapper;
+    public FacilityController(FacilityService facilityService, BuildingService buildingService) {
+        this.facilityService = facilityService;
+        this.buildingService = buildingService;
     }
 
     @Operation(summary = "查询场所内所有设施")
@@ -51,17 +51,31 @@ public class FacilityController {
                     .or().like(SpotFacility::getDescription, keyword));
         }
         wrapper.orderByAsc(SpotFacility::getType).orderByAsc(SpotFacility::getName);
-        return Result.success(facilityMapper.selectPage(new Page<>(page, size), wrapper));
+        return Result.success(facilityService.page(new Page<>(page, size), wrapper));
     }
 
     @Operation(summary = "获取设施详情")
     @GetMapping("/{id}")
     public Result<SpotFacility> detail(@PathVariable String id) {
-        SpotFacility facility = facilityMapper.selectById(id);
+        SpotFacility facility = facilityService.getById(id);
         if (facility == null) {
             return Result.fail(404, "设施不存在");
         }
         return Result.success(facility);
+    }
+
+    @Operation(summary = "根据场所ID查询设施列表")
+    @GetMapping("/place/{placeId}")
+    public Result<List<SpotFacility>> listByPlaceId(@PathVariable String placeId) {
+        return Result.success(facilityService.listByPlaceId(placeId));
+    }
+
+    @Operation(summary = "根据场所和类型查询设施")
+    @GetMapping("/place/{placeId}/type/{type}")
+    public Result<List<SpotFacility>> listByPlaceAndType(
+            @PathVariable String placeId,
+            @PathVariable String type) {
+        return Result.success(facilityService.listByPlaceIdAndType(placeId, type));
     }
 
     @Operation(summary = "搜索设施")
@@ -82,7 +96,7 @@ public class FacilityController {
                 .orderByAsc(SpotFacility::getType)
                 .orderByAsc(SpotFacility::getName)
                 .last("limit 100");
-        return Result.success(facilityMapper.selectList(wrapper));
+        return Result.success(facilityService.list(wrapper));
     }
 
     @Operation(summary = "查询附近设施（LBS，半径单位：米）")
@@ -98,7 +112,7 @@ public class FacilityController {
             wrapper.eq(SpotFacility::getType, type);
         }
 
-        List<SpotFacility> facilities = facilityMapper.selectList(wrapper);
+        List<SpotFacility> facilities = facilityService.list(wrapper);
         List<SpotFacility> nearby = facilities.stream()
                 .filter(f -> f.getLat() != null && f.getLng() != null)
                 .filter(f -> GeoUtils.distance(lat, lng,
@@ -115,7 +129,7 @@ public class FacilityController {
             return Result.fail(400, "buildingId 和 placeId 不能为空");
         }
 
-        SpotBuilding building = buildingMapper.selectById(request.buildingId());
+        SpotBuilding building = buildingService.getBuildingDetail(request.buildingId());
         if (building == null) {
             return Result.fail(404, "建筑物不存在");
         }
@@ -129,7 +143,7 @@ public class FacilityController {
             wrapper.eq(SpotFacility::getType, request.facilityType());
         }
 
-        List<SpotFacility> facilities = facilityMapper.selectList(wrapper);
+        List<SpotFacility> facilities = facilityService.list(wrapper);
         double originLat = building.getLat().doubleValue();
         double originLng = building.getLng().doubleValue();
 

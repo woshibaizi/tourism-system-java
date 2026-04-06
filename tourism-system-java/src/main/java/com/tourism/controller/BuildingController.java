@@ -2,8 +2,8 @@ package com.tourism.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.tourism.mapper.BuildingMapper;
 import com.tourism.model.entity.SpotBuilding;
+import com.tourism.service.BuildingService;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,10 +18,10 @@ import java.util.List;
 @RequestMapping("/api/buildings")
 public class BuildingController {
 
-    private final BuildingMapper buildingMapper;
+    private final BuildingService buildingService;
 
-    public BuildingController(BuildingMapper buildingMapper) {
-        this.buildingMapper = buildingMapper;
+    public BuildingController(BuildingService buildingService) {
+        this.buildingService = buildingService;
     }
 
     @Operation(summary = "分页查询建筑物")
@@ -45,17 +45,23 @@ public class BuildingController {
                     .or().like(SpotBuilding::getDescription, keyword));
         }
         wrapper.orderByAsc(SpotBuilding::getName);
-        return Result.success(buildingMapper.selectPage(new Page<>(page, size), wrapper));
+        return Result.success(buildingService.page(new Page<>(page, size), wrapper));
     }
 
     @Operation(summary = "获取建筑物详情")
     @GetMapping("/{id}")
     public Result<SpotBuilding> detail(@PathVariable String id) {
-        SpotBuilding building = buildingMapper.selectById(id);
+        SpotBuilding building = buildingService.getBuildingDetail(id);
         if (building == null) {
             return Result.fail(404, "建筑物不存在");
         }
         return Result.success(building);
+    }
+
+    @Operation(summary = "根据场所ID查询建筑物列表")
+    @GetMapping("/place/{placeId}")
+    public Result<List<SpotBuilding>> listByPlace(@PathVariable String placeId) {
+        return Result.success(buildingService.listByPlaceId(placeId));
     }
 
     @Operation(summary = "搜索建筑物")
@@ -71,6 +77,6 @@ public class BuildingController {
                 .or().like(SpotBuilding::getDescription, query))
                 .orderByAsc(SpotBuilding::getName)
                 .last("limit 100");
-        return Result.success(buildingMapper.selectList(wrapper));
+        return Result.success(buildingService.list(wrapper));
     }
 }

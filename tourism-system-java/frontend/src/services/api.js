@@ -121,6 +121,8 @@ api.interceptors.response.use(
   }
 );
 
+// ==================== 内部分页请求 ====================
+
 const fetchPlacesList = async (params = {}) => unwrapPageRecords(await api.get('/places', { params: buildListParams(params) }));
 const fetchBuildingsList = async (params = {}) => unwrapPageRecords(await api.get('/buildings', { params: buildListParams(params) }));
 const fetchFacilitiesList = async (params = {}) => unwrapPageRecords(await api.get('/facilities', { params: buildListParams(params) }));
@@ -135,6 +137,9 @@ export const userAPI = {
   // 获取特定用户
   getUser: (userId) => api.get(`/users/${userId}`),
 
+  // 更新用户信息
+  updateUser: (userId, data) => api.put(`/users/${userId}`, data),
+
   // 用户登录
   login: (credentials) => api.post('/auth/login', credentials),
 
@@ -143,6 +148,18 @@ export const userAPI = {
 
   // 获取当前用户
   getCurrentUser: () => api.get('/auth/me'),
+
+  // 记录用户行为（浏览/评分）
+  recordBehavior: (userId, targetId, behaviorType, score) =>
+    api.post(`/users/${userId}/behavior`, null, {
+      params: { targetId, behaviorType, ...(score != null ? { score } : {}) },
+    }),
+
+  // 查询用户浏览历史
+  getViewHistory: (userId) => api.get(`/users/${userId}/views`),
+
+  // 查询用户评分历史
+  getRatingHistory: (userId) => api.get(`/users/${userId}/ratings`),
 };
 
 export const getUsers = () => userAPI.getUsers();
@@ -154,16 +171,25 @@ export const getCurrentUser = () => userAPI.getCurrentUser();
 // ==================== 场所相关API ====================
 
 export const placeAPI = {
-  // 获取场所列表
+  // 获取场所列表（分页）
   getPlaces: async (params = {}) => fetchPlacesList(params),
   
-  // 获取场所详情
+  // 获取场所详情（含建筑物和设施）
   getPlace: (placeId) => api.get(`/places/${placeId}`),
   
   // 搜索场所
   searchPlaces: (query, type = 'fuzzy') => api.get('/places/search', { params: { query, type } }),
-  
-  // 推荐场所
+
+  // 获取热门场所（按浏览量排序）
+  getHotPlaces: (limit = 10) => api.get('/places/hot', { params: { limit } }),
+
+  // 获取高评分场所
+  getTopRatedPlaces: (limit = 10) => api.get('/places/top-rated', { params: { limit } }),
+
+  // 按类型查询场所
+  getPlacesByType: (type) => api.get(`/places/type/${type}`),
+
+  // 推荐场所（降级为热门场所）
   recommendPlaces: async (userId, algorithm = 'hybrid') => {
     try {
       return await api.post('/places/recommend', { userId, algorithm });
@@ -171,16 +197,19 @@ export const placeAPI = {
       if (!isMissingEndpointError(error)) {
         throw error;
       }
-
-      const places = unwrapArrayData(await fetchPlacesList());
-      const sorted = [...places].sort((a, b) => {
-        const clickDiff = toNumber(b.clickCount) - toNumber(a.clickCount);
-        if (clickDiff !== 0) {
-          return clickDiff;
-        }
-        return toNumber(b.rating) - toNumber(a.rating);
-      });
-      return successResult(sorted.slice(0, 12));
+      // 降级：使用热门场所接口
+      try {
+        return await api.get('/places/hot', { params: { limit: 12 } });
+      } catch {
+        // 兜底：从列表接口排序
+        const places = unwrapArrayData(await fetchPlacesList());
+        const sorted = [...places].sort((a, b) => {
+          const clickDiff = toNumber(b.clickCount) - toNumber(a.clickCount);
+          if (clickDiff !== 0) return clickDiff;
+          return toNumber(b.rating) - toNumber(a.rating);
+        });
+        return successResult(sorted.slice(0, 12));
+      }
     }
   },
   
@@ -193,6 +222,22 @@ export const placeAPI = {
         throw error;
       }
 
+      // 降级：使用后端已有的热门/高评分接口
+      if (sortType === 'rating') {
+        try {
+          return await api.get('/places/top-rated', { params: { limit: topK } });
+        } catch {
+          // fall through
+        }
+      } else {
+        try {
+          return await api.get('/places/hot', { params: { limit: topK } });
+        } catch {
+          // fall through
+        }
+      }
+
+      // 兜底：前端排序
       const places = unwrapArrayData(await fetchPlacesList());
       const filtered = placeIds.length > 0
         ? places.filter((place) => placeIds.includes(place.id))
@@ -209,38 +254,42 @@ export const placeAPI = {
     }
   },
   
-  // 获取用户对场所的评分
+  // 获取用户对场所的评分（通过用户行为接口实现）
   getUserRating: async (placeId, userId) => {
     try {
-      return await api.get(`/places/${placeId}/user-rating/${userId}`);
-    } catch (error) {
-      if (!isMissingEndpointError(error)) {
-        throw error;
+      const response = await userAPI.getRatingHistory(userId);
+      if (response.success && Array.isArray(response.data)) {
+        const rating = response.data.find(
+          (b) => b.targetId === placeId && b.behaviorType === 'RATE'
+        );
+        if (rating) {
+          return successResult({ userRating: toNumber(rating.score), hasRated: true });
+        }
       }
+      return successResult({ userRating: null, hasRated: false });
+    } catch (error) {
       return successResult({ userRating: null, hasRated: false });
     }
   },
   
-  // 为场所评分
+  // 为场所评分（通过用户行为接口实现）
   ratePlace: async (placeId, rating, userId) => {
     try {
-      return await api.post(`/places/${placeId}/rate`, { rating, userId });
-    } catch (error) {
-      if (!isMissingEndpointError(error)) {
-        throw error;
+      const response = await userAPI.recordBehavior(userId, placeId, 'RATE', rating);
+      if (response.success) {
+        return successResult({ rating, ratingCount: 0 });
       }
-      return failResult('当前后端未实现景点评分接口', 501);
+      return failResult('评分失败');
+    } catch (error) {
+      return failResult('评分失败，请稍后重试');
     }
   },
   
-  // 记录访问历史
+  // 记录访问历史（通过用户行为接口实现）
   recordVisit: async (placeId, userId) => {
     try {
-      return await api.post(`/places/${placeId}/visit`, { userId });
+      return await userAPI.recordBehavior(userId, placeId, 'VIEW', null);
     } catch (error) {
-      if (!isMissingEndpointError(error)) {
-        throw error;
-      }
       return successResult();
     }
   },
@@ -250,6 +299,8 @@ export const placeAPI = {
 export const getPlaces = (params) => placeAPI.getPlaces(params);
 export const getPlace = (placeId) => placeAPI.getPlace(placeId);
 export const searchPlaces = (query, type) => placeAPI.searchPlaces(query, type);
+export const getHotPlaces = (limit) => placeAPI.getHotPlaces(limit);
+export const getTopRatedPlaces = (limit) => placeAPI.getTopRatedPlaces(limit);
 export const getRecommendedPlaces = (userId, algorithm) => placeAPI.recommendPlaces(userId, algorithm);
 export const sortPlaces = (sortType, topK, placeIds) => placeAPI.sortPlaces(sortType, topK, placeIds);
 export const getUserRating = (placeId, userId) => placeAPI.getUserRating(placeId, userId);
@@ -259,14 +310,21 @@ export const recordVisit = (placeId, userId) => placeAPI.recordVisit(placeId, us
 // ==================== 建筑物相关API ====================
 
 export const buildingAPI = {
-  // 获取建筑物列表
+  // 获取建筑物列表（分页）
   getBuildings: async (params = {}) => fetchBuildingsList(params),
   
   // 获取建筑物详情
   getBuilding: (buildingId) => api.get(`/buildings/${buildingId}`),
   
-  // 根据场所获取建筑物
-  getBuildingsByPlace: async (placeId) => fetchBuildingsList({ placeId }),
+  // 根据场所获取建筑物列表
+  getBuildingsByPlace: async (placeId) => {
+    try {
+      return await api.get(`/buildings/place/${placeId}`);
+    } catch (error) {
+      if (!isMissingEndpointError(error)) throw error;
+      return fetchBuildingsList({ placeId });
+    }
+  },
   
   // 搜索建筑物
   searchBuildings: (query, placeId) => api.get('/buildings/search', { params: { query, placeId } }),
@@ -280,13 +338,22 @@ export const searchBuildings = (query, placeId) => buildingAPI.searchBuildings(q
 // ==================== 设施相关API ====================
 
 export const facilityAPI = {
-  // 获取设施列表
+  // 获取设施列表（分页）
   getFacilities: async (params = {}) => fetchFacilitiesList(params),
+
+  // 获取设施详情
+  getFacility: (facilityId) => api.get(`/facilities/${facilityId}`),
+
+  // 根据场所获取设施列表
+  getFacilitiesByPlace: (placeId) => api.get(`/facilities/place/${placeId}`),
+
+  // 根据场所和类型获取设施列表
+  getFacilitiesByPlaceAndType: (placeId, type) => api.get(`/facilities/place/${placeId}/type/${type}`),
   
   // 搜索设施
   searchFacilities: (query, placeId, type) => api.get('/facilities/search', { params: { query, placeId, type } }),
   
-  // 获取附近设施
+  // 获取附近设施（LBS）
   getNearbyFacilities: (location, type, maxDistance = 1000) =>
     api.get('/facilities/nearby', {
       params: {
@@ -297,7 +364,7 @@ export const facilityAPI = {
       },
     }),
   
-  // 获取最近设施（基于路径距离）
+  // 获取最近设施（基于建筑坐标距离排序）
   getNearestFacilities: async (buildingId, placeId, facilityType = 'all') => {
     try {
       return await api.post('/facilities/nearest', { buildingId, placeId, facilityType });
@@ -306,6 +373,7 @@ export const facilityAPI = {
         throw error;
       }
 
+      // 降级：前端计算距离
       const [buildingsResponse, facilitiesResponse] = await Promise.all([
         fetchBuildingsList({ placeId }),
         fetchFacilitiesList(
@@ -351,6 +419,87 @@ export const searchFacilities = (query, placeId, type) => facilityAPI.searchFaci
 export const getNearbyFacilities = (location, type, maxDistance) => facilityAPI.getNearbyFacilities(location, type, maxDistance);
 export const getNearestFacilities = (buildingId, placeId, facilityType) => facilityAPI.getNearestFacilities(buildingId, placeId, facilityType);
 
+// ==================== 美食相关API ====================
+
+export const foodAPI = {
+  // 根据场所ID获取美食列表
+  getFoodsByPlace: (placeId) => api.get(`/foods/place/${placeId}`),
+
+  // 根据菜系筛选美食
+  getFoodsByCuisine: (cuisine) => api.get(`/foods/cuisine/${cuisine}`),
+
+  // 获取热门美食
+  getPopularFoods: (placeId, limit = 10) => api.get('/foods/popular', { params: { placeId, limit } }),
+
+  // 获取美食详情
+  getFood: (foodId) => api.get(`/foods/${foodId}`),
+
+  // 获取菜系列表（从美食数据中提取）
+  getCuisines: async (placeId) => {
+    try {
+      const response = await api.get(`/foods/place/${placeId}`);
+      if (response.success && Array.isArray(response.data)) {
+        const cuisines = [...new Set(response.data.map((f) => f.cuisine).filter(Boolean))];
+        return successResult(cuisines);
+      }
+      return successResult([]);
+    } catch {
+      return successResult([]);
+    }
+  },
+
+  // 搜索美食（从列表中前端过滤）
+  searchFoods: async (placeId, params = {}) => {
+    try {
+      let foods;
+      if (params.cuisine) {
+        const response = await api.get(`/foods/cuisine/${params.cuisine}`);
+        foods = response.success ? response.data : [];
+        // 按场所过滤
+        if (placeId) {
+          foods = foods.filter((f) => f.placeId === placeId);
+        }
+      } else if (placeId) {
+        const response = await api.get(`/foods/place/${placeId}`);
+        foods = response.success ? response.data : [];
+      } else {
+        const response = await api.get('/foods/popular', { params: { limit: 100 } });
+        foods = response.success ? response.data : [];
+      }
+
+      // 搜索过滤
+      if (params.search) {
+        const keyword = params.search.toLowerCase();
+        foods = foods.filter(
+          (f) =>
+            (f.name || '').toLowerCase().includes(keyword) ||
+            (f.description || '').toLowerCase().includes(keyword)
+        );
+      }
+
+      // 按热度排序
+      if (params.sortBy === 'popularity') {
+        foods.sort((a, b) => toNumber(b.popularity) - toNumber(a.popularity));
+      }
+
+      // 限制条数
+      const limit = params.limit || 12;
+      const result = foods.slice(0, limit);
+
+      return {
+        success: true,
+        data: result,
+        total: foods.length,
+      };
+    } catch {
+      return { success: false, data: [], total: 0 };
+    }
+  },
+};
+
+export const getFoodsByPlace = (placeId) => foodAPI.getFoodsByPlace(placeId);
+export const getPopularFoods = (placeId, limit) => foodAPI.getPopularFoods(placeId, limit);
+
 // ==================== 路径规划相关API ====================
 
 export const routeAPI = {
@@ -383,24 +532,20 @@ export const routeAPI = {
 export const planSingleRoute = (data) => routeAPI.calculateShortestRoute(data);
 export const planMultiRoute = (data) => routeAPI.calculateMultiDestinationRoute(data);
 
-// ==================== 推荐系统相关API ====================
-
-export const recommendationAPI = {
-  // 推荐场所
-  recommendPlaces: (params = {}) => api.get('/recommendations/places', { params }),
-  
-  // 推荐日记
-  recommendDiaries: (params = {}) => api.get('/recommendations/diaries', { params }),
-};
-
 // ==================== 旅游日记相关API ====================
 
 export const diaryAPI = {
-  // 获取日记列表
+  // 获取日记列表（分页）
   getDiaries: async (params = {}) => fetchDiariesList(params),
   
   // 获取日记详情
   getDiary: (diaryId) => api.get(`/diaries/${diaryId}`),
+
+  // 根据作者查询日记
+  getDiariesByAuthor: (authorId) => api.get(`/diaries/author/${authorId}`),
+
+  // 获取热门日记
+  getHotDiaries: (limit = 10) => api.get('/diaries/hot', { params: { limit } }),
   
   // 创建日记
   createDiary: (data) => api.post('/diaries', data),
@@ -411,7 +556,7 @@ export const diaryAPI = {
   // 删除日记
   deleteDiary: (diaryId) => api.delete(`/diaries/${diaryId}`),
   
-  // 搜索日记
+  // 搜索日记（前端过滤）
   searchDiaries: async (query, type = 'fulltext') => {
     try {
       return await api.get('/diaries/search', { params: { query, type } });
@@ -455,15 +600,15 @@ export const diaryAPI = {
   },
   
   // 按标题精准搜索日记
-  searchDiariesByTitle: (title) => api.get('/diaries/search', { params: { query: title, type: 'title' } }),
+  searchDiariesByTitle: (title) => diaryAPI.searchDiaries(title, 'title'),
   
   // 按内容搜索日记
-  searchDiariesByContent: (content) => api.get('/diaries/search', { params: { query: content, type: 'content' } }),
+  searchDiariesByContent: (content) => diaryAPI.searchDiaries(content, 'content'),
   
   // 按目的地搜索日记
-  searchDiariesByDestination: (destination) => api.get('/diaries/search', { params: { query: destination, type: 'destination' } }),
+  searchDiariesByDestination: (destination) => diaryAPI.searchDiaries(destination, 'destination'),
   
-  // 推荐日记
+  // 推荐日记（降级为热门日记）
   recommendDiaries: async (userId, algorithm = 'content') => {
     try {
       return await api.post('/diaries/recommend', { userId, algorithm });
@@ -471,40 +616,50 @@ export const diaryAPI = {
       if (!isMissingEndpointError(error)) {
         throw error;
       }
-
-      const diaries = unwrapArrayData(await fetchDiariesList());
-      const sorted = [...diaries].sort((a, b) => {
-        const clickDiff = toNumber(b.clickCount) - toNumber(a.clickCount);
-        if (clickDiff !== 0) {
-          return clickDiff;
-        }
-        return toNumber(b.rating) - toNumber(a.rating);
-      });
-      return successResult(sorted.slice(0, 12));
+      // 降级：使用热门日记接口
+      try {
+        return await api.get('/diaries/hot', { params: { limit: 12 } });
+      } catch {
+        // 兜底：前端排序
+        const diaries = unwrapArrayData(await fetchDiariesList());
+        const sorted = [...diaries].sort((a, b) => {
+          const clickDiff = toNumber(b.clickCount) - toNumber(a.clickCount);
+          if (clickDiff !== 0) return clickDiff;
+          return toNumber(b.rating) - toNumber(a.rating);
+        });
+        return successResult(sorted.slice(0, 12));
+      }
     }
   },
   
-  // 获取用户对日记的评分
+  // 获取用户对日记的评分（通过用户行为接口实现）
   getUserDiaryRating: async (diaryId, userId) => {
     try {
-      return await api.get(`/diaries/${diaryId}/user-rating/${userId}`);
-    } catch (error) {
-      if (!isMissingEndpointError(error)) {
-        throw error;
+      const response = await userAPI.getRatingHistory(userId);
+      if (response.success && Array.isArray(response.data)) {
+        const rating = response.data.find(
+          (b) => b.targetId === diaryId && b.behaviorType === 'RATE'
+        );
+        if (rating) {
+          return successResult({ userRating: toNumber(rating.score), hasRated: true });
+        }
       }
+      return successResult({ userRating: null, hasRated: false });
+    } catch (error) {
       return successResult({ userRating: null, hasRated: false });
     }
   },
   
-  // 为日记评分
+  // 为日记评分（通过用户行为接口实现）
   rateDiary: async (diaryId, rating, userId) => {
     try {
-      return await api.post(`/diaries/${diaryId}/rate`, { rating, userId });
-    } catch (error) {
-      if (!isMissingEndpointError(error)) {
-        throw error;
+      const response = await userAPI.recordBehavior(userId, diaryId, 'RATE', rating);
+      if (response.success) {
+        return successResult({ rating, ratingCount: 0 });
       }
-      return failResult('当前后端未实现日记评分接口', 501);
+      return failResult('评分失败');
+    } catch (error) {
+      return failResult('评分失败，请稍后重试');
     }
   },
 };
@@ -513,6 +668,8 @@ export const diaryAPI = {
 export const getDiaries = (params) => diaryAPI.getDiaries(params);
 export const getDiary = (diaryId) => diaryAPI.getDiary(diaryId);
 export const createDiary = (data) => diaryAPI.createDiary(data);
+export const updateDiary = (diaryId, data) => diaryAPI.updateDiary(diaryId, data);
+export const deleteDiary = (diaryId) => diaryAPI.deleteDiary(diaryId);
 export const searchDiaries = (query, type) => diaryAPI.searchDiaries(query, type);
 export const searchDiariesByTitle = (title) => diaryAPI.searchDiariesByTitle(title);
 export const searchDiariesByContent = (content) => diaryAPI.searchDiariesByContent(content);
@@ -554,7 +711,7 @@ export const uploadVideo = (file) => uploadAPI.uploadVideo(file);
 // ==================== 统计分析相关API ====================
 
 export const statsAPI = {
-  // 获取系统统计信息
+  // 获取系统统计信息（对接 Java 后端 GET /api/stats）
   getStatistics: async () => {
     try {
       return await api.get('/stats');
@@ -578,17 +735,22 @@ export const statsAPI = {
     }
   },
   
-  // 获取热门场所统计
-  getPopularPlaces: (limit = 10) => api.get('/stats/popular-places', { params: { limit } }),
-  
-  // 获取压缩统计
-  getCompressionStats: () => api.get('/stats/compression'),
+  // 获取热门场所统计（使用新后端接口）
+  getPopularPlaces: (limit = 10) => placeAPI.getHotPlaces(limit),
 };
 
 // 简化的API导出
 export const getStatistics = () => statsAPI.getStatistics();
 
+// ==================== 推荐系统相关API ====================
 
+export const recommendationAPI = {
+  // 推荐场所
+  recommendPlaces: (params = {}) => placeAPI.recommendPlaces(params.userId),
+  
+  // 推荐日记
+  recommendDiaries: (params = {}) => diaryAPI.recommendDiaries(params.userId),
+};
 
 // ==================== 搜索相关API ====================
 
@@ -646,7 +808,7 @@ export const formatDuration = (minutes) => {
   }
 };
 
-// 计算两点间距离（简化版，实际应用中建议使用更精确的算法）
+// 计算两点间距离（Haversine公式）
 export const calculateDistance = (lat1, lng1, lat2, lng2) => {
   const R = 6371; // 地球半径（公里）
   const dLat = (lat2 - lat1) * Math.PI / 180;

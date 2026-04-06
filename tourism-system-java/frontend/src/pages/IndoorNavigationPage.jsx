@@ -25,7 +25,7 @@ import {
   DownOutlined,
   CompassOutlined
 } from '@ant-design/icons';
-import axios from 'axios';
+import api from '../services/api';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -50,16 +50,16 @@ const IndoorNavigationPage = () => {
       
       // 并行加载建筑信息和房间列表
       const [buildingResponse, roomsResponse] = await Promise.all([
-        axios.get('http://localhost:5001/api/indoor/building'),
-        axios.get('http://localhost:5001/api/indoor/rooms')
+        api.get('/indoor/building'),
+        api.get('/indoor/rooms')
       ]);
 
-      if (buildingResponse.data.success) {
-        setBuildingInfo(buildingResponse.data.data);
+      if (buildingResponse.success) {
+        setBuildingInfo(buildingResponse.data);
       }
 
-      if (roomsResponse.data.success) {
-        setRooms(roomsResponse.data.data);
+      if (roomsResponse.success) {
+        setRooms(roomsResponse.data);
       }
     } catch (error) {
       message.error('加载数据失败');
@@ -77,16 +77,16 @@ const IndoorNavigationPage = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/indoor/navigate', {
+      const response = await api.post('/indoor/navigate', {
         roomId: selectedRoom,
         avoidCongestion: avoidCongestion
       });
 
-      if (response.data.success) {
-        setNavigationResult(response.data.data);
+      if (response.success) {
+        setNavigationResult(response.data);
         message.success('导航路径计算成功');
       } else {
-        message.error(response.data.message || '导航计算失败');
+        message.error(response.message || '导航计算失败');
         setNavigationResult(null);
       }
     } catch (error) {

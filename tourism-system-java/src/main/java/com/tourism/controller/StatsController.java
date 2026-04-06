@@ -1,14 +1,6 @@
 package com.tourism.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.tourism.mapper.DiaryMapper;
-import com.tourism.mapper.PlaceMapper;
-import com.tourism.mapper.RoadEdgeMapper;
-import com.tourism.mapper.UserMapper;
-import com.tourism.model.entity.SpotPlace;
-import com.tourism.model.entity.SpotRoadEdge;
-import com.tourism.model.entity.SysUser;
-import com.tourism.model.entity.TravelDiary;
+import com.tourism.service.*;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,29 +16,41 @@ import java.util.Map;
 @RequestMapping("/api/stats")
 public class StatsController {
 
-    private final PlaceMapper placeMapper;
-    private final DiaryMapper diaryMapper;
-    private final UserMapper userMapper;
-    private final RoadEdgeMapper roadEdgeMapper;
+    private final PlaceService placeService;
+    private final DiaryService diaryService;
+    private final UserService userService;
+    private final RoadEdgeService roadEdgeService;
+    private final BuildingService buildingService;
+    private final FacilityService facilityService;
+    private final FoodService foodService;
 
-    public StatsController(PlaceMapper placeMapper,
-                           DiaryMapper diaryMapper,
-                           UserMapper userMapper,
-                           RoadEdgeMapper roadEdgeMapper) {
-        this.placeMapper = placeMapper;
-        this.diaryMapper = diaryMapper;
-        this.userMapper = userMapper;
-        this.roadEdgeMapper = roadEdgeMapper;
+    public StatsController(PlaceService placeService,
+                           DiaryService diaryService,
+                           UserService userService,
+                           RoadEdgeService roadEdgeService,
+                           BuildingService buildingService,
+                           FacilityService facilityService,
+                           FoodService foodService) {
+        this.placeService = placeService;
+        this.diaryService = diaryService;
+        this.userService = userService;
+        this.roadEdgeService = roadEdgeService;
+        this.buildingService = buildingService;
+        this.facilityService = facilityService;
+        this.foodService = foodService;
     }
 
     @Operation(summary = "获取系统统计概览")
     @GetMapping
     public Result<Map<String, Long>> overview() {
         Map<String, Long> stats = new LinkedHashMap<>();
-        stats.put("places", placeMapper.selectCount(new LambdaQueryWrapper<SpotPlace>()));
-        stats.put("diaries", diaryMapper.selectCount(new LambdaQueryWrapper<TravelDiary>()));
-        stats.put("users", userMapper.selectCount(new LambdaQueryWrapper<SysUser>()));
-        stats.put("roads", roadEdgeMapper.selectCount(new LambdaQueryWrapper<SpotRoadEdge>()));
+        stats.put("places", placeService.count());
+        stats.put("buildings", buildingService.count());
+        stats.put("facilities", facilityService.count());
+        stats.put("foods", foodService.count());
+        stats.put("diaries", diaryService.count());
+        stats.put("users", userService.count());
+        stats.put("roads", roadEdgeService.count());
         return Result.success(stats);
     }
 }

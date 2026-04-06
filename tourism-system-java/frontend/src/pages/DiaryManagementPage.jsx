@@ -29,7 +29,7 @@ import {
   EnvironmentOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getDiaries, getPlaces, getUsers, updateDiary, deleteDiary } from '../services/api';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -63,20 +63,20 @@ const DiaryManagementPage = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [diariesRes, placesRes, usersRes] = await Promise.all([
-        axios.get('http://localhost:5001/api/diaries?pageSize=1000'),
-        axios.get('http://localhost:5001/api/places'),
-        axios.get('http://localhost:5001/api/users')
+      const [diariesRes, placesRes, usersRes] = await Promise.allSettled([
+        getDiaries({ pageSize: 1000 }),
+        getPlaces(),
+        getUsers()
       ]);
 
-      if (diariesRes.data.success) {
-        setDiaries(diariesRes.data.data.diaries || []);
+      if (diariesRes.status === 'fulfilled' && diariesRes.value.success) {
+        setDiaries(diariesRes.value.data || []);
       }
-      if (placesRes.data.success) {
-        setPlaces(placesRes.data.data || []);
+      if (placesRes.status === 'fulfilled' && placesRes.value.success) {
+        setPlaces(placesRes.value.data || []);
       }
-      if (usersRes.data.success) {
-        setUsers(usersRes.data.data || []);
+      if (usersRes.status === 'fulfilled' && usersRes.value.success) {
+        setUsers(usersRes.value.data || []);
       }
     } catch (error) {
       message.error('加载数据失败');
@@ -127,21 +127,18 @@ const DiaryManagementPage = () => {
       const values = await form.validateFields();
       
       // 调用更新API
-      const response = await axios.put(`http://localhost:5001/api/diaries/${editingDiary.id}`, values);
+      const response = await updateDiary(editingDiary.id, values);
       
-      if (response.data.success) {
-        // 更新本地状态
-        const updatedDiaries = diaries.map(diary => 
-          diary.id === editingDiary.id ? response.data.data : diary
-        );
-        setDiaries(updatedDiaries);
+      if (response.success) {
+        // 重新加载数据
+        await loadData();
 
         message.success('日记更新成功');
         setEditModalVisible(false);
         setEditingDiary(null);
         form.resetFields();
       } else {
-        message.error(response.data.message || '更新失败');
+        message.error(response.message || '更新失败');
       }
     } catch (error) {
       message.error('更新失败');
@@ -152,15 +149,15 @@ const DiaryManagementPage = () => {
   const handleDelete = async (diaryId) => {
     try {
       // 调用删除API
-      const response = await axios.delete(`http://localhost:5001/api/diaries/${diaryId}`);
+      const response = await deleteDiary(diaryId);
       
-      if (response.data.success) {
+      if (response.success) {
         // 更新本地状态
         const updatedDiaries = diaries.filter(diary => diary.id !== diaryId);
         setDiaries(updatedDiaries);
         message.success('日记删除成功');
       } else {
-        message.error(response.data.message || '删除失败');
+        message.error(response.message || '删除失败');
       }
     } catch (error) {
       message.error('删除失败');

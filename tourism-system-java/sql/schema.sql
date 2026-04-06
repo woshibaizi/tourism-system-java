@@ -53,12 +53,32 @@ CREATE TABLE `spot_place` (
   PRIMARY KEY (`id`),
   KEY `idx_type` (`type`),
   KEY `idx_rating` (`rating`),
-  KEY `idx_click_count` (`click_count`),
-  SPATIAL INDEX `idx_location` ((POINT(`lat`, `lng`)))
+  KEY `idx_click_count` (`click_count`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='场所表（景区/校园）';
 
 -- =============================================
--- 3. 建筑物表 spot_building（20+条）
+-- 3. 美食表 spot_food（40条）
+-- =============================================
+DROP TABLE IF EXISTS `spot_food`;
+CREATE TABLE `spot_food` (
+  `id`          VARCHAR(32)   NOT NULL COMMENT '美食ID，如 food_001',
+  `name`        VARCHAR(100)  NOT NULL COMMENT '美食名称',
+  `place_id`    VARCHAR(32)   NOT NULL COMMENT '所属场所ID',
+  `cuisine`     VARCHAR(30)   DEFAULT NULL COMMENT '菜系：中式/西式',
+  `popularity`  INT           NOT NULL DEFAULT 0 COMMENT '人气值',
+  `description` VARCHAR(500)  DEFAULT NULL COMMENT '描述',
+  `price`       VARCHAR(30)   DEFAULT NULL COMMENT '价格',
+  `location`    VARCHAR(200)  DEFAULT NULL COMMENT '位置（如食堂楼层）',
+  `deleted`     TINYINT(1)    NOT NULL DEFAULT 0,
+  `created_at`  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_place_id` (`place_id`),
+  KEY `idx_cuisine` (`cuisine`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='美食表';
+
+-- =============================================
+-- 4. 建筑物表 spot_building（50+条）
 -- =============================================
 DROP TABLE IF EXISTS `spot_building`;
 CREATE TABLE `spot_building` (

@@ -15,7 +15,7 @@ import {
   Empty
 } from 'antd';
 import { SearchOutlined, FireOutlined, EnvironmentOutlined, ShopOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { foodAPI, getPlaces } from '../services/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -24,26 +24,45 @@ const FoodSearchPage = () => {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [selectedPlace, setSelectedPlace] = useState('place_001'); // 默认选择北京邮电大学
+  const [selectedPlace, setSelectedPlace] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [cuisines, setCuisines] = useState([]);
+  const [places, setPlaces] = useState([]);
   const [total, setTotal] = useState(0);
 
-  // 获取菜系列表
+  // 加载场所列表
   useEffect(() => {
-    fetchCuisines();
+    fetchPlaces();
   }, []);
 
   // 初始加载美食数据
   useEffect(() => {
-    fetchFoods();
+    if (selectedPlace) {
+      fetchCuisines();
+      fetchFoods();
+    }
   }, [selectedPlace, selectedCuisine]);
+
+  const fetchPlaces = async () => {
+    try {
+      const response = await getPlaces();
+      if (response.success && Array.isArray(response.data)) {
+        setPlaces(response.data);
+        // 默认选中第一个场所
+        if (response.data.length > 0) {
+          setSelectedPlace(response.data[0].id);
+        }
+      }
+    } catch (error) {
+      message.error('获取场所列表失败');
+    }
+  };
 
   const fetchCuisines = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/foods/cuisines');
-      if (response.data.success) {
-        setCuisines(response.data.data);
+      const response = await foodAPI.getCuisines(selectedPlace);
+      if (response.success) {
+        setCuisines(response.data);
       }
     } catch (error) {
       message.error('获取菜系列表失败');
@@ -54,9 +73,8 @@ const FoodSearchPage = () => {
     setLoading(true);
     try {
       const params = {
-        placeId: selectedPlace,
         sortBy: 'popularity',
-        limit: 12
+        limit: 12,
       };
 
       if (selectedCuisine) {
@@ -67,11 +85,11 @@ const FoodSearchPage = () => {
         params.search = searchText.trim();
       }
 
-      const response = await axios.get('http://localhost:5001/api/foods', { params });
+      const response = await foodAPI.searchFoods(selectedPlace, params);
       
-      if (response.data.success) {
-        setFoods(response.data.data);
-        setTotal(response.data.total);
+      if (response.success) {
+        setFoods(response.data);
+        setTotal(response.total);
       } else {
         message.error('获取美食数据失败');
       }
@@ -92,6 +110,7 @@ const FoodSearchPage = () => {
 
   const handlePlaceChange = (value) => {
     setSelectedPlace(value);
+    setSelectedCuisine('');
   };
 
   const getCuisineColor = (cuisine) => {
@@ -142,13 +161,17 @@ const FoodSearchPage = () => {
               onChange={handlePlaceChange}
               placeholder="选择场所"
               size="large"
+              showSearch
+              optionFilterProp="children"
             >
-              <Option value="place_001">
-                <Space>
-                  <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                  北京邮电大学
-                </Space>
-              </Option>
+              {places.map(place => (
+                <Option key={place.id} value={place.id}>
+                  <Space>
+                    <EnvironmentOutlined style={{ color: '#1890ff' }} />
+                    {place.name}
+                  </Space>
+                </Option>
+              ))}
             </Select>
           </Col>
           

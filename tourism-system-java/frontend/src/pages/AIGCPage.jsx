@@ -50,7 +50,7 @@ function AIGCPage() {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('http://localhost:5001/api/upload/image', {
+      const response = await fetch('/api/upload/image', {
         method: 'POST',
         body: formData,
       });
@@ -62,7 +62,7 @@ function AIGCPage() {
           uid: Date.now() + Math.random(),
           name: file.name,
           status: 'done',
-          url: `http://localhost:5001/${result.data.path}`,
+          url: `/api/${result.data.path}`,
           path: result.data.path,
           size: result.data.size
         };
@@ -101,7 +101,7 @@ function AIGCPage() {
     try {
       const imagePaths = imageList.map(img => img.path);
       
-      const response = await fetch('http://localhost:5001/api/aigc/convert-to-video', {
+      const response = await fetch('/api/aigc/convert-to-video', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ function AIGCPage() {
       const result = await response.json();
       
       if (result.success) {
-        setVideoUrl(`http://localhost:5001/${result.data.videoPath}`);
+        setVideoUrl(`/api/${result.data.videoPath}`);
         setProgress(100);
         message.success('视频转换成功！');
       } else {
@@ -194,7 +194,7 @@ function AIGCPage() {
                   border: '1px solid #d9d9d9',
                   borderRadius: 6
                 }}
-                src="http://localhost:5001/uploads/videos/demo.mp4"
+                src="/api/uploads/videos/demo.mp4"
               >
                 您的浏览器不支持视频播放
               </video>
@@ -250,7 +250,7 @@ function AIGCPage() {
           <Col xs={24} sm={8}>
             <div style={{ textAlign: 'center' }}>
               <Image
-                src="http://localhost:5001/uploads/images/audio_video.jpg"
+                src="/api/uploads/images/audio_video.jpg"
                 alt="音视频同步编辑质量"
                 style={{ 
                   width: '100%',
@@ -275,7 +275,7 @@ function AIGCPage() {
           <Col xs={24} sm={8}>
             <div style={{ textAlign: 'center' }}>
               <Image
-                src="http://localhost:5001/uploads/images/audio.jpg"
+                src="/api/uploads/images/audio.jpg"
                 alt="音频编辑质量"
                 style={{ 
                   width: '100%',
@@ -300,7 +300,7 @@ function AIGCPage() {
           <Col xs={24} sm={8}>
             <div style={{ textAlign: 'center' }}>
               <Image
-                src="http://localhost:5001/uploads/images/video.jpg"
+                src="/api/uploads/images/video.jpg"
                 alt="视频编辑质量"
                 style={{ 
                   width: '100%',

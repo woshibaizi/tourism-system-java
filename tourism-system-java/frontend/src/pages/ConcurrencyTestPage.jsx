@@ -49,7 +49,7 @@ function ConcurrencyTestPage() {
     const threadId = Math.random().toString(36).substr(2, 9); // 模拟线程ID
     
     try {
-      const response = await fetch(`http://localhost:5001${endpoint}`, {
+      const response = await fetch(endpoint, {
         signal,
         headers: {
           'Content-Type': 'application/json'

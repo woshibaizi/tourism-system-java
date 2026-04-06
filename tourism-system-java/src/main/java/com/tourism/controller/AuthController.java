@@ -5,8 +5,8 @@ import com.tourism.model.dto.RegisterDTO;
 import com.tourism.model.vo.LoginVO;
 import com.tourism.model.vo.UserProfileVO;
 import com.tourism.model.entity.SysUser;
-import com.tourism.mapper.UserMapper;
 import com.tourism.service.AuthService;
+import com.tourism.service.UserService;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserMapper userMapper;
+    private final UserService userService;
 
-    public AuthController(AuthService authService, UserMapper userMapper) {
+    public AuthController(AuthService authService, UserService userService) {
         this.authService = authService;
-        this.userMapper = userMapper;
+        this.userService = userService;
     }
 
     @Operation(summary = "用户登录")
@@ -44,7 +44,7 @@ public class AuthController {
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
     public Result<UserProfileVO> me(@AuthenticationPrincipal User principal) {
-        SysUser user = userMapper.selectById(Long.parseLong(principal.getUsername()));
+        SysUser user = userService.getById(Long.parseLong(principal.getUsername()));
         return Result.success(UserProfileVO.from(user));
     }
 }
