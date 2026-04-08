@@ -69,7 +69,7 @@ function StatsPage() {
       }
       
       if (diariesResult.status === 'fulfilled') {
-        setDiaries(diariesResult.value.data.diaries || []);
+        setDiaries(Array.isArray(diariesResult.value.data) ? diariesResult.value.data : []);
       }
       
       if (usersResult.status === 'fulfilled') {

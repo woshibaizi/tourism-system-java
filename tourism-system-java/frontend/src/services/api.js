@@ -6,9 +6,20 @@ const DEFAULT_LIST_SIZE = 1000;
 const normalizeEnvelope = (payload) => {
   if (payload && typeof payload.code === 'number') {
     return {
+      ...payload,
       success: payload.code === 200,
       code: payload.code,
       message: payload.message,
+      data: payload.data,
+    };
+  }
+
+  if (payload && typeof payload.success === 'boolean' && Object.prototype.hasOwnProperty.call(payload, 'data')) {
+    return {
+      ...payload,
+      success: payload.success,
+      code: payload.code ?? (payload.success ? 200 : 500),
+      message: payload.message ?? (payload.success ? 'success' : 'error'),
       data: payload.data,
     };
   }
@@ -84,6 +95,67 @@ const toNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const parseJsonArray = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value == null) {
+    return [];
+  }
+
+  const text = String(value).trim();
+  if (!text) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return text
+      .split(/[，,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+};
+
+const normalizeUser = (user) => {
+  if (!user || typeof user !== 'object') {
+    return user;
+  }
+  return {
+    ...user,
+    interests: parseJsonArray(user.interests),
+    favoriteCategories: parseJsonArray(user.favoriteCategories),
+  };
+};
+
+const normalizePlace = (place) => {
+  if (!place || typeof place !== 'object') {
+    return place;
+  }
+  return {
+    ...place,
+    keywords: parseJsonArray(place.keywords),
+    features: parseJsonArray(place.features),
+  };
+};
+
+const normalizeDiary = (diary) => {
+  if (!diary || typeof diary !== 'object') {
+    return diary;
+  }
+  return {
+    ...diary,
+    images: parseJsonArray(diary.images),
+    videos: parseJsonArray(diary.videos),
+    tags: parseJsonArray(diary.tags),
+  };
+};
+
+const normalizeArrayItems = (items, normalizer) =>
+  Array.isArray(items) ? items.map(normalizer) : [];
+
 // 创建axios实例
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_URL || '/api',
@@ -132,10 +204,16 @@ const fetchDiariesList = async (params = {}) => unwrapPageRecords(await api.get(
 
 export const userAPI = {
   // 获取所有用户
-  getUsers: () => api.get('/users'),
+  getUsers: async () => {
+    const response = await api.get('/users');
+    return successResult(normalizeArrayItems(response.data, normalizeUser), response.message);
+  },
 
   // 获取特定用户
-  getUser: (userId) => api.get(`/users/${userId}`),
+  getUser: async (userId) => {
+    const response = await api.get(`/users/${userId}`);
+    return successResult(normalizeUser(response.data), response.message);
+  },
 
   // 更新用户信息
   updateUser: (userId, data) => api.put(`/users/${userId}`, data),
@@ -147,7 +225,10 @@ export const userAPI = {
   register: (payload) => api.post('/auth/register', payload),
 
   // 获取当前用户
-  getCurrentUser: () => api.get('/auth/me'),
+  getCurrentUser: async () => {
+    const response = await api.get('/auth/me');
+    return successResult(normalizeUser(response.data), response.message);
+  },
 
   // 记录用户行为（浏览/评分）
   recordBehavior: (userId, targetId, behaviorType, score) =>
@@ -172,27 +253,50 @@ export const getCurrentUser = () => userAPI.getCurrentUser();
 
 export const placeAPI = {
   // 获取场所列表（分页）
-  getPlaces: async (params = {}) => fetchPlacesList(params),
+  getPlaces: async (params = {}) => {
+    const response = await fetchPlacesList(params);
+    return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
+  },
   
   // 获取场所详情（含建筑物和设施）
-  getPlace: (placeId) => api.get(`/places/${placeId}`),
+  getPlace: async (placeId) => {
+    const response = await api.get(`/places/${placeId}`);
+    const detail = response.data || {};
+    return successResult({
+      ...detail,
+      place: normalizePlace(detail.place),
+    }, response.message);
+  },
   
   // 搜索场所
-  searchPlaces: (query, type = 'fuzzy') => api.get('/places/search', { params: { query, type } }),
+  searchPlaces: async (query, type = 'fuzzy') => {
+    const response = await api.get('/places/search', { params: { query, type } });
+    return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
+  },
 
   // 获取热门场所（按浏览量排序）
-  getHotPlaces: (limit = 10) => api.get('/places/hot', { params: { limit } }),
+  getHotPlaces: async (limit = 10) => {
+    const response = await api.get('/places/hot', { params: { limit } });
+    return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
+  },
 
   // 获取高评分场所
-  getTopRatedPlaces: (limit = 10) => api.get('/places/top-rated', { params: { limit } }),
+  getTopRatedPlaces: async (limit = 10) => {
+    const response = await api.get('/places/top-rated', { params: { limit } });
+    return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
+  },
 
   // 按类型查询场所
-  getPlacesByType: (type) => api.get(`/places/type/${type}`),
+  getPlacesByType: async (type) => {
+    const response = await api.get(`/places/type/${type}`);
+    return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
+  },
 
   // 推荐场所（降级为热门场所）
   recommendPlaces: async (userId, algorithm = 'hybrid') => {
     try {
-      return await api.post('/places/recommend', { userId, algorithm });
+      const response = await api.post('/places/recommend', { userId, algorithm });
+      return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
     } catch (error) {
       if (!isMissingEndpointError(error)) {
         throw error;
@@ -216,7 +320,8 @@ export const placeAPI = {
   // 场所排序（使用Top-K优化）
   sortPlaces: async (sortType, topK = 12, placeIds = []) => {
     try {
-      return await api.post('/places/sort', { sortType, topK, placeIds });
+      const response = await api.post('/places/sort', { sortType, topK, placeIds });
+      return successResult(normalizeArrayItems(response.data, normalizePlace), response.message);
     } catch (error) {
       if (!isMissingEndpointError(error)) {
         throw error;
@@ -275,11 +380,7 @@ export const placeAPI = {
   // 为场所评分（通过用户行为接口实现）
   ratePlace: async (placeId, rating, userId) => {
     try {
-      const response = await userAPI.recordBehavior(userId, placeId, 'RATE', rating);
-      if (response.success) {
-        return successResult({ rating, ratingCount: 0 });
-      }
-      return failResult('评分失败');
+      return await api.post(`/places/${placeId}/rate`, { rating, userId });
     } catch (error) {
       return failResult('评分失败，请稍后重试');
     }
@@ -437,59 +538,30 @@ export const foodAPI = {
   // 获取菜系列表（从美食数据中提取）
   getCuisines: async (placeId) => {
     try {
-      const response = await api.get(`/foods/place/${placeId}`);
-      if (response.success && Array.isArray(response.data)) {
-        const cuisines = [...new Set(response.data.map((f) => f.cuisine).filter(Boolean))];
-        return successResult(cuisines);
-      }
-      return successResult([]);
+      const response = await api.get('/foods/cuisines', { params: { placeId } });
+      return successResult(Array.isArray(response.data) ? response.data : [], response.message);
     } catch {
       return successResult([]);
     }
   },
 
-  // 搜索美食（从列表中前端过滤）
+  // 搜索美食
   searchFoods: async (placeId, params = {}) => {
     try {
-      let foods;
-      if (params.cuisine) {
-        const response = await api.get(`/foods/cuisine/${params.cuisine}`);
-        foods = response.success ? response.data : [];
-        // 按场所过滤
-        if (placeId) {
-          foods = foods.filter((f) => f.placeId === placeId);
-        }
-      } else if (placeId) {
-        const response = await api.get(`/foods/place/${placeId}`);
-        foods = response.success ? response.data : [];
-      } else {
-        const response = await api.get('/foods/popular', { params: { limit: 100 } });
-        foods = response.success ? response.data : [];
-      }
-
-      // 搜索过滤
-      if (params.search) {
-        const keyword = params.search.toLowerCase();
-        foods = foods.filter(
-          (f) =>
-            (f.name || '').toLowerCase().includes(keyword) ||
-            (f.description || '').toLowerCase().includes(keyword)
-        );
-      }
-
-      // 按热度排序
-      if (params.sortBy === 'popularity') {
-        foods.sort((a, b) => toNumber(b.popularity) - toNumber(a.popularity));
-      }
-
-      // 限制条数
-      const limit = params.limit || 12;
-      const result = foods.slice(0, limit);
-
+      const response = await api.get('/foods', {
+        params: {
+          placeId,
+          cuisine: params.cuisine,
+          search: params.search,
+          sortBy: params.sortBy,
+          limit: params.limit,
+        },
+      });
+      const payload = response.data || {};
       return {
         success: true,
-        data: result,
-        total: foods.length,
+        data: Array.isArray(payload.items) ? payload.items : [],
+        total: payload.total ?? 0,
       };
     } catch {
       return { success: false, data: [], total: 0 };
@@ -536,22 +608,40 @@ export const planMultiRoute = (data) => routeAPI.calculateMultiDestinationRoute(
 
 export const diaryAPI = {
   // 获取日记列表（分页）
-  getDiaries: async (params = {}) => fetchDiariesList(params),
+  getDiaries: async (params = {}) => {
+    const response = await fetchDiariesList(params);
+    return successResult(normalizeArrayItems(response.data, normalizeDiary), response.message);
+  },
   
   // 获取日记详情
-  getDiary: (diaryId) => api.get(`/diaries/${diaryId}`),
+  getDiary: async (diaryId) => {
+    const response = await api.get(`/diaries/${diaryId}`);
+    return successResult(normalizeDiary(response.data), response.message);
+  },
 
   // 根据作者查询日记
-  getDiariesByAuthor: (authorId) => api.get(`/diaries/author/${authorId}`),
+  getDiariesByAuthor: async (authorId) => {
+    const response = await api.get(`/diaries/author/${authorId}`);
+    return successResult(normalizeArrayItems(response.data, normalizeDiary), response.message);
+  },
 
   // 获取热门日记
-  getHotDiaries: (limit = 10) => api.get('/diaries/hot', { params: { limit } }),
+  getHotDiaries: async (limit = 10) => {
+    const response = await api.get('/diaries/hot', { params: { limit } });
+    return successResult(normalizeArrayItems(response.data, normalizeDiary), response.message);
+  },
   
   // 创建日记
-  createDiary: (data) => api.post('/diaries', data),
+  createDiary: async (data) => {
+    const response = await api.post('/diaries', data);
+    return successResult(normalizeDiary(response.data), response.message);
+  },
   
   // 更新日记
-  updateDiary: (diaryId, data) => api.put(`/diaries/${diaryId}`, data),
+  updateDiary: async (diaryId, data) => {
+    const response = await api.put(`/diaries/${diaryId}`, data);
+    return successResult(normalizeDiary(response.data), response.message);
+  },
   
   // 删除日记
   deleteDiary: (diaryId) => api.delete(`/diaries/${diaryId}`),
@@ -559,7 +649,8 @@ export const diaryAPI = {
   // 搜索日记（前端过滤）
   searchDiaries: async (query, type = 'fulltext') => {
     try {
-      return await api.get('/diaries/search', { params: { query, type } });
+      const response = await api.get('/diaries/search', { params: { query, type } });
+      return successResult(normalizeArrayItems(response.data, normalizeDiary), response.message);
     } catch (error) {
       if (!isMissingEndpointError(error)) {
         throw error;
@@ -595,7 +686,7 @@ export const diaryAPI = {
           || destination.includes(normalizedQuery);
       });
 
-      return successResult(matched);
+      return successResult(normalizeArrayItems(matched, normalizeDiary));
     }
   },
   
@@ -611,23 +702,24 @@ export const diaryAPI = {
   // 推荐日记（降级为热门日记）
   recommendDiaries: async (userId, algorithm = 'content') => {
     try {
-      return await api.post('/diaries/recommend', { userId, algorithm });
+      const response = await api.post('/diaries/recommend', { userId, algorithm });
+      return successResult(normalizeArrayItems(response.data, normalizeDiary), response.message);
     } catch (error) {
       if (!isMissingEndpointError(error)) {
         throw error;
       }
       // 降级：使用热门日记接口
       try {
-        return await api.get('/diaries/hot', { params: { limit: 12 } });
-      } catch {
-        // 兜底：前端排序
-        const diaries = unwrapArrayData(await fetchDiariesList());
+          return await api.get('/diaries/hot', { params: { limit: 12 } });
+        } catch {
+          // 兜底：前端排序
+          const diaries = unwrapArrayData(await fetchDiariesList());
         const sorted = [...diaries].sort((a, b) => {
           const clickDiff = toNumber(b.clickCount) - toNumber(a.clickCount);
           if (clickDiff !== 0) return clickDiff;
           return toNumber(b.rating) - toNumber(a.rating);
         });
-        return successResult(sorted.slice(0, 12));
+        return successResult(normalizeArrayItems(sorted.slice(0, 12), normalizeDiary));
       }
     }
   },
@@ -653,11 +745,7 @@ export const diaryAPI = {
   // 为日记评分（通过用户行为接口实现）
   rateDiary: async (diaryId, rating, userId) => {
     try {
-      const response = await userAPI.recordBehavior(userId, diaryId, 'RATE', rating);
-      if (response.success) {
-        return successResult({ rating, ratingCount: 0 });
-      }
-      return failResult('评分失败');
+      return await api.post(`/diaries/${diaryId}/rate`, { rating, userId });
     } catch (error) {
       return failResult('评分失败，请稍后重试');
     }
@@ -775,6 +863,7 @@ export const searchAPI = {
 export const getFileUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
+  if (path.startsWith('/api/')) return path;
   const basePath = path.startsWith('/') ? path : `/${path}`;
   return `${import.meta.env.VITE_APP_API_URL || '/api'}${basePath}`;
 };

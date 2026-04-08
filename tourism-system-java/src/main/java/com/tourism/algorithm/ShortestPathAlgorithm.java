@@ -442,6 +442,38 @@ public class ShortestPathAlgorithm {
         return Collections.emptyList();
     }
 
+    public double calculatePathDistance(List<String> path) {
+        if (path == null || path.size() < 2) {
+            return 0;
+        }
+        double total = 0;
+        for (int i = 0; i < path.size() - 1; i++) {
+            RoadInfo roadInfo = graph.getOrDefault(path.get(i), Collections.emptyMap()).get(path.get(i + 1));
+            if (roadInfo != null) {
+                total += roadInfo.distance;
+            }
+        }
+        return total;
+    }
+
+    public List<RouteSegment> buildPathSegments(List<String> path, String vehicle) {
+        if (path == null || path.size() < 2) {
+            return Collections.emptyList();
+        }
+        List<RouteSegment> segments = new ArrayList<>();
+        for (int i = 0; i < path.size() - 1; i++) {
+            String from = path.get(i);
+            String to = path.get(i + 1);
+            RoadInfo roadInfo = graph.getOrDefault(from, Collections.emptyMap()).get(to);
+            if (roadInfo == null) {
+                continue;
+            }
+            double time = calculateTravelTime(roadInfo, vehicle);
+            segments.add(new RouteSegment(from, to, vehicle, time, roadInfo.distance));
+        }
+        return segments;
+    }
+
     // ==================== TSP 算法 ====================
 
     /** 距离矩阵：o(n²) Dijkstra预计算 */

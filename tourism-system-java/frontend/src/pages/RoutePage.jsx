@@ -129,7 +129,7 @@ function RoutePage() {
       options.push(
         <OptGroup key="buildings" label="📍 建筑物">
           {buildings.map(building => (
-            <Option key={building.id} value={building.id}>
+            <Option key={building.id} value={building.id} title={building.name}>
               🏢 {building.name}
             </Option>
           ))}
@@ -143,7 +143,7 @@ function RoutePage() {
       options.push(
         <OptGroup key="facilities" label="🎯 设施">
           {filteredFacilities.map(facility => (
-            <Option key={facility.id} value={facility.id}>
+            <Option key={facility.id} value={facility.id} title={`${facility.name} ${facility.type || ''}`}>
               🏪 {facility.name} ({facility.type})
             </Option>
           ))}
@@ -561,7 +561,7 @@ function RoutePage() {
                     disabled={!selectedPlace}
                     showSearch
                     filterOption={(input, option) =>
-                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      String(option?.title || '').toLowerCase().includes(input.toLowerCase())
                     }
                   >
                     {renderLocationOptions()}
@@ -579,7 +579,7 @@ function RoutePage() {
                       disabled={!selectedPlace}
                       showSearch
                       filterOption={(input, option) =>
-                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        String(option?.title || '').toLowerCase().includes(input.toLowerCase())
                       }
                     >
                       {renderLocationOptions()}
@@ -597,7 +597,7 @@ function RoutePage() {
                       disabled={!selectedPlace}
                       showSearch
                       filterOption={(input, option) =>
-                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        String(option?.title || '').toLowerCase().includes(input.toLowerCase())
                       }
                     >
                       {renderLocationOptions()}

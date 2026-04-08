@@ -35,6 +35,7 @@ function AIGCPage() {
   const [videoUrl, setVideoUrl] = useState(null);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
+  const isGifResult = videoUrl?.toLowerCase().endsWith('.gif');
 
   // 处理图片上传
   const handleUpload = async (file) => {
@@ -87,7 +88,7 @@ function AIGCPage() {
     message.success('图片已删除');
   };
 
-  // 转换为视频
+  // 转换为动画
   const handleConvertToVideo = async () => {
     if (imageList.length === 0) {
       message.warning('请先上传图片！');
@@ -108,8 +109,8 @@ function AIGCPage() {
         },
         body: JSON.stringify({
           imagePaths: imagePaths,
-          outputFormat: 'mp4',
-          fps: 30,
+          outputFormat: 'gif',
+          fps: 6,
           width: 848,
           height: 480
         }),
@@ -120,7 +121,7 @@ function AIGCPage() {
       if (result.success) {
         setVideoUrl(`/api/${result.data.videoPath}`);
         setProgress(100);
-        message.success('视频转换成功！');
+        message.success('旅游动画生成成功！');
       } else {
         message.error(result.message || '转换失败');
       }
@@ -131,12 +132,12 @@ function AIGCPage() {
     }
   };
 
-  // 下载视频
+  // 下载动画
   const handleDownloadVideo = () => {
     if (videoUrl) {
       const link = document.createElement('a');
       link.href = videoUrl;
-      link.download = `aigc_video_${Date.now()}.mp4`;
+      link.download = `aigc_animation_${Date.now()}${isGifResult ? '.gif' : '.mp4'}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -156,10 +157,10 @@ function AIGCPage() {
       }}>
         <Title level={2} style={{ margin: 0, color: 'white', fontSize: '28px', fontWeight: 'bold' }}>
           <RobotOutlined style={{ marginRight: 12, fontSize: '32px' }} />
-          AIGC 图片转视频
+          AIGC 图片转动画
         </Title>
         <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
-          上传多张JPG图片，自动转换为848×480分辨率的MP4视频
+          上传多张 JPG 图片，自动生成 848×480 分辨率的旅游动画
         </Text>
       </div>
 
@@ -369,7 +370,7 @@ function AIGCPage() {
 
             <Alert
               message="转换说明"
-              description="由于资金不足我们将其进行了简化，图片将被调整为848×480分辨率，每张图片在视频中显示1秒（30帧），最终输出为MP4格式视频。"
+              description="当前 Java 版本会将上传图片统一缩放并导出为循环播放的 GIF 动画，便于在无额外视频编码依赖的环境中直接生成旅游动画。"
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -394,7 +395,7 @@ function AIGCPage() {
                   icon={<DownloadOutlined />}
                   onClick={handleDownloadVideo}
                 >
-                  下载视频
+                  下载动画
                 </Button>
               )}
             </Space>
@@ -406,7 +407,7 @@ function AIGCPage() {
                   status={converting ? 'active' : 'success'}
                 />
                 <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginTop: 8 }}>
-                  正在处理图片并生成视频...
+                  正在处理图片并生成动画...
                 </Text>
               </div>
             )}
@@ -491,23 +492,38 @@ function AIGCPage() {
       {videoUrl && (
         <Row style={{ marginTop: 24 }}>
           <Col span={24}>
-            <Card title="生成的视频">
+            <Card title="生成的动画">
               <div style={{ textAlign: 'center' }}>
-                <video
-                  controls
-                  style={{ 
-                    width: '424px',  // 固定宽度，保持848:480的比例
-                    height: '240px', // 固定高度
-                    border: '1px solid #d9d9d9',
-                    borderRadius: 6
-                  }}
-                  src={videoUrl}
-                >
-                  您的浏览器不支持视频播放
-                </video>
+                {isGifResult ? (
+                  <Image
+                    src={videoUrl}
+                    alt="生成的旅游动画"
+                    style={{
+                      width: '424px',
+                      height: '240px',
+                      objectFit: 'cover',
+                      border: '1px solid #d9d9d9',
+                      borderRadius: 6,
+                    }}
+                    preview={false}
+                  />
+                ) : (
+                  <video
+                    controls
+                    style={{ 
+                      width: '424px',
+                      height: '240px',
+                      border: '1px solid #d9d9d9',
+                      borderRadius: 6
+                    }}
+                    src={videoUrl}
+                  >
+                    您的浏览器不支持视频播放
+                  </video>
+                )}
                 <div style={{ marginTop: 16 }}>
                   <Text type="secondary">
-                    视频尺寸: 848×480 | 帧率: 30fps | 时长: {imageList.length}秒
+                    动画尺寸: 848×480 | 帧率: 6fps | 共 {imageList.length} 张图片
                   </Text>
                 </div>
               </div>

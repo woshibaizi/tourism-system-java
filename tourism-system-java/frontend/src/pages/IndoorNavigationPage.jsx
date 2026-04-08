@@ -179,11 +179,11 @@ const IndoorNavigationPage = () => {
               onChange={setSelectedRoom}
               showSearch
               filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                String(option?.title || '').toLowerCase().includes(input.toLowerCase())
               }
             >
               {rooms.map(room => (
-                <Option key={room.id} value={room.id}>
+                <Option key={room.id} value={room.id} title={room.name}>
                   <Space>
                     <Tag color={getFloorColor(room.floor)}>{room.floor}楼</Tag>
                     {room.name}

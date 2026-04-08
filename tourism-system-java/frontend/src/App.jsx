@@ -30,7 +30,11 @@ import RoutePage from './pages/RoutePage';
 import FacilityQueryPage from './pages/FacilityQueryPage';
 import StatsPage from './pages/StatsPage';
 import LoginPage from './pages/LoginPage';
-import FeaturePlaceholderPage from './pages/FeaturePlaceholderPage';
+import DiaryManagementPage from './pages/DiaryManagementPage';
+import FoodSearchPage from './pages/FoodSearchPage';
+import IndoorNavigationPage from './pages/IndoorNavigationPage';
+import AIGCPage from './pages/AIGCPage';
+import ConcurrencyTestPage from './pages/ConcurrencyTestPage';
 
 const { Header, Content, Sider } = Layout;
 
@@ -442,51 +446,11 @@ function App() {
               <Route path="/route-planning" element={<RoutePage />} />
               <Route path="/facility-query" element={<FacilityQueryPage />} />
               <Route path="/stats" element={<StatsPage />} />
-              <Route
-                path="/diary-management"
-                element={
-                  <FeaturePlaceholderPage
-                    title="日记管理"
-                    description="这个管理页仍依赖旧端口和未迁移完成的 CRUD 接口，当前先保留入口说明。"
-                  />
-                }
-              />
-              <Route
-                path="/food-search"
-                element={
-                  <FeaturePlaceholderPage
-                    title="美食搜索"
-                    description="当前 Java 版本后端还没有接入美食查询接口，所以这里先不继续渲染会报错的页面。"
-                  />
-                }
-              />
-              <Route
-                path="/indoor-navigation"
-                element={
-                  <FeaturePlaceholderPage
-                    title="室内导航"
-                    description="这个页面依赖的室内导航接口尚未在当前 Java 后端实现。"
-                  />
-                }
-              />
-              <Route
-                path="/aigc"
-                element={
-                  <FeaturePlaceholderPage
-                    title="AIGC"
-                    description="当前 Java 后端未提供图像上传和视频生成接口，这里暂时改为占位页。"
-                  />
-                }
-              />
-              <Route
-                path="/concurrency-test"
-                element={
-                  <FeaturePlaceholderPage
-                    title="并发测试"
-                    description="这个页面依赖旧环境和演示接口，直接打开会产生大量无效请求，因此先改为占位页。"
-                  />
-                }
-              />
+              <Route path="/diary-management" element={<DiaryManagementPage />} />
+              <Route path="/food-search" element={<FoodSearchPage />} />
+              <Route path="/indoor-navigation" element={<IndoorNavigationPage />} />
+              <Route path="/aigc" element={<AIGCPage />} />
+              <Route path="/concurrency-test" element={<ConcurrencyTestPage />} />
             </Routes>
           </div>
         </Content>

@@ -12,12 +12,15 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/RedisConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/SecurityConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/SwaggerConfig.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/WebMvcConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/AlgorithmController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/AuthController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/BuildingController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/DiaryController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/FacilityController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/FoodController.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/LegacyNavigationController.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/MediaController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/NavigationController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/PlaceController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/StatsController.java
@@ -47,6 +50,7 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/vo/UserProfileVO.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/security/JwtAuthenticationFilter.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/security/UserDetailsServiceImpl.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AigcService.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AuthService.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/BuildingService.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/DiaryService.java
@@ -66,5 +70,6 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/impl/UserBehaviorServiceImpl.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/impl/UserServiceImpl.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/utils/GeoUtils.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/utils/JsonUtils.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/utils/JwtUtils.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/utils/Result.java
