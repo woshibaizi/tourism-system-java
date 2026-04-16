@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>个性化旅游系统需求、算法与架构设计</title>
+  <style>
+    :root {
+      --ink: #17211a;
+      --muted: #607267;
+      --paper: #f7f4ed;
+      --paper-strong: #fffdf8;
+      --line: rgba(23, 33, 26, 0.16);
+      --forest: #234f36;
+      --moss: #8da85d;
+      --water: #3d92a3;
+      --coral: #c85c3f;
+      --gold: #d2a84b;
+      --shadow: 0 22px 60px rgba(23, 33, 26, 0.16);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(35, 79, 54, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(35, 79, 54, 0.05) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: "Avenir Next", "Gill Sans", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 80;
+      width: 0%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--coral), var(--gold), var(--water));
+      box-shadow: 0 0 18px rgba(200, 92, 63, 0.45);
+    }
+
+    .topbar {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      z-index: 70;
+      transform: translateX(-50%);
+      width: min(1120px, calc(100% - 32px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 12px 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.78);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 12px 32px rgba(23, 33, 26, 0.12);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background:
+        radial-gradient(circle at 70% 26%, var(--gold) 0 10%, transparent 11%),
+        linear-gradient(135deg, var(--forest), var(--water));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 42px;
+      height: 2px;
+      left: -5px;
+      top: 19px;
+      background: rgba(255, 255, 255, 0.78);
+      transform: rotate(-24deg);
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .nav a {
+      padding: 7px 10px;
+      border-radius: 7px;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    .nav a:hover {
+      background: rgba(35, 79, 54, 0.09);
+      color: var(--forest);
+    }
+
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      align-items: end;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      padding: 140px 24px 72px;
+      background:
+        linear-gradient(90deg, rgba(12, 22, 15, 0.78), rgba(12, 22, 15, 0.4) 50%, rgba(12, 22, 15, 0.1)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80") center / cover;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(120deg, transparent 0 44%, rgba(255, 253, 248, 0.15) 45%, transparent 47%),
+        radial-gradient(circle at 18% 82%, rgba(210, 168, 75, 0.28), transparent 28%);
+      animation: slowDrift 12s ease-in-out infinite alternate;
+    }
+
+    .hero-inner {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      color: #fffdf8;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #f7d88b;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 54px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      font-family: Georgia, "Songti SC", serif;
+      font-size: clamp(42px, 8vw, 92px);
+      line-height: 0.98;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .hero-copy {
+      width: min(760px, 100%);
+      margin-top: 28px;
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.72;
+      color: rgba(255, 253, 248, 0.9);
+    }
+
+    .hero-strip {
+      margin-top: 42px;
+      width: min(860px, 100%);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid rgba(255, 253, 248, 0.28);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255, 253, 248, 0.12);
+      backdrop-filter: blur(14px);
+    }
+
+    .team-strip {
+      margin-top: 18px;
+      width: min(860px, 100%);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .team-member {
+      min-height: 112px;
+      padding: 17px;
+      border: 1px solid rgba(255, 253, 248, 0.24);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.11);
+      backdrop-filter: blur(14px);
+    }
+
+    .team-member strong {
+      display: block;
+      color: #fffdf8;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .team-member span {
+      display: block;
+      color: rgba(255, 253, 248, 0.78);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .hero-metric {
+      padding: 20px;
+      border-right: 1px solid rgba(255, 253, 248, 0.2);
+    }
+
+    .hero-metric:last-child {
+      border-right: 0;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 30px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 6px;
+      color: rgba(255, 253, 248, 0.76);
+      font-size: 13px;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 86px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(230px, 0.7fr) minmax(0, 1.3fr);
+      gap: 48px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-kicker {
+      color: var(--coral);
+      font-weight: 900;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 8px 0 0;
+      font-family: Georgia, "Songti SC", serif;
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .section-lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .innovation-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .feature-card,
+    .panel,
+    .table-card,
+    .quote-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.82);
+      box-shadow: 0 12px 34px rgba(23, 33, 26, 0.08);
+    }
+
+    .feature-card {
+      min-height: 260px;
+      overflow: hidden;
+      position: relative;
+      transform: translateY(0);
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-card img {
+      width: 100%;
+      height: 128px;
+      object-fit: cover;
+      filter: saturate(0.92) contrast(1.02);
+    }
+
+    .feature-body {
+      padding: 18px;
+    }
+
+    .feature-body h3,
+    .panel h3,
+    .table-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      line-height: 1.32;
+    }
+
+    .feature-body p,
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+    .algorithm-map {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .table-card {
+      overflow: hidden;
+    }
+
+    .table-card h3 {
+      padding: 18px 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      padding: 13px 16px;
+      text-align: left;
+      vertical-align: top;
+      border-top: 1px solid var(--line);
+      line-height: 1.58;
+    }
+
+    th {
+      color: var(--forest);
+      background: rgba(35, 79, 54, 0.07);
+      font-weight: 900;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(61, 146, 163, 0.12);
+      color: #205965;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .architecture {
+      position: relative;
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .arch-visual {
+      min-height: 540px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(23, 33, 26, 0.16), rgba(23, 33, 26, 0.62)),
+        url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80") center / cover;
+      box-shadow: var(--shadow);
+    }
+
+    .route-line {
+      position: absolute;
+      inset: 50px 42px;
+      border: 2px dashed rgba(255, 253, 248, 0.74);
+      border-left-color: transparent;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      transform: rotate(-20deg);
+    }
+
+    .route-dot {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 8px rgba(210, 168, 75, 0.24);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .route-dot.one {
+      top: 90px;
+      left: 70px;
+    }
+
+    .route-dot.two {
+      right: 86px;
+      top: 190px;
+      animation-delay: 0.25s;
+    }
+
+    .route-dot.three {
+      left: 46%;
+      bottom: 95px;
+      animation-delay: 0.5s;
+    }
+
+    .arch-caption {
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      bottom: 26px;
+      color: #fffdf8;
+    }
+
+    .arch-caption strong {
+      display: block;
+      font-family: Georgia, "Songti SC", serif;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+
+    .arch-caption span {
+      display: block;
+      margin-top: 10px;
+      line-height: 1.65;
+      color: rgba(255, 253, 248, 0.82);
+    }
+
+    .layer-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .layer {
+      padding: 17px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--paper-strong);
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 16px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .layer::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--water);
+    }
+
+    .layer:nth-child(2n)::before {
+      background: var(--coral);
+    }
+
+    .layer:nth-child(3n)::before {
+      background: var(--gold);
+    }
+
+    .layer b {
+      color: var(--forest);
+    }
+
+    .layer span {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .tech-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid rgba(35, 79, 54, 0.18);
+      border-radius: 7px;
+      background: rgba(255, 253, 248, 0.78);
+      font-weight: 800;
+      color: var(--forest);
+    }
+
+    .quote-panel {
+      padding: 34px;
+      display: grid;
+      gap: 18px;
+      background:
+        linear-gradient(135deg, rgba(35, 79, 54, 0.95), rgba(43, 97, 105, 0.94)),
+        var(--forest);
+      color: #fffdf8;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .quote-panel::before {
+      content: "“";
+      position: absolute;
+      right: 20px;
+      top: -38px;
+      font-family: Georgia, serif;
+      font-size: 160px;
+      color: rgba(255, 253, 248, 0.1);
+    }
+
+    .quote-panel p {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 36px);
+      line-height: 1.55;
+      font-family: Georgia, "Songti SC", serif;
+    }
+
+    .summary-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .summary-item {
+      padding: 16px;
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.14);
+      border: 1px solid rgba(255, 253, 248, 0.22);
+      line-height: 1.58;
+    }
+
+    .footer {
+      padding: 34px 24px 54px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 720ms ease, transform 720ms ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 90ms; }
+    .delay-2 { transition-delay: 180ms; }
+    .delay-3 { transition-delay: 270ms; }
+    .delay-4 { transition-delay: 360ms; }
+
+    @keyframes slowDrift {
+      from { transform: translateX(-1.2%) scale(1.01); }
+      to { transform: translateX(1.2%) scale(1.04); }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(210, 168, 75, 0.24);
+      }
+      50% {
+        transform: scale(1.18);
+        box-shadow: 0 0 0 18px rgba(210, 168, 75, 0.04);
+      }
+    }
+
+    @media (max-width: 880px) {
+      .topbar {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        border-radius: 0;
+        transform: none;
+        left: 0;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .hero {
+        min-height: 86vh;
+        padding: 112px 18px 46px;
+      }
+
+      .hero-strip,
+      .team-strip,
+      .innovation-grid,
+      .algorithm-map,
+      .architecture,
+      .tech-grid,
+      .summary-list,
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-metric {
+        border-right: 0;
+        border-top: 1px solid rgba(255, 253, 248, 0.2);
+      }
+
+      .hero-metric:first-child {
+        border-top: 0;
+      }
+
+      .section {
+        padding: 62px 0;
+      }
+
+      .arch-visual {
+        min-height: 380px;
+      }
+
+      .layer {
+        grid-template-columns: 1fr;
+      }
+
+      th,
+      td {
+        padding: 11px 10px;
+        font-size: 13px;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .progress {
+        display: none;
+      }
+
+      .hero,
+      .arch-visual,
+      .quote-panel {
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="返回顶部">
+      <span class="brand-mark"></span>
+      <span>个性化旅游系统</span>
+    </a>
+    <nav class="nav" aria-label="页面导航">
+      <a href="#innovation">创新需求</a>
+      <a href="#algorithms">算法对应</a>
+      <a href="#architecture">架构设计</a>
+      <a href="#stack">技术栈</a>
+      <a href="#summary">汇报总结</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div class="eyebrow reveal">System Report</div>
+      <h1 class="reveal delay-1">个性化旅游系统需求、算法与后端架构汇报</h1>
+      <p class="hero-copy reveal delay-2">
+        面向景区和校园双场景，覆盖 Web 与客户端 App，并集成多 Agent 工程协作能力，将推荐、路径规划、全文检索与压缩存储组合成完整的智慧旅游服务。
+      </p>
+      <div class="hero-strip reveal delay-3" aria-label="核心指标">
+        <div class="hero-metric">
+          <span class="metric-value">2</span>
+          <span class="metric-label">景区 + 校园双场景</span>
+        </div>
+        <div class="hero-metric">
+          <span class="metric-value">App</span>
+          <span class="metric-label">移动客户端入口</span>
+        </div>
+        <div class="hero-metric">
+          <span class="metric-value">Agent</span>
+          <span class="metric-label">工程协作 + 日记生成</span>
+        </div>
+        <div class="hero-metric">
+          <span class="metric-value">Top-K</span>
+          <span class="metric-label">推荐与排序优化</span>
+        </div>
+      </div>
+      <div class="team-strip reveal delay-4" aria-label="开发人员及分工">
+        <div class="team-member">
+          <strong>王博生</strong>
+          <span>负责前后端搭建、接口联调和整体系统集成。</span>
+        </div>
+        <div class="team-member">
+          <strong>胡文龙</strong>
+          <span>负责 Agent 搭建，包括 SystemCraft 集成和旅游日记生成 Agent。</span>
+        </div>
+        <div class="team-member">
+          <strong>刘文涛</strong>
+          <span>负责核心算法实现，包括推荐、排序、搜索和路径规划。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section" id="innovation">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-kicker">Innovation</div>
+          <h2>创新需求的体现</h2>
+        </div>
+        <p class="section-lead">
+          创新不只来自某一个功能，而是来自旅游业务场景、算法能力、多端客户端和 Agent 协作机制的组合。
+        </p>
+      </div>
+
+      <div class="grid innovation-grid">
+        <article class="feature-card reveal delay-1">
+          <img src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=900&q=80" alt="手机上的应用界面">
+          <div class="feature-body">
+            <h3>客户端 App 开发</h3>
+            <p>系统不只停留在网页端，还实现了客户端 App 工程，适合移动场景下的路线导航、附近设施查询、日记记录和旅游内容查看。</p>
+          </div>
+        </article>
+
+        <article class="feature-card reveal delay-2">
+          <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=900&q=80" alt="团队协作与流程看板">
+          <div class="feature-body">
+            <h3>集成 SystemCraft Agent</h3>
+            <p>集成多 Agent 工程协作能力，通过 PM、架构、开发、测试、导师和学习 Agent 串联需求分析、架构设计、开发实现、测试回流与复盘总结。</p>
+          </div>
+        </article>
+
+        <article class="feature-card reveal delay-3">
+          <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80" alt="移动端内容创作与发布">
+          <div class="feature-body">
+            <h3>旅游日记生成 Agent</h3>
+            <p>集成基于 OpenClaw 搭建的旅游日记 Agent，接入微信后可一键生成旅游日记，并推送到小红书和公众号。</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid innovation-grid" style="margin-top: 18px;">
+        <article class="feature-card reveal delay-1">
+          <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=900&q=80" alt="校园建筑与学习场景">
+          <div class="feature-body">
+            <h3>双场景智慧旅游</h3>
+            <p>景区和校园统一建模为场所，校园支持步行、自行车，景区支持步行、电瓶车，室外道路和室内建筑共同参与导航。</p>
+          </div>
+        </article>
+
+        <article class="feature-card reveal delay-2">
+          <img src="https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&fit=crop&w=900&q=80" alt="旅游目的地风景">
+          <div class="feature-body">
+            <h3>个性化推荐</h3>
+            <p>把用户兴趣、浏览行为、热度和评分纳入推荐逻辑，用内容推荐、热度推荐和 Top-K 选择呈现更相关的结果。</p>
+          </div>
+        </article>
+
+        <article class="feature-card reveal delay-3">
+          <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=900&q=80" alt="地图与路线规划">
+          <div class="feature-body">
+            <h3>多策略路径规划</h3>
+            <p>支持最短距离、最短时间、拥挤度、交通工具约束、多目标返回起点和室内楼层导航。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="algorithms">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-kicker">Algorithm Map</div>
+          <h2>需求与算法对应</h2>
+        </div>
+        <p class="section-lead">
+          每一类需求都对应到明确的算法或工程实现，方便汇报时从功能自然过渡到算法选择。
+        </p>
+      </div>
+
+      <div class="algorithm-map">
+        <article class="table-card reveal delay-1">
+          <h3>旅游推荐</h3>
+          <table>
+            <thead>
+              <tr><th>需求</th><th>算法/技术</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>推荐景点和学校</td><td>混合推荐：内容推荐 + 热度推荐</td></tr>
+              <tr><td>根据用户兴趣推荐</td><td>用户画像、物品画像、余弦相似度</td></tr>
+              <tr><td>用户只看前 10 个</td><td>QuickSelect Top-K、堆 Top-K、Treap Top-K</td></tr>
+              <tr><td>动态维护推荐结果</td><td><code>TreapTopK</code></td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="table-card reveal delay-2">
+          <h3>路线规划</h3>
+          <table>
+            <thead>
+              <tr><th>需求</th><th>算法/技术</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>单目标路线</td><td>A* 最短路径</td></tr>
+              <tr><td>最短距离</td><td>Dijkstra</td></tr>
+              <tr><td>最短时间与拥挤度</td><td>时间权重 + A*</td></tr>
+              <tr><td>多目标返回起点</td><td>TSP：动态规划、最近邻、模拟退火、遗传算法</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="table-card reveal delay-1">
+          <h3>日记交流</h3>
+          <table>
+            <thead>
+              <tr><th>需求</th><th>算法/技术</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>标题精确查询</td><td>哈希索引</td></tr>
+              <tr><td>标题相似查询</td><td>Jaccard 相似度</td></tr>
+              <tr><td>内容全文检索</td><td>TF-IDF + 余弦相似度</td></tr>
+              <tr><td>日记压缩与过滤</td><td>Huffman 无损压缩、AC 自动机</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="table-card reveal delay-2">
+          <h3>设施与美食</h3>
+          <table>
+            <thead>
+              <tr><th>需求</th><th>算法/技术</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>附近设施</td><td>LBS 距离计算，后续接入 Dijkstra 路径距离</td></tr>
+              <tr><td>设施类别查询</td><td>哈希查找、包含匹配、Jaccard</td></tr>
+              <tr><td>美食模糊查询</td><td>Jaccard / N-gram 模糊搜索</td></tr>
+              <tr><td>前 10 个美食</td><td>Top-K 排序</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-kicker">Architecture</div>
+          <h2>整体方案架构</h2>
+        </div>
+        <p class="section-lead">
+          系统采用前后端分离，后端以 Spring Boot 分层架构组织业务、算法和数据访问。
+        </p>
+      </div>
+
+      <div class="architecture">
+        <div class="arch-visual reveal delay-1" aria-label="路线与地图视觉">
+          <div class="route-line"></div>
+          <div class="route-dot one"></div>
+          <div class="route-dot two"></div>
+          <div class="route-dot three"></div>
+          <div class="arch-caption">
+            <strong>从场景到算法，再到可交互服务</strong>
+            <span>React 前端发起请求，Spring Boot 后端组织业务，算法层完成推荐、导航、搜索与压缩，数据层提供持久化支撑。</span>
+          </div>
+        </div>
+
+        <div class="layer-stack reveal delay-2">
+          <div class="layer"><b>React 前端</b><span>页面展示、用户交互、地图、图表、日记和媒体上传入口。</span></div>
+          <div class="layer"><b>Controller</b><span>提供 REST API，统一接收前端请求并返回 JSON 结果。</span></div>
+          <div class="layer"><b>Service</b><span>处理旅游推荐、路线规划、日记交流、美食查询等业务逻辑。</span></div>
+          <div class="layer"><b>Algorithm</b><span>封装 Top-K、Dijkstra、A*、TSP、TF-IDF、Huffman、AC 自动机。</span></div>
+          <div class="layer"><b>Agent</b><span>集成 SystemCraft 多 Agent 协作与 OpenClaw 旅游日记生成 Agent，覆盖工程流程和内容发布。</span></div>
+          <div class="layer"><b>Mapper</b><span>通过 MyBatis-Plus 完成 CRUD、分页、条件查询和逻辑删除。</span></div>
+          <div class="layer"><b>Data / Extend</b><span>MySQL、Redis 和文件系统共同支撑数据存储、缓存与媒体资源管理。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="stack">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-kicker">Technology</div>
+          <h2>前后端技术栈</h2>
+        </div>
+        <p class="section-lead">
+          技术选型以课程项目可落地、接口清晰、算法模块可展示为核心目标。
+        </p>
+      </div>
+
+      <div class="grid tech-grid">
+        <article class="panel reveal delay-1">
+          <div class="tag-cloud" aria-label="前端技术栈">
+            <span class="tag">React 19</span>
+            <span class="tag">Vite</span>
+            <span class="tag">React Router</span>
+            <span class="tag">Ant Design</span>
+            <span class="tag">Axios</span>
+            <span class="tag">Leaflet</span>
+            <span class="tag">React-Leaflet</span>
+            <span class="tag">Recharts</span>
+            <span class="tag">Lodash</span>
+            <span class="tag">Moment</span>
+            <span class="tag">ESLint</span>
+          </div>
+        </article>
+
+        <article class="panel reveal delay-2">
+          <div class="tag-cloud" aria-label="后端技术栈">
+            <span class="tag">Java 17</span>
+            <span class="tag">Spring Boot 3.3.5</span>
+            <span class="tag">Spring MVC</span>
+            <span class="tag">Spring Security</span>
+            <span class="tag">JWT</span>
+            <span class="tag">BCrypt</span>
+            <span class="tag">MyBatis-Plus</span>
+            <span class="tag">MySQL</span>
+            <span class="tag">Redis</span>
+            <span class="tag">Swagger</span>
+            <span class="tag">Jackson</span>
+            <span class="tag">Python 脚本</span>
+            <span class="tag">SystemCraft Agent</span>
+            <span class="tag">OpenClaw Agent</span>
+            <span class="tag">微信接入</span>
+            <span class="tag">小红书/公众号推送</span>
+            <span class="tag">iOS 客户端 App</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-kicker">Implementation</div>
+          <h2>后端模块与算法落点</h2>
+        </div>
+        <p class="section-lead">
+          算法没有停留在概念层，而是通过独立类注入到具体 Controller 和 Service 中。
+        </p>
+      </div>
+
+      <article class="table-card reveal">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>主要代码</th>
+              <th>使用算法</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>场所推荐</td><td><code>PlaceController</code>、<code>RecommendationAlgorithm</code></td><td>内容推荐、热度推荐、Top-K</td></tr>
+            <tr><td>路径导航</td><td><code>NavigationController</code>、<code>ShortestPathAlgorithm</code></td><td>A*、Dijkstra、TSP、混合交通工具 Dijkstra</td></tr>
+            <tr><td>室内导航</td><td><code>IndoorNavigationAlgorithm</code></td><td>室内 Dijkstra、楼层切换时间估算</td></tr>
+            <tr><td>日记交流</td><td><code>DiaryServiceImpl</code>、<code>SearchAlgorithm</code></td><td>哈希索引、TF-IDF、Huffman、AC 自动机</td></tr>
+            <tr><td>美食查询</td><td><code>FoodController</code>、<code>SortingAlgorithm</code></td><td>Jaccard/N-gram、Top-K</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-kicker">Risks</div>
+          <h2>当前实现与需求差距</h2>
+        </div>
+        <p class="section-lead">
+          汇报时可以主动说明这些点，体现对系统边界和后续优化方向的掌握。
+        </p>
+      </div>
+
+      <article class="table-card reveal">
+        <table>
+          <thead>
+            <tr><th>需求</th><th>当前情况</th><th>后续建议</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>附近设施按可通行路径距离排序</td><td>当前主要按经纬度直线距离计算</td><td>设施节点接入道路图，用 Dijkstra 计算路径距离后排序</td></tr>
+            <tr><td>美食按距离排序</td><td>当前主要支持热度和名称排序</td><td>给美食增加坐标或餐厅节点，再接入距离排序</td></tr>
+            <tr><td>协同过滤推荐</td><td>算法类已有方法，业务接口主要用内容 + 热度</td><td>利用 <code>user_behavior</code> 表构建用户相似度</td></tr>
+            <tr><td>图算法库</td><td>JGraphT 依赖已引入，核心算法当前自实现</td><td>后续可用 JGraphT 增强图算法能力</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="section" id="summary">
+      <div class="quote-panel reveal">
+        <p>
+          本系统融合景区和校园两个旅游场景，实现 Web 与客户端 App 多端使用，并集成 SystemCraft 多 Agent 协作能力和 OpenClaw 旅游日记生成 Agent，将推荐算法、Top-K、Dijkstra、A*、TSP、TF-IDF、Huffman 和 AC 自动机应用到真实业务需求中。
+        </p>
+        <div class="summary-list">
+          <div class="summary-item">推荐：景点、学校、日记、美食都能个性化排序。</div>
+          <div class="summary-item">多端：网页端和客户端 App 覆盖展示、导航、查询与记录场景。</div>
+          <div class="summary-item">Agent：OpenClaw 日记生成 Agent 接入微信，一键生成内容并推送小红书和公众号。</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    个性化旅游系统汇报网页 · 源文档：系统需求算法对应与后端架构报告.md
+  </footer>
+
+  <script>
+    const progress = document.getElementById("progress");
+
+    function updateProgress() {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      const percent = height > 0 ? (scrollTop / height) * 100 : 0;
+      progress.style.width = `${percent}%`;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    updateProgress();
+  </script>
+</body>
+</html>
