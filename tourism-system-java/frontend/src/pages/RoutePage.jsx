@@ -64,62 +64,6 @@ function RoutePage() {
     }
   };
 
-  const getAllLocations = () => {
-    if (!selectedPlace) return [];
-    
-    const locations = [];
-    
-    buildings.forEach(building => {
-      locations.push({
-        id: building.id,
-        name: building.name,
-        type: '建筑物',
-        placeId: building.placeId
-      });
-    });
-    
-    return locations;
-  };
-
-  // 获取按场所分组的建筑物和设施
-  const getLocationsByPlace = () => {
-    const locationsByPlace = {};
-    
-    // 添加建筑物
-    buildings.forEach(building => {
-      const place = places.find(p => p.id === building.placeId);
-      const placeName = place ? place.name : '未知场所';
-      
-      if (!locationsByPlace[placeName]) {
-        locationsByPlace[placeName] = { buildings: [], facilities: [] };
-      }
-      
-      locationsByPlace[placeName].buildings.push({
-        id: building.id,
-        name: building.name,
-        type: building.type || '建筑物'
-      });
-    });
-
-    // 添加设施
-    facilities.forEach(facility => {
-      const place = places.find(p => p.id === facility.placeId);
-      const placeName = place ? place.name : '未知场所';
-      
-      if (!locationsByPlace[placeName]) {
-        locationsByPlace[placeName] = { buildings: [], facilities: [] };
-      }
-      
-      locationsByPlace[placeName].facilities.push({
-        id: facility.id,
-        name: facility.name,
-        type: facility.type || '设施'
-      });
-    });
-    
-    return locationsByPlace;
-  };
-
   // 渲染建筑物和设施选项（按类型分组）
   const renderLocationOptions = () => {
     const options = [];

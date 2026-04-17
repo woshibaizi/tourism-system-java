@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, Row, Col, Input, Button, Tag, Rate, Spin, message, Modal, Form, Upload, Select, Pagination, Typography } from 'antd';
 import { SearchOutlined, PlusOutlined, EyeOutlined, EditOutlined, UploadOutlined, BookOutlined, StarOutlined, FireOutlined } from '@ant-design/icons';
-import { getDiaries, getDiary, searchDiaries, searchDiariesByTitle, searchDiariesByContent, searchDiariesByDestination, createDiary, getRecommendedDiaries, uploadImage, uploadVideo, getUsers, rateDiary, getPlaces, getFileUrl } from '../services/api';
+import { getDiaries, searchDiariesByTitle, searchDiariesByContent, searchDiariesByDestination, createDiary, getRecommendedDiaries, uploadImage, uploadVideo, getUsers, rateDiary, getPlaces, getFileUrl } from '../services/api';
 
 const { Search } = Input;
 const { TextArea } = Input;

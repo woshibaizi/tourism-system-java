@@ -33,6 +33,9 @@ public class SpotFacility {
     @TableField(exist = false)
     private Double distance;
 
+    @TableField(exist = false)
+    private Double travelTime;
+
     @TableLogic
     private Integer deleted;
 
@@ -112,6 +115,14 @@ public class SpotFacility {
 
     public void setDistance(Double distance) {
         this.distance = distance;
+    }
+
+    public Double getTravelTime() {
+        return travelTime;
+    }
+
+    public void setTravelTime(Double travelTime) {
+        this.travelTime = travelTime;
     }
 
     public Integer getDeleted() {

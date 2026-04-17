@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.tourism.TourismApplicationTests" time="0.249" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.tourism.NavigationFacilityIntegrationTests" time="0.037" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="socksProxyHost" value="127.0.0.1"/>
     <property name="http.proxyHost" value="127.0.0.1"/>
@@ -53,7 +53,7 @@
     <property name="localRepository" value="/Users/wangbosheng/.m2/repository"/>
     <property name="java.vendor.url.bug" value="https://github.com/Homebrew/homebrew-core/issues"/>
     <property name="java.io.tmpdir" value="/var/folders/_1/4qlmjwd909j83m047ytxlx4h0000gn/T/"/>
-    <property name="com.zaxxer.hikari.pool_number" value="2"/>
+    <property name="com.zaxxer.hikari.pool_number" value="1"/>
     <property name="java.version" value="25.0.2"/>
     <property name="user.dir" value="/Users/wangbosheng/TravelSystem/tourism-system-java"/>
     <property name="os.arch" value="aarch64"/>
@@ -73,34 +73,12 @@
     <property name="java.class.version" value="69.0"/>
     <property name="http.proxyPort" value="7897"/>
   </properties>
-  <testcase name="contextLoads" classname="com.tourism.TourismApplicationTests" time="0.002">
-    <system-out><![CDATA[2026-04-17T15:43:20.085+08:00  INFO 12789 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tourism.TourismApplicationTests]: TourismApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-17T15:43:20.085+08:00  INFO 12789 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tourism.TourismApplication for test class com.tourism.TourismApplicationTests
-
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
-
- :: Spring Boot ::                (v3.3.5)
-
-2026-04-17T15:43:20.093+08:00  INFO 12789 --- [           main] com.tourism.TourismApplicationTests      : Starting TourismApplicationTests using Java 25.0.2 with PID 12789 (started by wangbosheng in /Users/wangbosheng/TravelSystem/tourism-system-java)
-2026-04-17T15:43:20.094+08:00  INFO 12789 --- [           main] com.tourism.TourismApplicationTests      : The following 1 profile is active: "test"
-2026-04-17T15:43:20.162+08:00  INFO 12789 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
-2026-04-17T15:43:20.162+08:00  INFO 12789 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-2026-04-17T15:43:20.165+08:00  INFO 12789 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
-[IndoorNavigationAlgorithm] 加载成功: 43 个节点
- _ _   |_  _ _|_. ___ _ |    _ 
-| | |\/|_)(_| | |_\  |_)||_|_\ 
-     /               |         
-                        3.5.8 
-2026-04-17T15:43:20.189+08:00  INFO 12789 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
-2026-04-17T15:43:20.190+08:00  INFO 12789 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:testdb user=SA
-2026-04-17T15:43:20.190+08:00  INFO 12789 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
-2026-04-17T15:43:20.273+08:00  INFO 12789 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
-2026-04-17T15:43:20.331+08:00  INFO 12789 --- [           main] com.tourism.TourismApplicationTests      : Started TourismApplicationTests in 0.245 seconds (process running for 3.037)
+  <testcase name="nearestFacilitiesUsesPathDistanceOrdering" classname="com.tourism.NavigationFacilityIntegrationTests" time="0.016">
+    <system-out><![CDATA[2026-04-17T15:43:20.047+08:00  INFO 12789 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.tourism.NavigationFacilityIntegrationTests]: NavigationFacilityIntegrationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-17T15:43:20.048+08:00  INFO 12789 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.tourism.TourismApplication for test class com.tourism.NavigationFacilityIntegrationTests
 ]]></system-out>
   </testcase>
+  <testcase name="mixedVehicleEndpointReturnsSegmentsAndExpandedPath" classname="com.tourism.NavigationFacilityIntegrationTests" time="0.007"/>
+  <testcase name="multiDestinationEndpointReturnsRoundTripPath" classname="com.tourism.NavigationFacilityIntegrationTests" time="0.005"/>
+  <testcase name="shortestPathEndpointReturnsRouteMetricsAndCoordinates" classname="com.tourism.NavigationFacilityIntegrationTests" time="0.004"/>
 </testsuite>

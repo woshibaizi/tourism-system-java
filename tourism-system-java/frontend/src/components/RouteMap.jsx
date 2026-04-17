@@ -61,7 +61,6 @@ const AnimatedPolyline = ({ positions, color, weight, opacity, delay, duration, 
       return;
     }
 
-    console.log('开始路径动画', positions);
     startTimeRef.current = Date.now() + delay;
     
     const animate = () => {
@@ -75,8 +74,6 @@ const AnimatedPolyline = ({ positions, color, weight, opacity, delay, duration, 
       }
       
       const progress = Math.min(elapsed / duration, 1);
-      console.log('动画进度:', progress);
-      
       if (progress < 1) {
         // 根据进度计算当前应该显示的路径段
         const totalLength = positions.length - 1;
@@ -106,7 +103,6 @@ const AnimatedPolyline = ({ positions, color, weight, opacity, delay, duration, 
         animationRef.current = requestAnimationFrame(animate);
       } else {
         // 动画完成
-        console.log('路径动画完成');
         setAnimatedPositions(positions);
         if (onComplete) {
           onComplete();
@@ -167,7 +163,6 @@ const RouteMap = ({
   routeResult, 
   buildings = [], 
   facilities = [], 
-  selectedPlace,
   onSegmentClick 
 }) => {
   const [loading, setLoading] = useState(false);
@@ -187,6 +182,11 @@ const RouteMap = ({
 
   // 获取节点坐标的函数
   const getNodeCoordinates = useCallback((nodeId) => {
+    const routeCoordinate = routeResult?.nodeCoordinates?.[nodeId];
+    if (Array.isArray(routeCoordinate) && routeCoordinate.length === 2) {
+      return [Number(routeCoordinate[0]), Number(routeCoordinate[1])];
+    }
+
     // 先在建筑物中查找
     const building = buildings.find(b => b.id === nodeId);
     if (building?.lat != null && building?.lng != null) {
@@ -200,7 +200,7 @@ const RouteMap = ({
     }
     
     return null;
-  }, [buildings, facilities]);
+  }, [buildings, facilities, routeResult]);
 
   // 获取节点信息的函数
   const getNodeInfo = useCallback((nodeId) => {
@@ -255,7 +255,6 @@ const RouteMap = ({
   const startAnimation = useCallback(() => {
     if (pathNodes.length === 0) return;
     
-    console.log('开始动画，节点数量:', pathNodes.length, '边数量:', pathEdges.length);
     setIsAnimating(true);
     setVisibleNodes(new Set([0])); // 显示起点
     setVisibleEdges(new Set());
@@ -270,14 +269,11 @@ const RouteMap = ({
     let currentStep = 0;
     
     const showNextStep = () => {
-      console.log('显示步骤:', currentStep, '总步骤:', pathEdges.length);
-      
       if (currentStep < pathEdges.length) {
         // 显示当前边
         setVisibleEdges(prev => {
           const newSet = new Set(prev);
           newSet.add(currentStep);
-          console.log('显示边:', currentStep, '当前可见边:', [...newSet]);
           return newSet;
         });
         
@@ -286,7 +282,6 @@ const RouteMap = ({
           setVisibleNodes(prev => {
             const newSet = new Set(prev);
             newSet.add(currentStep + 1);
-            console.log('显示节点:', currentStep + 1, '当前可见节点:', [...newSet]);
             return newSet;
           });
           
@@ -300,7 +295,6 @@ const RouteMap = ({
             // 动画完成
             setTimeout(() => {
               setIsAnimating(false);
-              console.log('动画完成');
             }, 500);
           }
         }, animationSpeed);
@@ -356,8 +350,6 @@ const RouteMap = ({
     }
 
     setLoading(true);
-    console.log('开始处理路径数据:', routeResult.path);
-    
     try {
       const path = routeResult.path;
       const coordinates = [];
@@ -423,7 +415,6 @@ const RouteMap = ({
         }
       }
       
-      console.log('处理完成:', { nodes: nodes.length, edges: edges.length });
       setRouteCoordinates(coordinates);
       setPathNodes(nodes);
       setPathEdges(edges);
@@ -436,10 +427,8 @@ const RouteMap = ({
         
         // 如果启用了动画且有路径数据，自动播放动画
         if (autoPlay && nodes.length > 0) {
-          console.log('准备自动播放动画');
           // 稍等一下再开始动画，让地图有时间调整视图
           setTimeout(() => {
-            console.log('开始自动播放动画');
             startAnimation();
           }, 1000);
         }

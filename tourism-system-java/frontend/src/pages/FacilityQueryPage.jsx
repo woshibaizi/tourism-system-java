@@ -188,13 +188,6 @@ function FacilityQueryPage() {
     setHasSearched(true);
     setCurrentPage(1);
     
-    // 显示查询参数信息
-    console.log('查询参数:', {
-      selectedBuilding,
-      selectedPlace,
-      selectedFacilityType
-    });
-    
     try {
       // 调用后端API查询最近的设施，不传递limit参数
       const response = await getNearestFacilities(
@@ -202,8 +195,6 @@ function FacilityQueryPage() {
         selectedPlace,
         selectedFacilityType
       );
-      
-      console.log('API响应:', response);
       
       if (response.success) {
         setAllFacilities(response.data);

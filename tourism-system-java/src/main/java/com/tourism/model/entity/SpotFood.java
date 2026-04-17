@@ -2,6 +2,7 @@ package com.tourism.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -32,6 +33,27 @@ public class SpotFood {
 
     /** 位置（如食堂楼层） */
     private String location;
+
+    @TableField(exist = false)
+    private String buildingId;
+
+    @TableField(exist = false)
+    private String shopName;
+
+    @TableField(exist = false)
+    private String restaurantName;
+
+    @TableField(exist = false)
+    private String windowName;
+
+    @TableField(exist = false)
+    private BigDecimal rating;
+
+    @TableField(exist = false)
+    private Integer ratingCount;
+
+    @TableField(exist = false)
+    private Double distanceMeters;
 
     @TableLogic
     private Integer deleted;
@@ -104,6 +126,62 @@ public class SpotFood {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getBuildingId() {
+        return buildingId;
+    }
+
+    public void setBuildingId(String buildingId) {
+        this.buildingId = buildingId;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
+    }
+
+    public String getRestaurantName() {
+        return restaurantName;
+    }
+
+    public void setRestaurantName(String restaurantName) {
+        this.restaurantName = restaurantName;
+    }
+
+    public String getWindowName() {
+        return windowName;
+    }
+
+    public void setWindowName(String windowName) {
+        this.windowName = windowName;
+    }
+
+    public BigDecimal getRating() {
+        return rating;
+    }
+
+    public void setRating(BigDecimal rating) {
+        this.rating = rating;
+    }
+
+    public Integer getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(Integer ratingCount) {
+        this.ratingCount = ratingCount;
+    }
+
+    public Double getDistanceMeters() {
+        return distanceMeters;
+    }
+
+    public void setDistanceMeters(Double distanceMeters) {
+        this.distanceMeters = distanceMeters;
     }
 
     public Integer getDeleted() {

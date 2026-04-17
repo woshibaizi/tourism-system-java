@@ -259,6 +259,25 @@ public class DiaryServiceImpl extends ServiceImpl<DiaryMapper, TravelDiary> impl
             return Collections.emptyList();
         }
 
+        if ("popular".equalsIgnoreCase(algorithm) || "hot".equalsIgnoreCase(algorithm)) {
+            return diaries.stream()
+                    .sorted((a, b) -> {
+                        int clickCompare = Integer.compare(
+                                b.getClickCount() == null ? 0 : b.getClickCount(),
+                                a.getClickCount() == null ? 0 : a.getClickCount()
+                        );
+                        if (clickCompare != 0) {
+                            return clickCompare;
+                        }
+                        return Double.compare(
+                                b.getRating() == null ? 0 : b.getRating().doubleValue(),
+                                a.getRating() == null ? 0 : a.getRating().doubleValue()
+                        );
+                    })
+                    .limit(normalizedTopK)
+                    .toList();
+        }
+
         SysUser user = userId == null ? null : userService.getById(userId);
         List<String> userInterests = user == null ? Collections.emptyList() : JsonUtils.parseStringList(user.getInterests());
         Map<String, String> placeNameMap = getPlaceNameMap();
@@ -403,7 +422,11 @@ public class DiaryServiceImpl extends ServiceImpl<DiaryMapper, TravelDiary> impl
     }
 
     private Map<String, Object> toDiaryItem(TravelDiary diary, Map<String, String> placeNameMap) {
-        Map<String, Object> item = JsonUtils.toMap(diary);
+        Map<String, Object> item = new LinkedHashMap<>(JsonUtils.toMap(diary));
+        item.put("id", diary.getId());
+        item.put("title", diary.getTitle());
+        item.put("placeId", diary.getPlaceId());
+        item.put("authorId", diary.getAuthorId());
         item.put("content", diary.getContent());
         item.put("destinationName", placeNameMap.getOrDefault(diary.getPlaceId(), ""));
         item.put("tagsText", String.join(" ", JsonUtils.parseStringList(diary.getTags())));

@@ -3,7 +3,10 @@ package com.tourism.algorithm;
 import com.tourism.mapper.PlaceMapper;
 import com.tourism.mapper.RoadEdgeMapper;
 import com.tourism.mapper.BuildingMapper;
+import com.tourism.mapper.FacilityMapper;
 import com.tourism.model.entity.SpotPlace;
+import com.tourism.model.entity.SpotBuilding;
+import com.tourism.model.entity.SpotFacility;
 import com.tourism.model.entity.SpotRoadEdge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -128,6 +131,9 @@ public class ShortestPathAlgorithm {
     @Autowired(required = false)
     private BuildingMapper buildingMapper;
 
+    @Autowired(required = false)
+    private FacilityMapper facilityMapper;
+
     // ==================== 内存图结构 ====================
 
     /** 邻接表：nodeId → (neighborId → RoadInfo) */
@@ -149,8 +155,12 @@ public class ShortestPathAlgorithm {
         try {
             List<SpotRoadEdge> edges = roadEdgeMapper.selectList(null);
             List<SpotPlace> places = placeMapper.selectList(null);
+            List<SpotBuilding> buildings = buildingMapper == null ? List.of() : buildingMapper.selectList(null);
+            List<SpotFacility> facilities = facilityMapper == null ? List.of() : facilityMapper.selectList(null);
             buildGraph(edges);
             buildCoordinateMap(places);
+            buildBuildingCoordinateMap(buildings);
+            buildFacilityCoordinateMap(facilities);
             estimateIntersectionCoordinates(edges);
         } catch (Exception e) {
             // 测试环境或数据库未就绪时不阻塞启动
@@ -193,10 +203,34 @@ public class ShortestPathAlgorithm {
         if (places == null) return;
         for (SpotPlace place : places) {
             if (place.getLat() != null && place.getLng() != null) {
-                coordinates.put(place.getId(),
-                        new double[]{place.getLat().doubleValue(), place.getLng().doubleValue()});
+                registerCoordinate(place.getId(), place.getLat().doubleValue(), place.getLng().doubleValue());
             }
         }
+    }
+
+    public void buildBuildingCoordinateMap(List<SpotBuilding> buildings) {
+        if (buildings == null) return;
+        for (SpotBuilding building : buildings) {
+            if (building.getLat() != null && building.getLng() != null) {
+                registerCoordinate(building.getId(), building.getLat().doubleValue(), building.getLng().doubleValue());
+            }
+        }
+    }
+
+    public void buildFacilityCoordinateMap(List<SpotFacility> facilities) {
+        if (facilities == null) return;
+        for (SpotFacility facility : facilities) {
+            if (facility.getLat() != null && facility.getLng() != null) {
+                registerCoordinate(facility.getId(), facility.getLat().doubleValue(), facility.getLng().doubleValue());
+            }
+        }
+    }
+
+    private void registerCoordinate(String nodeId, double lat, double lng) {
+        if (nodeId == null || nodeId.isBlank()) {
+            return;
+        }
+        coordinates.put(nodeId, new double[]{lat, lng});
     }
 
     private void estimateIntersectionCoordinates(List<SpotRoadEdge> edges) {
@@ -454,6 +488,15 @@ public class ShortestPathAlgorithm {
             }
         }
         return total;
+    }
+
+    public double calculatePathTravelTime(List<String> path, String vehicle) {
+        if (path == null || path.size() < 2) {
+            return 0;
+        }
+        return buildPathSegments(path, vehicle).stream()
+                .mapToDouble(RouteSegment::getTime)
+                .sum();
     }
 
     public List<RouteSegment> buildPathSegments(List<String> path, String vehicle) {
@@ -822,6 +865,28 @@ public class ShortestPathAlgorithm {
 
     public int getNodeCount() { return graph.size(); }
     public boolean containsNode(String nodeId) { return graph.containsKey(nodeId); }
+
+    public boolean isGraphLoaded() {
+        return !graph.isEmpty();
+    }
+
+    public double[] getNodeCoordinate(String nodeId) {
+        return coordinates.get(nodeId);
+    }
+
+    public Map<String, List<Double>> getNodeCoordinates(List<String> nodeIds) {
+        Map<String, List<Double>> result = new LinkedHashMap<>();
+        if (nodeIds == null) {
+            return result;
+        }
+        for (String nodeId : nodeIds) {
+            double[] coordinate = coordinates.get(nodeId);
+            if (coordinate != null) {
+                result.put(nodeId, List.of(coordinate[0], coordinate[1]));
+            }
+        }
+        return result;
+    }
 
     private List<String> parseJsonArray(String json) {
         if (json == null || json.trim().isEmpty() || json.equals("[]")) return List.of("步行");

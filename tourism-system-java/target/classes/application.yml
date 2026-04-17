@@ -8,7 +8,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${TOURISM_DB_URL:jdbc:mysql://localhost:3306/tourism_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
     username: ${TOURISM_DB_USERNAME:root}
-    password: ${TOURISM_DB_PASSWORD:your_password}
+    password: ${TOURISM_DB_PASSWORD:608052}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20

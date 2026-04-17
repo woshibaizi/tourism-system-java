@@ -1,20 +1,20 @@
 package com.tourism.controller;
 
-import com.tourism.algorithm.SearchAlgorithm;
-import com.tourism.algorithm.SortingAlgorithm;
 import com.tourism.model.entity.SpotFood;
 import com.tourism.service.FoodService;
-import com.tourism.utils.JsonUtils;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Tag(name = "美食管理")
 @RestController
@@ -22,15 +22,9 @@ import java.util.stream.Collectors;
 public class FoodController {
 
     private final FoodService foodService;
-    private final SearchAlgorithm searchAlgorithm;
-    private final SortingAlgorithm sortingAlgorithm;
 
-    public FoodController(FoodService foodService,
-                          SearchAlgorithm searchAlgorithm,
-                          SortingAlgorithm sortingAlgorithm) {
+    public FoodController(FoodService foodService) {
         this.foodService = foodService;
-        this.searchAlgorithm = searchAlgorithm;
-        this.sortingAlgorithm = sortingAlgorithm;
     }
 
     @Operation(summary = "查询美食列表")
@@ -39,46 +33,17 @@ public class FoodController {
                                             @RequestParam(required = false) String cuisine,
                                             @RequestParam(required = false) String search,
                                             @RequestParam(defaultValue = "popularity") String sortBy,
+                                            @RequestParam(required = false) String originNodeId,
+                                            @RequestParam(required = false) String buildingId,
                                             @RequestParam(defaultValue = "12") Integer limit) {
-        List<SpotFood> foods = foodService.list().stream()
-                .filter(food -> placeId == null || placeId.isBlank() || placeId.equals(food.getPlaceId()))
-                .filter(food -> cuisine == null || cuisine.isBlank() || cuisine.equals(food.getCuisine()))
-                .collect(Collectors.toList());
-
-        if (search != null && !search.isBlank()) {
-            List<Map<String, Object>> fuzzyResults = searchAlgorithm.fuzzySearch(
-                    foods.stream().map(JsonUtils::toMap).toList(),
-                    search,
-                    List.of("name", "description", "cuisine", "location"),
-                    0.15
-            );
-            Map<String, SpotFood> foodMap = foods.stream()
-                    .collect(Collectors.toMap(SpotFood::getId, food -> food, (a, b) -> a, LinkedHashMap::new));
-            foods = fuzzyResults.stream()
-                    .map(item -> foodMap.get(String.valueOf(item.get("id"))))
-                    .filter(java.util.Objects::nonNull)
-                    .toList();
-        }
-
-        List<SpotFood> sortedFoods;
-        if ("name".equalsIgnoreCase(sortBy)) {
-            sortedFoods = foods.stream()
-                    .sorted((a, b) -> String.valueOf(a.getName()).toLowerCase(Locale.ROOT)
-                            .compareTo(String.valueOf(b.getName()).toLowerCase(Locale.ROOT)))
-                    .limit(limit)
-                    .toList();
-        } else {
-            sortedFoods = sortingAlgorithm.topKSort(
-                    foods,
-                    food -> food.getPopularity() == null ? 0.0 : food.getPopularity().doubleValue(),
-                    limit == null || limit <= 0 ? foods.size() : limit,
-                    true
-            );
-        }
+        String origin = StringUtils.hasText(originNodeId) ? originNodeId : buildingId;
+        List<SpotFood> foods = foodService.searchFoods(placeId, cuisine, search, sortBy, origin);
+        int normalizedLimit = limit == null || limit <= 0 ? foods.size() : limit;
 
         Map<String, Object> data = new LinkedHashMap<>();
-        data.put("items", sortedFoods);
+        data.put("items", foods.stream().limit(normalizedLimit).toList());
         data.put("total", foods.size());
+        data.put("sortBy", sortBy);
         return Result.success(data);
     }
 
@@ -105,8 +70,7 @@ public class FoodController {
     @Operation(summary = "获取全部菜系")
     @GetMapping("/cuisines")
     public Result<List<String>> getCuisines(@RequestParam(required = false) String placeId) {
-        List<String> cuisines = foodService.list().stream()
-                .filter(food -> placeId == null || placeId.isBlank() || placeId.equals(food.getPlaceId()))
+        List<String> cuisines = foodService.searchFoods(placeId, null, null, "popularity", null).stream()
                 .map(SpotFood::getCuisine)
                 .filter(cuisine -> cuisine != null && !cuisine.isBlank())
                 .distinct()

@@ -52,11 +52,12 @@ public class MediaController {
         @SuppressWarnings("unchecked")
         List<String> imagePaths = (List<String>) request.get("imagePaths");
         String outputFormat = request.get("outputFormat") == null ? "gif" : String.valueOf(request.get("outputFormat"));
+        String description = request.get("description") == null ? "" : String.valueOf(request.get("description"));
         Integer fps = request.get("fps") instanceof Number number ? number.intValue() : 6;
         Integer width = request.get("width") instanceof Number number ? number.intValue() : 848;
         Integer height = request.get("height") instanceof Number number ? number.intValue() : 480;
 
-        Map<String, Object> result = aigcService.convertImagesToAnimation(imagePaths, outputFormat, fps, width, height);
+        Map<String, Object> result = aigcService.convertImagesToAnimation(imagePaths, outputFormat, description, fps, width, height);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("success", true);

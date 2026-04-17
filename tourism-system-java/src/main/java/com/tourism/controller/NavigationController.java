@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -38,6 +39,7 @@ public class NavigationController {
         String end = (String) request.get("end");
         String vehicle = (String) request.getOrDefault("vehicle", "步行");
         String strategy = (String) request.getOrDefault("strategy", "time");
+        String placeType = (String) request.getOrDefault("placeType", "景区");
 
         if (start == null || end == null) {
             return Result.fail("起点(start)和终点(end)不能为空");
@@ -60,13 +62,27 @@ public class NavigationController {
             return Result.fail("从 [" + start + "] 到 [" + end + "] 无法到达");
         }
 
-        return Result.success(Map.of(
-                "path", result.getPath(),
-                "cost", result.getCost(),
-                "nodeCount", result.getPath().size(),
-                "vehicle", vehicle,
-                "strategy", strategy
-        ));
+        List<ShortestPathAlgorithm.RouteSegment> segments = shortestPathAlgorithm.buildPathSegments(result.getPath(), vehicle);
+        double totalDistance = "distance".equals(strategy)
+                ? result.getCost()
+                : shortestPathAlgorithm.calculatePathDistance(result.getPath());
+        double totalTime = "distance".equals(strategy)
+                ? shortestPathAlgorithm.calculatePathTravelTime(result.getPath(), vehicle)
+                : result.getCost();
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("path", result.getPath());
+        data.put("cost", result.getCost());
+        data.put("nodeCount", result.getPath().size());
+        data.put("vehicle", vehicle);
+        data.put("strategy", strategy);
+        data.put("placeType", placeType);
+        data.put("availableVehicles", shortestPathAlgorithm.getAvailableVehicles(placeType));
+        data.put("totalDistance", totalDistance);
+        data.put("totalTime", totalTime);
+        data.put("segments", segments);
+        data.put("nodeCoordinates", shortestPathAlgorithm.getNodeCoordinates(result.getPath()));
+        return Result.success(data);
     }
 
     /**
@@ -92,13 +108,18 @@ public class NavigationController {
 
         double totalTime = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getTime).sum();
         double totalDistance = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getDistance).sum();
+        List<String> path = buildPathFromSegments(segments);
 
-        return Result.success(Map.of(
-                "segments", segments,
-                "totalTime", totalTime,
-                "totalDistance", totalDistance,
-                "placeType", placeType
-        ));
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("path", path);
+        data.put("segments", segments);
+        data.put("totalTime", totalTime);
+        data.put("totalDistance", totalDistance);
+        data.put("placeType", placeType);
+        data.put("vehicle", "混合");
+        data.put("strategy", "time");
+        data.put("nodeCoordinates", shortestPathAlgorithm.getNodeCoordinates(path));
+        return Result.success(data);
     }
 
     /**
@@ -129,14 +150,18 @@ public class NavigationController {
         ShortestPathAlgorithm.RouteResult result =
                 shortestPathAlgorithm.multiDestinationRoute(start, destinations, algorithm);
 
-        return Result.success(Map.of(
-                "path", result.getPath(),
-                "targetPath", result.getTargetPath(),
-                "totalDistance", result.getTotalDistance(),
-                "algorithm", result.getAlgorithm(),
-                "unreachableDestinations", result.getUnreachableDestinations(),
-                "segments", result.getSegments()
-        ));
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("path", result.getPath());
+        data.put("targetPath", result.getTargetPath());
+        data.put("totalDistance", result.getTotalDistance());
+        data.put("totalTime", result.getSegments().stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getTime).sum());
+        data.put("algorithm", result.getAlgorithm());
+        data.put("vehicle", result.getVehicle());
+        data.put("strategy", result.getStrategy());
+        data.put("unreachableDestinations", result.getUnreachableDestinations());
+        data.put("segments", result.getSegments());
+        data.put("nodeCoordinates", shortestPathAlgorithm.getNodeCoordinates(result.getPath()));
+        return Result.success(data);
     }
 
     /**
@@ -214,5 +239,17 @@ public class NavigationController {
                 "nodeCount", indoorNavigationAlgorithm.getNodeCount(),
                 "loaded", indoorNavigationAlgorithm.isLoaded()
         ));
+    }
+
+    private List<String> buildPathFromSegments(List<ShortestPathAlgorithm.RouteSegment> segments) {
+        if (segments == null || segments.isEmpty()) {
+            return List.of();
+        }
+        List<String> path = new java.util.ArrayList<>();
+        path.add(segments.get(0).getFrom());
+        for (ShortestPathAlgorithm.RouteSegment segment : segments) {
+            path.add(segment.getTo());
+        }
+        return path;
     }
 }

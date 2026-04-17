@@ -75,8 +75,6 @@ function PlaceDetailPage() {
         if (user.id) {
           try {
             await recordVisit(placeId, user.id);
-            console.log('访问历史已记录');
-            
             // 检查用户是否已经评分过
             await loadUserRating(user.id);
           } catch (error) {
@@ -210,7 +208,7 @@ function PlaceDetailPage() {
     );
   }
 
-  const { place, buildings, facilities } = placeData;
+  const { place, buildings } = placeData;
 
   return (
     <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>

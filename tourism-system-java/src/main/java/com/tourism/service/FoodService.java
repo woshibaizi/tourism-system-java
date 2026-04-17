@@ -21,4 +21,13 @@ public interface FoodService extends IService<SpotFood> {
      * 获取热门美食（按人气排序）
      */
     List<SpotFood> getPopularFoods(String placeId, int limit);
+
+    /**
+     * 统一业务美食搜索/排序接口
+     */
+    List<SpotFood> searchFoods(String placeId,
+                               String cuisine,
+                               String search,
+                               String sortBy,
+                               String originNodeId);
 }

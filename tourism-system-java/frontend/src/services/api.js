@@ -90,6 +90,48 @@ const unwrapArrayData = (response) => {
   return Array.isArray(normalized?.data) ? normalized.data : [];
 };
 
+const buildPathFromSegments = (segments = []) => {
+  if (!Array.isArray(segments) || segments.length === 0) {
+    return [];
+  }
+  const path = [segments[0].from];
+  segments.forEach((segment) => {
+    if (segment?.to != null) {
+      path.push(segment.to);
+    }
+  });
+  return path;
+};
+
+const normalizeRouteResponse = (payload = {}, fallback = {}) => {
+  const segments = Array.isArray(payload.segments) ? payload.segments : [];
+  const normalizedPath = Array.isArray(payload.path) && payload.path.length > 0
+    ? payload.path
+    : buildPathFromSegments(segments);
+
+  const totalDistance = toNumber(payload.totalDistance ?? payload.total_distance ?? payload.cost);
+  const totalTime = toNumber(
+    payload.totalTime
+    ?? payload.total_time
+    ?? segments.reduce((sum, segment) => sum + toNumber(segment?.time), 0)
+  );
+
+  return {
+    ...payload,
+    path: normalizedPath,
+    vehicle: payload.vehicle ?? fallback.vehicle ?? '步行',
+    strategy: payload.strategy ?? fallback.strategy ?? 'distance',
+    total_distance: totalDistance,
+    total_time: totalTime,
+    algorithm_name: payload.algorithm ?? payload.algorithm_name ?? fallback.algorithm_name,
+    available_vehicles: payload.availableVehicles ?? payload.available_vehicles ?? fallback.available_vehicles ?? [],
+    detailed_info: {
+      segments,
+    },
+    nodeCoordinates: payload.nodeCoordinates ?? payload.node_coordinates ?? {},
+  };
+};
+
 const toNumber = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -155,6 +197,57 @@ const normalizeDiary = (diary) => {
 
 const normalizeArrayItems = (items, normalizer) =>
   Array.isArray(items) ? items.map(normalizer) : [];
+
+const getApiFileUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http') || path.startsWith('/api/')) return path;
+  const basePath = path.startsWith('/') ? path : `/${path}`;
+  return `${import.meta.env.VITE_APP_API_URL || '/api'}${basePath}`;
+};
+
+const normalizeIndoorBuildingInfo = (payload = {}) => {
+  const building = payload.buildingInfo || payload;
+  return {
+    ...building,
+    nodeCount: payload.nodeCount ?? building.nodeCount,
+    loaded: payload.loaded ?? building.loaded ?? true,
+  };
+};
+
+const normalizeIndoorNavigationResult = (payload = {}, options = {}) => {
+  const steps = Array.isArray(payload.navigationSteps)
+    ? payload.navigationSteps
+    : Array.isArray(payload.navigation_steps)
+      ? payload.navigation_steps
+      : [];
+
+  const normalizedSteps = steps.map((step, index) => ({
+    ...step,
+    step: step.step ?? index + 1,
+    floor_change: step.floor_change ?? step.floorChange ?? false,
+    description: step.description ?? step.action ?? '',
+    distance: toNumber(step.distance),
+  }));
+
+  const destination = payload.destination || {};
+  return {
+    ...payload,
+    destination,
+    path: Array.isArray(payload.path) ? payload.path : [],
+    navigation_steps: normalizedSteps,
+    navigationSteps: normalizedSteps,
+    total_distance: toNumber(payload.totalDistance ?? payload.total_distance),
+    totalDistance: toNumber(payload.totalDistance ?? payload.total_distance),
+    estimated_time: toNumber(payload.estimatedTimeMinutes ?? payload.estimated_time),
+    estimatedTimeMinutes: toNumber(payload.estimatedTimeMinutes ?? payload.estimated_time),
+    avoid_congestion: options.avoidCongestion ?? payload.avoidCongestion ?? payload.avoid_congestion,
+    path_description: normalizedSteps.length > 0
+      ? normalizedSteps.map((step) => step.description).filter(Boolean).join('，')
+      : '已生成室内导航路径',
+    optimizationTarget: payload.optimizationTarget,
+    floorAnalysis: payload.floorAnalysis,
+  };
+};
 
 // 创建axios实例
 const api = axios.create({
@@ -372,7 +465,7 @@ export const placeAPI = {
         }
       }
       return successResult({ userRating: null, hasRated: false });
-    } catch (error) {
+    } catch {
       return successResult({ userRating: null, hasRated: false });
     }
   },
@@ -381,7 +474,7 @@ export const placeAPI = {
   ratePlace: async (placeId, rating, userId) => {
     try {
       return await api.post(`/places/${placeId}/rate`, { rating, userId });
-    } catch (error) {
+    } catch {
       return failResult('评分失败，请稍后重试');
     }
   },
@@ -390,7 +483,7 @@ export const placeAPI = {
   recordVisit: async (placeId, userId) => {
     try {
       return await userAPI.recordBehavior(userId, placeId, 'VIEW', null);
-    } catch (error) {
+    } catch {
       return successResult();
     }
   },
@@ -554,6 +647,7 @@ export const foodAPI = {
           cuisine: params.cuisine,
           search: params.search,
           sortBy: params.sortBy,
+          originBuildingId: params.originBuildingId,
           limit: params.limit,
         },
       });
@@ -578,7 +672,34 @@ export const routeAPI = {
   // 计算最短路径
   calculateShortestRoute: async (data) => {
     try {
-      return await api.post('/routes/single', data);
+      const shouldUseMixedVehicles = Boolean(data?.useMixedVehicles) && data?.strategy === 'time';
+      const response = shouldUseMixedVehicles
+        ? await api.post('/navigation/mixed-vehicle-path', {
+            start: data?.start,
+            end: data?.end,
+            placeType: data?.placeType,
+          })
+        : await api.post('/navigation/shortest-path', {
+            start: data?.start,
+            end: data?.end,
+            vehicle: data?.vehicle,
+            strategy: data?.strategy,
+            placeType: data?.placeType,
+          });
+
+      if (!response.success) {
+        return response;
+      }
+
+      return successResult(
+        normalizeRouteResponse(response.data, {
+          vehicle: shouldUseMixedVehicles ? '混合' : data?.vehicle,
+          strategy: data?.strategy,
+          available_vehicles: data?.placeType === '校园' ? ['步行', '自行车'] : ['步行', '电瓶车'],
+          algorithm_name: shouldUseMixedVehicles ? 'mixed_vehicle_dijkstra' : data?.strategy === 'distance' ? 'dijkstra' : 'astar',
+        }),
+        response.message
+      );
     } catch (error) {
       if (!isMissingEndpointError(error)) {
         throw error;
@@ -590,7 +711,24 @@ export const routeAPI = {
   // 计算多目标路径(TSP)
   calculateMultiDestinationRoute: async (data) => {
     try {
-      return await api.post('/routes/multi', data);
+      const response = await api.post('/navigation/multi-destination', {
+        start: data?.start,
+        destinations: data?.destinations,
+        algorithm: data?.algorithm,
+      });
+
+      if (!response.success) {
+        return response;
+      }
+
+      return successResult(
+        normalizeRouteResponse(response.data, {
+          vehicle: '步行',
+          strategy: 'distance',
+          algorithm_name: data?.algorithm,
+        }),
+        response.message
+      );
     } catch (error) {
       if (!isMissingEndpointError(error)) {
         throw error;
@@ -603,6 +741,44 @@ export const routeAPI = {
 // 简化的API导出
 export const planSingleRoute = (data) => routeAPI.calculateShortestRoute(data);
 export const planMultiRoute = (data) => routeAPI.calculateMultiDestinationRoute(data);
+
+// ==================== 室内导航相关API ====================
+
+export const indoorNavigationAPI = {
+  getBuildingInfo: async () => {
+    const response = await api.get('/navigation/indoor/building-info');
+    return successResult(normalizeIndoorBuildingInfo(response.data), response.message);
+  },
+
+  getRooms: async () => {
+    const response = await api.get('/navigation/indoor/rooms');
+    return successResult(Array.isArray(response.data) ? response.data : [], response.message);
+  },
+
+  getFloorRooms: async (floor) => {
+    const response = await api.get(`/navigation/indoor/rooms/floor/${floor}`);
+    return successResult(Array.isArray(response.data) ? response.data : [], response.message);
+  },
+
+  navigate: async ({ roomId, avoidCongestion = true, useTimeWeight = true }) => {
+    const response = await api.post('/navigation/indoor', {
+      roomId,
+      avoidCongestion,
+      useTimeWeight,
+    });
+    if (!response.success) {
+      return response;
+    }
+    return successResult(
+      normalizeIndoorNavigationResult(response.data, { avoidCongestion, useTimeWeight }),
+      response.message
+    );
+  },
+};
+
+export const getIndoorBuildingInfo = () => indoorNavigationAPI.getBuildingInfo();
+export const getIndoorRooms = () => indoorNavigationAPI.getRooms();
+export const navigateIndoor = (data) => indoorNavigationAPI.navigate(data);
 
 // ==================== 旅游日记相关API ====================
 
@@ -737,7 +913,7 @@ export const diaryAPI = {
         }
       }
       return successResult({ userRating: null, hasRated: false });
-    } catch (error) {
+    } catch {
       return successResult({ userRating: null, hasRated: false });
     }
   },
@@ -746,7 +922,7 @@ export const diaryAPI = {
   rateDiary: async (diaryId, rating, userId) => {
     try {
       return await api.post(`/diaries/${diaryId}/rate`, { rating, userId });
-    } catch (error) {
+    } catch {
       return failResult('评分失败，请稍后重试');
     }
   },
@@ -795,6 +971,54 @@ export const uploadAPI = {
 // 简化的API导出
 export const uploadImage = (file) => uploadAPI.uploadImage(file);
 export const uploadVideo = (file) => uploadAPI.uploadVideo(file);
+
+// ==================== AIGC相关API ====================
+
+export const aigcAPI = {
+  uploadImage: async (file) => {
+    const response = await uploadAPI.uploadImage(file);
+    if (!response.success) {
+      return response;
+    }
+    return successResult({
+      ...response.data,
+      url: getApiFileUrl(response.data?.path),
+    }, response.message);
+  },
+
+  convertToAnimation: async ({
+    imagePaths,
+    description,
+    outputFormat = 'gif',
+    fps = 6,
+    width = 848,
+    height = 480,
+  }) => {
+    const response = await api.post('/aigc/convert-to-video', {
+      imagePaths,
+      description,
+      outputFormat,
+      fps,
+      width,
+      height,
+    });
+
+    if (!response.success) {
+      return response;
+    }
+
+    const videoPath = response.data?.videoPath || response.data?.path || response.data?.outputPath;
+    return successResult({
+      ...response.data,
+      videoPath,
+      videoUrl: getApiFileUrl(videoPath),
+      outputFormat,
+    }, response.message);
+  },
+};
+
+export const uploadAigcImage = (file) => aigcAPI.uploadImage(file);
+export const convertImagesToAnimation = (payload) => aigcAPI.convertToAnimation(payload);
 
 // ==================== 统计分析相关API ====================
 
@@ -861,11 +1085,7 @@ export const searchAPI = {
 
 // 获取文件URL
 export const getFileUrl = (path) => {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  if (path.startsWith('/api/')) return path;
-  const basePath = path.startsWith('/') ? path : `/${path}`;
-  return `${import.meta.env.VITE_APP_API_URL || '/api'}${basePath}`;
+  return getApiFileUrl(path);
 };
 
 // 格式化文件大小

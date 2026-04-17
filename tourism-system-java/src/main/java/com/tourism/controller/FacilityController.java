@@ -2,6 +2,7 @@ package com.tourism.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tourism.algorithm.ShortestPathAlgorithm;
 import com.tourism.model.entity.SpotFacility;
 import com.tourism.model.entity.SpotBuilding;
 import com.tourism.service.BuildingService;
@@ -24,10 +25,14 @@ public class FacilityController {
 
     private final FacilityService facilityService;
     private final BuildingService buildingService;
+    private final ShortestPathAlgorithm shortestPathAlgorithm;
 
-    public FacilityController(FacilityService facilityService, BuildingService buildingService) {
+    public FacilityController(FacilityService facilityService,
+                              BuildingService buildingService,
+                              ShortestPathAlgorithm shortestPathAlgorithm) {
         this.facilityService = facilityService;
         this.buildingService = buildingService;
+        this.shortestPathAlgorithm = shortestPathAlgorithm;
     }
 
     @Operation(summary = "查询场所内所有设施")
@@ -147,14 +152,32 @@ public class FacilityController {
         double originLat = building.getLat().doubleValue();
         double originLng = building.getLng().doubleValue();
 
+        boolean graphCapable = shortestPathAlgorithm.isGraphLoaded()
+                && shortestPathAlgorithm.containsNode(request.buildingId());
+
         List<SpotFacility> result = facilities.stream()
                 .filter(facility -> facility.getLat() != null && facility.getLng() != null)
-                .peek(facility -> facility.setDistance(GeoUtils.distance(
-                        originLat,
-                        originLng,
-                        facility.getLat().doubleValue(),
-                        facility.getLng().doubleValue()
-                )))
+                .map(facility -> {
+                    SpotFacility facilityCopy = copyFacility(facility);
+                    if (graphCapable && shortestPathAlgorithm.containsNode(facility.getId())) {
+                        ShortestPathAlgorithm.PathResult pathResult =
+                                shortestPathAlgorithm.dijkstraDistanceOnly(request.buildingId(), facility.getId());
+                        if (pathResult.isReachable()) {
+                            facilityCopy.setDistance(round(pathResult.getCost()));
+                            double travelTime = shortestPathAlgorithm.calculatePathTravelTime(pathResult.getPath(), "步行");
+                            facilityCopy.setTravelTime(round(travelTime));
+                            return facilityCopy;
+                        }
+                    }
+
+                    facilityCopy.setDistance(round(GeoUtils.distance(
+                            originLat,
+                            originLng,
+                            facility.getLat().doubleValue(),
+                            facility.getLng().doubleValue()
+                    )));
+                    return facilityCopy;
+                })
                 .sorted(Comparator.comparing(facility -> facility.getDistance() == null ? Double.MAX_VALUE : facility.getDistance()))
                 .collect(Collectors.toList());
 
@@ -162,5 +185,25 @@ public class FacilityController {
     }
 
     public record NearestFacilityRequest(String buildingId, String placeId, String facilityType) {
+    }
+
+    private SpotFacility copyFacility(SpotFacility source) {
+        SpotFacility target = new SpotFacility();
+        target.setId(source.getId());
+        target.setName(source.getName());
+        target.setType(source.getType());
+        target.setPlaceId(source.getPlaceId());
+        target.setLat(source.getLat());
+        target.setLng(source.getLng());
+        target.setDescription(source.getDescription());
+        target.setRating(source.getRating());
+        target.setDeleted(source.getDeleted());
+        target.setCreatedAt(source.getCreatedAt());
+        target.setUpdatedAt(source.getUpdatedAt());
+        return target;
+    }
+
+    private double round(double value) {
+        return Math.round(value * 10.0) / 10.0;
     }
 }

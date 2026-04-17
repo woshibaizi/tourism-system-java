@@ -14,7 +14,7 @@ import {
   message,
   Empty
 } from 'antd';
-import { SearchOutlined, FireOutlined, EnvironmentOutlined, ShopOutlined } from '@ant-design/icons';
+import { SearchOutlined, FireOutlined, EnvironmentOutlined, ShopOutlined, StarOutlined } from '@ant-design/icons';
 import { foodAPI, getPlaces } from '../services/api';
 
 const { Title, Text } = Typography;
@@ -29,83 +29,95 @@ const FoodSearchPage = () => {
   const [cuisines, setCuisines] = useState([]);
   const [places, setPlaces] = useState([]);
   const [total, setTotal] = useState(0);
+  const [sortBy, setSortBy] = useState('popularity');
+  const [submittedSearchText, setSubmittedSearchText] = useState('');
+  const [searchVersion, setSearchVersion] = useState(0);
 
   // 加载场所列表
   useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const response = await getPlaces();
+        if (response.success && Array.isArray(response.data)) {
+          setPlaces(response.data);
+          if (response.data.length > 0) {
+            setSelectedPlace(response.data[0].id);
+          }
+        }
+      } catch {
+        message.error('获取场所列表失败');
+      }
+    };
+
     fetchPlaces();
   }, []);
 
-  // 初始加载美食数据
   useEffect(() => {
-    if (selectedPlace) {
-      fetchCuisines();
-      fetchFoods();
-    }
-  }, [selectedPlace, selectedCuisine]);
+    if (!selectedPlace) return;
 
-  const fetchPlaces = async () => {
-    try {
-      const response = await getPlaces();
-      if (response.success && Array.isArray(response.data)) {
-        setPlaces(response.data);
-        // 默认选中第一个场所
-        if (response.data.length > 0) {
-          setSelectedPlace(response.data[0].id);
+    const fetchCuisines = async () => {
+      try {
+        const response = await foodAPI.getCuisines(selectedPlace);
+        if (response.success) {
+          setCuisines(response.data);
         }
+      } catch {
+        message.error('获取菜系列表失败');
       }
-    } catch (error) {
-      message.error('获取场所列表失败');
-    }
-  };
+    };
 
-  const fetchCuisines = async () => {
-    try {
-      const response = await foodAPI.getCuisines(selectedPlace);
-      if (response.success) {
-        setCuisines(response.data);
+    fetchCuisines();
+  }, [selectedPlace]);
+
+  // 初始加载及筛选变化后刷新美食数据
+  useEffect(() => {
+    if (!selectedPlace) return;
+
+    const fetchFoods = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          sortBy,
+          limit: 12,
+        };
+
+        if (selectedCuisine) {
+          params.cuisine = selectedCuisine;
+        }
+
+        if (submittedSearchText) {
+          params.search = submittedSearchText;
+        }
+
+        const response = await foodAPI.searchFoods(selectedPlace, params);
+        
+        if (response.success) {
+          setFoods(response.data);
+          setTotal(response.total);
+        } else {
+          message.error('获取美食数据失败');
+        }
+      } catch {
+        message.error('网络请求失败');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      message.error('获取菜系列表失败');
-    }
-  };
+    };
 
-  const fetchFoods = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        sortBy: 'popularity',
-        limit: 12,
-      };
-
-      if (selectedCuisine) {
-        params.cuisine = selectedCuisine;
-      }
-
-      if (searchText.trim()) {
-        params.search = searchText.trim();
-      }
-
-      const response = await foodAPI.searchFoods(selectedPlace, params);
-      
-      if (response.success) {
-        setFoods(response.data);
-        setTotal(response.total);
-      } else {
-        message.error('获取美食数据失败');
-      }
-    } catch (error) {
-      message.error('网络请求失败');
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchFoods();
+  }, [selectedPlace, selectedCuisine, searchVersion, submittedSearchText, sortBy]);
 
   const handleSearch = () => {
-    fetchFoods();
+    setSubmittedSearchText(searchText.trim());
+    setSearchVersion((version) => version + 1);
   };
 
   const handleCuisineChange = (value) => {
     setSelectedCuisine(value);
+  };
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
   };
 
   const handlePlaceChange = (value) => {
@@ -124,6 +136,21 @@ const FoodSearchPage = () => {
     return { text: '一般人气', color: 'default' };
   };
 
+  const sortLabels = {
+    popularity: '热度排序',
+    rating: '评分排序',
+    distance: '距离排序',
+  };
+
+  const formatDistance = (distance) => {
+    if (distance == null || Number.isNaN(Number(distance))) return '暂无距离';
+    const meters = Number(distance);
+    return meters >= 1000 ? `${(meters / 1000).toFixed(1)}公里` : `${Math.round(meters)}米`;
+  };
+
+  const getShopText = (food) =>
+    food.shopName || food.restaurantName || food.storeName || food.windowName || food.stallName || '暂无店铺/窗口信息';
+
   return (
     <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
       <div className="page-header" style={{
@@ -140,7 +167,7 @@ const FoodSearchPage = () => {
           美食搜索
         </Title>
         <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
-          发现周边美食，享受味蕾盛宴
+          支持美食名称、菜系、饭店名称和窗口名称模糊搜索，按热度、评分或距离排序
         </Text>
       </div>
       
@@ -196,23 +223,38 @@ const FoodSearchPage = () => {
             </Select>
           </Col>
           
-          <Col xs={24} sm={12} md={12}>
+          <Col xs={24} sm={12} md={6}>
+            <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>排序方式：</Text>
+            <Select
+              style={{ width: '100%', marginTop: '8px', borderRadius: '12px' }}
+              value={sortBy}
+              onChange={handleSortChange}
+              size="large"
+            >
+              <Option value="popularity">按热度排序</Option>
+              <Option value="rating">按评分排序</Option>
+              <Option value="distance">按距离排序</Option>
+            </Select>
+          </Col>
+
+          <Col xs={24} sm={24} md={6}>
             <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>美食搜索：</Text>
             <Input.Search
               style={{ marginTop: '8px', borderRadius: '12px' }}
-              placeholder="输入美食名称进行搜索（支持模糊搜索）"
+              placeholder="美食 / 菜系 / 饭店 / 窗口"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onSearch={handleSearch}
               enterButton={
                 <Button 
                   type="primary" 
+                  icon={<SearchOutlined />}
                   style={{
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     border: 'none',
                   }}
                 >
-                  🔍 搜索
+                  搜索
                 </Button>
               }
               size="large"
@@ -280,7 +322,7 @@ const FoodSearchPage = () => {
                   display: 'block',
                   marginTop: '2px'
                 }}>
-                  共找到 {total} 道美食，显示热度前 {Math.min(foods.length, 12)} 名
+                  共找到 {total} 道美食，当前按{sortLabels[sortBy]}展示前 {Math.min(foods.length, 12)} 名
                 </Text>
               </div>
             </Space>
@@ -343,6 +385,15 @@ const FoodSearchPage = () => {
                             </Text>
                           </Space>
                         </div>
+
+                        <div style={{ marginBottom: '8px' }}>
+                          <Space>
+                            <StarOutlined style={{ color: '#faad14' }} />
+                            <Text strong style={{ color: '#faad14' }}>
+                              评分: {food.rating ?? '暂无评分'}
+                            </Text>
+                          </Space>
+                        </div>
                         
                         <div style={{ marginBottom: '8px' }}>
                           <Space>
@@ -356,6 +407,13 @@ const FoodSearchPage = () => {
                           <Space>
                             <EnvironmentOutlined style={{ color: '#1890ff' }} />
                             <Text type="secondary">{food.location}</Text>
+                          </Space>
+                        </div>
+
+                        <div style={{ marginTop: '8px' }}>
+                          <Space direction="vertical" size={2}>
+                            <Text type="secondary">店铺/窗口: {getShopText(food)}</Text>
+                            <Text type="secondary">距离: {formatDistance(food.distance)}</Text>
                           </Space>
                         </div>
                       </Card>

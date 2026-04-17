@@ -31,6 +31,7 @@ public class AigcService {
 
     public Map<String, Object> convertImagesToAnimation(List<String> imagePaths,
                                                         String outputFormat,
+                                                        String description,
                                                         Integer fps,
                                                         Integer width,
                                                         Integer height) {
@@ -45,8 +46,10 @@ public class AigcService {
         String suffix = "gif";
         if (outputFormat != null && !outputFormat.isBlank()) {
             String normalizedFormat = outputFormat.trim().toLowerCase();
-            if ("gif".equals(normalizedFormat) || "mp4".equals(normalizedFormat)) {
+            if ("gif".equals(normalizedFormat)) {
                 suffix = "gif";
+            } else {
+                throw new BusinessException(400, "当前AIGC动画生成仅支持gif格式");
             }
         }
 
@@ -126,6 +129,7 @@ public class AigcService {
             result.put("fps", normalizedFps);
             result.put("format", "gif");
             result.put("mediaType", "image/gif");
+            result.put("description", description == null ? "" : description);
             result.put("generatorOutput", output);
             return result;
         } catch (IOException e) {

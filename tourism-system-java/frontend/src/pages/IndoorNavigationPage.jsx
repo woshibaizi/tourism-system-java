@@ -25,7 +25,7 @@ import {
   DownOutlined,
   CompassOutlined
 } from '@ant-design/icons';
-import api from '../services/api';
+import { indoorNavigationAPI } from '../services/api';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -48,10 +48,9 @@ const IndoorNavigationPage = () => {
     try {
       setInitialLoading(true);
       
-      // 并行加载建筑信息和房间列表
       const [buildingResponse, roomsResponse] = await Promise.all([
-        api.get('/indoor/building'),
-        api.get('/indoor/rooms')
+        indoorNavigationAPI.getBuildingInfo(),
+        indoorNavigationAPI.getRooms()
       ]);
 
       if (buildingResponse.success) {
@@ -77,9 +76,10 @@ const IndoorNavigationPage = () => {
 
     setLoading(true);
     try {
-      const response = await api.post('/indoor/navigate', {
+      const response = await indoorNavigationAPI.navigate({
         roomId: selectedRoom,
-        avoidCongestion: avoidCongestion
+        avoidCongestion,
+        useTimeWeight: avoidCongestion
       });
 
       if (response.success) {
@@ -105,11 +105,13 @@ const IndoorNavigationPage = () => {
 
   const getStepIcon = (step) => {
     if (step.floor_change) {
-      return step.from.includes('楼') && step.to.includes('楼') ? 
+      return String(step.from || '').includes('楼') && String(step.to || '').includes('楼') ? 
         <UpOutlined /> : <RightOutlined />;
     }
     return <RightOutlined />;
   };
+
+  const floorList = Array.from(new Set(rooms.map((room) => room.floor))).sort((a, b) => a - b);
 
   if (initialLoading) {
     return (
@@ -351,7 +353,7 @@ const IndoorNavigationPage = () => {
       {/* 房间列表 */}
       <Card title="所有房间" style={{ marginTop: '24px' }}>
         <Row gutter={[8, 8]}>
-          {[1, 2, 3].map(floor => (
+          {(floorList.length > 0 ? floorList : [1, 2, 3]).map(floor => (
             <Col key={floor} xs={24} sm={8}>
               <Card 
                 size="small" 
