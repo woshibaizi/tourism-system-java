@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, Row, Col, Input, Button, Tag, Rate, Spin, message, Modal, Form, Upload, Select, Pagination, Typography } from 'antd';
-import { SearchOutlined, PlusOutlined, EyeOutlined, EditOutlined, UploadOutlined, BookOutlined, StarOutlined, FireOutlined } from '@ant-design/icons';
-import { getDiaries, searchDiariesByTitle, searchDiariesByContent, searchDiariesByDestination, createDiary, getRecommendedDiaries, uploadImage, uploadVideo, getUsers, rateDiary, getPlaces, getFileUrl } from '../services/api';
+import { Card, Row, Col, Input, Button, Tag, Rate, Spin, message, Modal, Form, Upload, Select, Pagination, Typography, Popconfirm } from 'antd';
+import { SearchOutlined, PlusOutlined, EyeOutlined, EditOutlined, UploadOutlined, BookOutlined, StarOutlined, FireOutlined, DeleteOutlined } from '@ant-design/icons';
+import { getDiaries, searchDiariesByTitle, searchDiariesByContent, searchDiariesByDestination, createDiary, getRecommendedDiaries, uploadImage, uploadVideo, getUsers, rateDiary, getPlaces, getFileUrl, deleteDiary } from '../services/api';
 
 const { Search } = Input;
 const { TextArea } = Input;
@@ -175,6 +175,20 @@ function DiariesPage() {
   const getAuthorName = (authorId) => {
     const author = users.find(user => user.id === authorId);
     return author ? author.username : '未知作者';
+  };
+
+  const handleDeleteDiary = async (diaryId) => {
+    try {
+      const response = await deleteDiary(diaryId);
+      if (response.success) {
+        message.success('日记已删除');
+        setDiaries(prev => prev.filter(d => d.id !== diaryId));
+      } else {
+        message.error(response.message || '删除失败');
+      }
+    } catch (error) {
+      message.error('删除失败，请重试');
+    }
   };
 
   const handleRateDiary = async (diaryId, rating) => {
@@ -614,10 +628,10 @@ function DiariesPage() {
           background: 'white',
         }}
         actions={[
-          <Button 
-            key="view" 
-            type="primary" 
-            icon={<EyeOutlined />} 
+          <Button
+            key="view"
+            type="primary"
+            icon={<EyeOutlined />}
             onClick={() => showDiaryDetail(diary)}
             style={{
               borderRadius: '8px',
@@ -627,7 +641,24 @@ function DiariesPage() {
             }}
           >
             阅读全文
-          </Button>
+          </Button>,
+          <Popconfirm
+            key="delete"
+            title="确定删除这篇日记？"
+            description="删除后无法恢复"
+            onConfirm={() => handleDeleteDiary(diary.id)}
+            okText="删除"
+            cancelText="取消"
+            okButtonProps={{ danger: true }}
+          >
+            <Button
+              icon={<DeleteOutlined />}
+              danger
+              style={{ borderRadius: '8px' }}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         ]}
       >
         <div style={{ marginBottom: 16 }}>

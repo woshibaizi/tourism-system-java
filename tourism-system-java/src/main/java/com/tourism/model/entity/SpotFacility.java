@@ -36,6 +36,18 @@ public class SpotFacility {
     @TableField(exist = false)
     private Double travelTime;
 
+    @TableField(exist = false)
+    private BigDecimal mapLat;
+
+    @TableField(exist = false)
+    private BigDecimal mapLng;
+
+    @TableField(exist = false)
+    private String coordSystem;
+
+    @TableField(exist = false)
+    private String mapCoordSystem;
+
     @TableLogic
     private Integer deleted;
 
@@ -123,6 +135,38 @@ public class SpotFacility {
 
     public void setTravelTime(Double travelTime) {
         this.travelTime = travelTime;
+    }
+
+    public BigDecimal getMapLat() {
+        return mapLat;
+    }
+
+    public void setMapLat(BigDecimal mapLat) {
+        this.mapLat = mapLat;
+    }
+
+    public BigDecimal getMapLng() {
+        return mapLng;
+    }
+
+    public void setMapLng(BigDecimal mapLng) {
+        this.mapLng = mapLng;
+    }
+
+    public String getCoordSystem() {
+        return coordSystem;
+    }
+
+    public void setCoordSystem(String coordSystem) {
+        this.coordSystem = coordSystem;
+    }
+
+    public String getMapCoordSystem() {
+        return mapCoordSystem;
+    }
+
+    public void setMapCoordSystem(String mapCoordSystem) {
+        this.mapCoordSystem = mapCoordSystem;
     }
 
     public Integer getDeleted() {

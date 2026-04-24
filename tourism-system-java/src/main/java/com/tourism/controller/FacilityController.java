@@ -7,6 +7,7 @@ import com.tourism.model.entity.SpotFacility;
 import com.tourism.model.entity.SpotBuilding;
 import com.tourism.service.BuildingService;
 import com.tourism.service.FacilityService;
+import com.tourism.utils.CoordinateTransformUtils;
 import com.tourism.utils.GeoUtils;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,7 +57,9 @@ public class FacilityController {
                     .or().like(SpotFacility::getDescription, keyword));
         }
         wrapper.orderByAsc(SpotFacility::getType).orderByAsc(SpotFacility::getName);
-        return Result.success(facilityService.page(new Page<>(page, size), wrapper));
+        Page<SpotFacility> resultPage = facilityService.page(new Page<>(page, size), wrapper);
+        CoordinateTransformUtils.annotateFacilities(resultPage.getRecords());
+        return Result.success(resultPage);
     }
 
     @Operation(summary = "获取设施详情")
@@ -66,13 +69,13 @@ public class FacilityController {
         if (facility == null) {
             return Result.fail(404, "设施不存在");
         }
-        return Result.success(facility);
+        return Result.success(CoordinateTransformUtils.annotateForMap(facility));
     }
 
     @Operation(summary = "根据场所ID查询设施列表")
     @GetMapping("/place/{placeId}")
     public Result<List<SpotFacility>> listByPlaceId(@PathVariable String placeId) {
-        return Result.success(facilityService.listByPlaceId(placeId));
+        return Result.success(CoordinateTransformUtils.annotateFacilities(facilityService.listByPlaceId(placeId)));
     }
 
     @Operation(summary = "根据场所和类型查询设施")
@@ -80,7 +83,7 @@ public class FacilityController {
     public Result<List<SpotFacility>> listByPlaceAndType(
             @PathVariable String placeId,
             @PathVariable String type) {
-        return Result.success(facilityService.listByPlaceIdAndType(placeId, type));
+        return Result.success(CoordinateTransformUtils.annotateFacilities(facilityService.listByPlaceIdAndType(placeId, type)));
     }
 
     @Operation(summary = "搜索设施")
@@ -101,7 +104,7 @@ public class FacilityController {
                 .orderByAsc(SpotFacility::getType)
                 .orderByAsc(SpotFacility::getName)
                 .last("limit 100");
-        return Result.success(facilityService.list(wrapper));
+        return Result.success(CoordinateTransformUtils.annotateFacilities(facilityService.list(wrapper)));
     }
 
     @Operation(summary = "查询附近设施（LBS，半径单位：米）")
@@ -124,7 +127,7 @@ public class FacilityController {
                         f.getLat().doubleValue(), f.getLng().doubleValue()) <= radius)
                 .collect(Collectors.toList());
 
-        return Result.success(nearby);
+        return Result.success(CoordinateTransformUtils.annotateFacilities(nearby));
     }
 
     @Operation(summary = "查询建筑附近的设施（按距离升序）")
@@ -181,7 +184,7 @@ public class FacilityController {
                 .sorted(Comparator.comparing(facility -> facility.getDistance() == null ? Double.MAX_VALUE : facility.getDistance()))
                 .collect(Collectors.toList());
 
-        return Result.success(result);
+        return Result.success(CoordinateTransformUtils.annotateFacilities(result));
     }
 
     public record NearestFacilityRequest(String buildingId, String placeId, String facilityType) {
@@ -200,6 +203,10 @@ public class FacilityController {
         target.setDeleted(source.getDeleted());
         target.setCreatedAt(source.getCreatedAt());
         target.setUpdatedAt(source.getUpdatedAt());
+        target.setMapLat(source.getMapLat());
+        target.setMapLng(source.getMapLng());
+        target.setCoordSystem(source.getCoordSystem());
+        target.setMapCoordSystem(source.getMapCoordSystem());
         return target;
     }
 

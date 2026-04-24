@@ -11,6 +11,7 @@ import com.tourism.service.BuildingService;
 import com.tourism.service.FacilityService;
 import com.tourism.service.PlaceService;
 import com.tourism.service.UserBehaviorService;
+import com.tourism.utils.CoordinateTransformUtils;
 import com.tourism.service.UserService;
 import com.tourism.utils.JsonUtils;
 import com.tourism.utils.Result;
@@ -63,7 +64,7 @@ public class PlaceController {
             @Parameter(description = "类型筛选") @RequestParam(required = false) String type,
             @Parameter(description = "关键字搜索") @RequestParam(required = false) String keyword) {
 
-        return Result.success(placeService.listPlaces(page, size, type, keyword));
+        return Result.success(CoordinateTransformUtils.annotatePlacePage(placeService.listPlaces(page, size, type, keyword)));
     }
 
     @Operation(summary = "获取场所详情")
@@ -73,10 +74,11 @@ public class PlaceController {
         if (place == null) {
             return Result.fail(404, "场所不存在");
         }
+        CoordinateTransformUtils.annotateForMap(place);
         return Result.success(PlaceDetailVO.of(
                 place,
-                buildingService.listByPlaceId(id),
-                facilityService.listByPlaceId(id)
+                CoordinateTransformUtils.annotateBuildings(buildingService.listByPlaceId(id)),
+                CoordinateTransformUtils.annotateFacilities(facilityService.listByPlaceId(id))
         ));
     }
 
@@ -86,27 +88,27 @@ public class PlaceController {
             @Parameter(description = "关键字") @RequestParam String query,
             @Parameter(description = "类型筛选") @RequestParam(required = false) String type) {
         IPage<SpotPlace> page = placeService.listPlaces(1, 100, type, query);
-        return Result.success(page.getRecords());
+        return Result.success(CoordinateTransformUtils.annotatePlaces(page.getRecords()));
     }
 
     @Operation(summary = "获取热门场所")
     @GetMapping("/hot")
     public Result<List<SpotPlace>> hotPlaces(
             @Parameter(description = "返回条数") @RequestParam(defaultValue = "10") Integer limit) {
-        return Result.success(placeService.getHotPlaces(limit));
+        return Result.success(CoordinateTransformUtils.annotatePlaces(placeService.getHotPlaces(limit)));
     }
 
     @Operation(summary = "获取高评分场所")
     @GetMapping("/top-rated")
     public Result<List<SpotPlace>> topRatedPlaces(
             @Parameter(description = "返回条数") @RequestParam(defaultValue = "10") Integer limit) {
-        return Result.success(placeService.getTopRatedPlaces(limit));
+        return Result.success(CoordinateTransformUtils.annotatePlaces(placeService.getTopRatedPlaces(limit)));
     }
 
     @Operation(summary = "按类型查询场所")
     @GetMapping("/type/{type}")
     public Result<List<SpotPlace>> listByType(@PathVariable String type) {
-        return Result.success(placeService.listByType(type));
+        return Result.success(CoordinateTransformUtils.annotatePlaces(placeService.listByType(type)));
     }
 
     @Operation(summary = "个性化推荐场所")
@@ -146,7 +148,7 @@ public class PlaceController {
                 .map(item -> placeMap.get(String.valueOf(item.getItem().get("id"))))
                 .filter(Objects::nonNull)
                 .toList();
-        return Result.success(result);
+        return Result.success(CoordinateTransformUtils.annotatePlaces(result));
     }
 
     @Operation(summary = "场所排序")
@@ -176,7 +178,7 @@ public class PlaceController {
                     true
             );
         }
-        return Result.success(sorted);
+        return Result.success(CoordinateTransformUtils.annotatePlaces(sorted));
     }
 
     @Operation(summary = "场所评分")

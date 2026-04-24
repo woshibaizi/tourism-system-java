@@ -103,16 +103,211 @@ const buildPathFromSegments = (segments = []) => {
   return path;
 };
 
+const toCoordinateNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const normalizeLngLatPair = (value) => {
+  if (Array.isArray(value) && value.length >= 2) {
+    const lng = toCoordinateNumber(value[0]);
+    const lat = toCoordinateNumber(value[1]);
+    return lng != null && lat != null ? [lng, lat] : null;
+  }
+
+  if (typeof value === 'string') {
+    const parts = value.split(',').map((item) => item.trim());
+    if (parts.length >= 2) {
+      const lng = toCoordinateNumber(parts[0]);
+      const lat = toCoordinateNumber(parts[1]);
+      return lng != null && lat != null ? [lng, lat] : null;
+    }
+    return null;
+  }
+
+  if (value && typeof value === 'object') {
+    const lng = toCoordinateNumber(value.lng ?? value.longitude ?? value.lon ?? value.x);
+    const lat = toCoordinateNumber(value.lat ?? value.latitude ?? value.y);
+    return lng != null && lat != null ? [lng, lat] : null;
+  }
+
+  return null;
+};
+
+const parseLngLatCollection = (value) => {
+  if (!value) {
+    return [];
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(';')
+      .map((item) => normalizeLngLatPair(item))
+      .filter(Boolean);
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length > 0 && !Array.isArray(value[0]) && typeof value[0] !== 'object') {
+      const single = normalizeLngLatPair(value);
+      return single ? [single] : [];
+    }
+
+    return value
+      .map((item) => normalizeLngLatPair(item))
+      .filter(Boolean);
+  }
+
+  const single = normalizeLngLatPair(value);
+  return single ? [single] : [];
+};
+
+const flattenPolylineSegments = (segments = []) => {
+  const merged = [];
+
+  segments.forEach((segment) => {
+    const points = Array.isArray(segment?.coordinates) ? segment.coordinates : [];
+    points.forEach((point, index) => {
+      const lastPoint = merged[merged.length - 1];
+      if (
+        index > 0 &&
+        lastPoint &&
+        lastPoint[0] === point[0] &&
+        lastPoint[1] === point[1]
+      ) {
+        return;
+      }
+      merged.push(point);
+    });
+  });
+
+  return merged;
+};
+
+const normalizeRouteSegment = (segment = {}, index = 0) => {
+  const coordinates = parseLngLatCollection(
+    segment.coordinates
+    ?? segment.polyline
+    ?? segment.path
+    ?? segment.routePath
+  );
+
+  return {
+    ...segment,
+    key: segment.key ?? `segment-${index}`,
+    from: segment.from ?? segment.startName ?? segment.start ?? segment.action ?? `第 ${index + 1} 段`,
+    to: segment.to ?? segment.endName ?? segment.end ?? segment.assistant_action ?? segment.road ?? '继续前进',
+    fromId: segment.fromId ?? segment.from_id ?? segment.from,
+    toId: segment.toId ?? segment.to_id ?? segment.to,
+    vehicle: segment.vehicle ?? segment.mode ?? segment.transportMode,
+    distance: toNumber(segment.distance),
+    time: segment.time != null ? toNumber(segment.time) : toNumber(segment.duration) / 60,
+    instruction: segment.instruction ?? segment.description ?? '',
+    coordinates,
+  };
+};
+
+const extractRoutePathsPayload = (payload = {}) => {
+  if (Array.isArray(payload.paths) && payload.paths.length > 0) {
+    return payload.paths[0];
+  }
+  if (payload.route && Array.isArray(payload.route.paths) && payload.route.paths.length > 0) {
+    return payload.route.paths[0];
+  }
+  if (payload.data && Array.isArray(payload.data.paths) && payload.data.paths.length > 0) {
+    return payload.data.paths[0];
+  }
+  return null;
+};
+
+const extractMapSegments = (payload = {}) => {
+  const directSegments = Array.isArray(payload.segments)
+    ? payload.segments.map((segment, index) => normalizeRouteSegment(segment, index))
+    : [];
+
+  if (directSegments.length > 0) {
+    return directSegments;
+  }
+
+  const routePath = extractRoutePathsPayload(payload);
+  const steps = Array.isArray(payload.steps)
+    ? payload.steps
+    : Array.isArray(routePath?.steps)
+      ? routePath.steps
+      : [];
+
+  return steps.map((step, index) =>
+    normalizeRouteSegment(
+      {
+        ...step,
+        coordinates: step.polyline ?? step.path ?? step.coordinates,
+        vehicle: step.vehicle ?? step.mode ?? payload.vehicle ?? routePath?.strategy,
+        distance: step.distance,
+        duration: step.duration,
+      },
+      index
+    )
+  );
+};
+
+const extractMapPath = (payload = {}, segments = []) => {
+  const directPath = parseLngLatCollection(
+    payload.mapPath
+    ?? payload.map_path
+    ?? payload.polylineCoordinates
+    ?? payload.polyline_coordinates
+    ?? payload.routePolyline
+    ?? payload.route_polyline
+    ?? payload.polyline
+    ?? payload.pathCoordinates
+    ?? payload.path_coordinates
+    ?? payload.amapPolyline
+    ?? payload.amap_polyline
+  );
+
+  if (directPath.length > 0) {
+    return directPath;
+  }
+
+  const routePath = extractRoutePathsPayload(payload);
+  const routePolyline = parseLngLatCollection(
+    routePath?.polyline
+    ?? routePath?.path
+    ?? routePath?.coordinates
+  );
+
+  if (routePolyline.length > 0) {
+    return routePolyline;
+  }
+
+  return flattenPolylineSegments(segments);
+};
+
+const extractRouteInstructions = (payload = {}, segments = []) => {
+  if (Array.isArray(payload.detailed_path) && payload.detailed_path.length > 0) {
+    return payload.detailed_path;
+  }
+
+  const instructions = segments
+    .map((segment) => segment.instruction || `${segment.from} -> ${segment.to}`)
+    .filter(Boolean);
+
+  return instructions;
+};
+
 const normalizeRouteResponse = (payload = {}, fallback = {}) => {
-  const segments = Array.isArray(payload.segments) ? payload.segments : [];
+  const segments = extractMapSegments(payload);
   const normalizedPath = Array.isArray(payload.path) && payload.path.length > 0
     ? payload.path
     : buildPathFromSegments(segments);
+  const mapPath = extractMapPath(payload, segments);
+  const routePathPayload = extractRoutePathsPayload(payload);
 
   const totalDistance = toNumber(payload.totalDistance ?? payload.total_distance ?? payload.cost);
   const totalTime = toNumber(
     payload.totalTime
     ?? payload.total_time
+    ?? (routePathPayload?.duration != null ? Number(routePathPayload.duration) / 60 : null)
+    ?? (payload.duration != null ? Number(payload.duration) / 60 : null)
     ?? segments.reduce((sum, segment) => sum + toNumber(segment?.time), 0)
   );
 
@@ -126,9 +321,18 @@ const normalizeRouteResponse = (payload = {}, fallback = {}) => {
     algorithm_name: payload.algorithm ?? payload.algorithm_name ?? fallback.algorithm_name,
     available_vehicles: payload.availableVehicles ?? payload.available_vehicles ?? fallback.available_vehicles ?? [],
     detailed_info: {
+      ...(payload.detailed_info && typeof payload.detailed_info === 'object' ? payload.detailed_info : {}),
       segments,
     },
+    detailed_path: extractRouteInstructions(payload, segments),
     nodeCoordinates: payload.nodeCoordinates ?? payload.node_coordinates ?? {},
+    mapProvider: payload.mapProvider ?? payload.map_provider ?? payload.provider ?? (mapPath.length > 0 ? 'amap' : 'legacy'),
+    mapPath,
+    mapSegments: segments,
+    fallback: Boolean(payload.fallback),
+    fallbackReason: payload.fallbackReason ?? payload.fallback_reason ?? payload.message,
+    source: payload.source,
+    amapMode: payload.amapMode ?? payload.amap_mode,
   };
 };
 
@@ -682,9 +886,17 @@ export const routeAPI = {
         : await api.post('/navigation/shortest-path', {
             start: data?.start,
             end: data?.end,
+            startLat: data?.startLat,
+            startLng: data?.startLng,
+            startName: data?.startName,
+            endLat: data?.endLat,
+            endLng: data?.endLng,
+            endName: data?.endName,
+            placeId: data?.placeId,
             vehicle: data?.vehicle,
             strategy: data?.strategy,
             placeType: data?.placeType,
+            provider: data?.provider ?? 'amap',
           });
 
       if (!response.success) {

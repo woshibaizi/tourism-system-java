@@ -52,6 +52,19 @@ app:
   upload-dir: ${TOURISM_UPLOAD_DIR:${user.dir}/../tourism-system/backend/uploads}
   aigc:
     python-command: ${TOURISM_AIGC_PYTHON:python3}
+  amap:
+    enabled: ${TOURISM_AMAP_ENABLED:true}
+    base-url: ${TOURISM_AMAP_BASE_URL:https://restapi.amap.com}
+    web-key: ${TOURISM_AMAP_WEB_KEY:}
+    js-key: ${TOURISM_AMAP_JS_KEY:}
+    js-security-code: ${TOURISM_AMAP_JS_SECURITY_CODE:}
+  navigation:
+    default-provider: ${TOURISM_NAVIGATION_PROVIDER:auto}
+    amap:
+      enabled: ${TOURISM_AMAP_ENABLED:true}
+      key: ${TOURISM_AMAP_KEY:}
+      base-url: ${TOURISM_AMAP_BASE_URL:https://restapi.amap.com}
+      timeout-ms: ${TOURISM_AMAP_TIMEOUT_MS:5000}
 
 # Swagger
 springdoc:
