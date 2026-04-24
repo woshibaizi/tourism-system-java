@@ -22,3 +22,12 @@ app:
   upload-dir: ${java.io.tmpdir}/tourism-system-test-uploads
   aigc:
     python-command: python3
+  amap:
+    enabled: false
+  navigation:
+    default-provider: auto
+    amap:
+      enabled: true
+      key:
+      base-url: https://restapi.amap.com
+      timeout-ms: 2000

@@ -28,6 +28,18 @@ public class SpotBuilding {
 
     private BigDecimal rating;
 
+    @TableField(exist = false)
+    private BigDecimal mapLat;
+
+    @TableField(exist = false)
+    private BigDecimal mapLng;
+
+    @TableField(exist = false)
+    private String coordSystem;
+
+    @TableField(exist = false)
+    private String mapCoordSystem;
+
     @TableLogic
     private Integer deleted;
 
@@ -99,6 +111,38 @@ public class SpotBuilding {
 
     public void setRating(BigDecimal rating) {
         this.rating = rating;
+    }
+
+    public BigDecimal getMapLat() {
+        return mapLat;
+    }
+
+    public void setMapLat(BigDecimal mapLat) {
+        this.mapLat = mapLat;
+    }
+
+    public BigDecimal getMapLng() {
+        return mapLng;
+    }
+
+    public void setMapLng(BigDecimal mapLng) {
+        this.mapLng = mapLng;
+    }
+
+    public String getCoordSystem() {
+        return coordSystem;
+    }
+
+    public void setCoordSystem(String coordSystem) {
+        this.coordSystem = coordSystem;
+    }
+
+    public String getMapCoordSystem() {
+        return mapCoordSystem;
+    }
+
+    public void setMapCoordSystem(String mapCoordSystem) {
+        this.mapCoordSystem = mapCoordSystem;
     }
 
     public Integer getDeleted() {

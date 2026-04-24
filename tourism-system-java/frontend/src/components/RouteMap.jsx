@@ -1,346 +1,553 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-import { Card, Tag, Spin, message, Button, Switch, Slider, Tooltip } from 'antd';
-import { CarOutlined, ClockCircleOutlined, LineOutlined, NodeIndexOutlined, PlayCircleOutlined, PauseCircleOutlined, RedoOutlined, SettingOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Button, Card, message, Slider, Spin, Switch, Tag, Tooltip } from 'antd';
+import {
+  AimOutlined,
+  CarOutlined,
+  ClockCircleOutlined,
+  EnvironmentOutlined,
+  LineOutlined,
+  NodeIndexOutlined,
+  PauseCircleOutlined,
+  PlayCircleOutlined,
+  RedoOutlined,
+  SettingOutlined,
+  ThunderboltOutlined,
+} from '@ant-design/icons';
+import { loadAMap } from '../utils/amapLoader';
+import { getCurrentLocation } from '../utils/location';
 
-// 修复 Leaflet 默认图标问题
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
+const DEFAULT_CENTER = [116.3518, 39.9607];
+const DEFAULT_ZOOM = 16;
 
-// 自定义图标
-const createCustomIcon = (color, type, label, animated = false) => {
-  const size = type === 'start' || type === 'end' ? 30 : 20;
-  const fontSize = type === 'start' || type === 'end' ? '14px' : '10px';
-  
-  const animationStyle = animated ? 'animation: pulse 1s ease-in-out;' : '';
-  const pulseKeyframes = `
-    @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
-      50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-    }
-  `;
-  
-  const iconHtml = type === 'start' 
-    ? `<style>${pulseKeyframes}</style><div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: ${fontSize}; box-shadow: 0 2px 6px rgba(0,0,0,0.3); ${animationStyle}">S</div>`
-    : type === 'end'
-    ? `<style>${pulseKeyframes}</style><div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: ${fontSize}; box-shadow: 0 2px 6px rgba(0,0,0,0.3); ${animationStyle}">E</div>`
-    : type === 'waypoint'
-    ? `<style>${pulseKeyframes}</style><div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: ${fontSize}; box-shadow: 0 1px 3px rgba(0,0,0,0.3); ${animationStyle}">${label || ''}</div>`
-    : `<style>${pulseKeyframes}</style><div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); ${animationStyle}"></div>`;
-  
-  return L.divIcon({
-    html: iconHtml,
-    className: 'custom-marker',
-    iconSize: [size, size],
-    iconAnchor: [size/2, size/2],
-  });
+const toNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 };
 
-// 动画路径线组件
-const AnimatedPolyline = ({ positions, color, weight, opacity, delay, duration, onComplete, visible }) => {
-  const [animatedPositions, setAnimatedPositions] = useState([]);
-  const animationRef = useRef();
-  const startTimeRef = useRef();
+const isLngLat = (value) =>
+  Array.isArray(value) &&
+  value.length >= 2 &&
+  Number.isFinite(Number(value[0])) &&
+  Number.isFinite(Number(value[1]));
 
-  useEffect(() => {
-    if (!visible || positions.length < 2) {
-      setAnimatedPositions([]);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+const dedupeCoordinates = (coordinates = []) => {
+  const unique = [];
+
+  coordinates.forEach((coordinate) => {
+    if (!isLngLat(coordinate)) {
       return;
     }
 
-    startTimeRef.current = Date.now() + delay;
-    
-    const animate = () => {
-      const now = Date.now();
-      const elapsed = now - startTimeRef.current;
-      
-      if (elapsed < 0) {
-        // 还没到开始时间
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      
-      const progress = Math.min(elapsed / duration, 1);
-      if (progress < 1) {
-        // 根据进度计算当前应该显示的路径段
-        const totalLength = positions.length - 1;
-        const currentLength = progress * totalLength;
-        const segmentIndex = Math.floor(currentLength);
-        const segmentProgress = currentLength - segmentIndex;
-        
-        let currentPositions = [];
-        
-        // 添加完整的线段
-        for (let i = 0; i <= segmentIndex && i < positions.length; i++) {
-          currentPositions.push(positions[i]);
-        }
-        
-        // 添加部分线段
-        if (segmentIndex + 1 < positions.length && segmentProgress > 0) {
-          const start = positions[segmentIndex];
-          const end = positions[segmentIndex + 1];
-          const interpolated = [
-            start[0] + (end[0] - start[0]) * segmentProgress,
-            start[1] + (end[1] - start[1]) * segmentProgress
-          ];
-          currentPositions.push(interpolated);
-        }
-        
-        setAnimatedPositions(currentPositions);
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        // 动画完成
-        setAnimatedPositions(positions);
-        if (onComplete) {
-          onComplete();
-        }
-      }
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [positions, delay, duration, onComplete, visible]);
+    const normalized = [Number(coordinate[0]), Number(coordinate[1])];
+    const lastCoordinate = unique[unique.length - 1];
+    if (
+      lastCoordinate &&
+      lastCoordinate[0] === normalized[0] &&
+      lastCoordinate[1] === normalized[1]
+    ) {
+      return;
+    }
 
-  if (animatedPositions.length < 2) {
+    unique.push(normalized);
+  });
+
+  return unique;
+};
+
+const toLngLatFromLegacy = (value) => {
+  if (!Array.isArray(value) || value.length < 2) {
     return null;
   }
 
-  return (
-    <Polyline
-      positions={animatedPositions}
-      color={color}
-      weight={weight}
-      opacity={opacity}
-    />
-  );
+  const lat = toNumber(value[0]);
+  const lng = toNumber(value[1]);
+  return lat != null && lng != null ? [lng, lat] : null;
 };
 
-// 地图视图自动调整组件
-const MapViewUpdater = ({ routeCoordinates, buildings, facilities }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (routeCoordinates && routeCoordinates.length > 0) {
-      // 计算路径边界
-      const bounds = L.latLngBounds(routeCoordinates);
-      map.fitBounds(bounds, { padding: [30, 30] });
-    } else if (buildings.length > 0 || facilities.length > 0) {
-      // 如果没有路径，显示所有建筑物和设施
-      const allLocations = [...buildings, ...facilities];
-      const coordinates = allLocations
-        .filter(item => item?.lat != null && item?.lng != null)
-        .map(item => [Number(item.lat), Number(item.lng)]);
-      
-      if (coordinates.length > 0) {
-        const bounds = L.latLngBounds(coordinates);
-        map.fitBounds(bounds, { padding: [30, 30] });
-      }
+const toLngLatFromEntity = (item) => {
+  const lng = toNumber(item?.mapLng ?? item?.map_lng ?? item?.lng ?? item?.longitude);
+  const lat = toNumber(item?.mapLat ?? item?.map_lat ?? item?.lat ?? item?.latitude);
+  return lng != null && lat != null ? [lng, lat] : null;
+};
+
+const createMarkerHtml = ({ color, label, size = 26, borderWidth = 3 }) => `
+  <div style="
+    width:${size}px;
+    height:${size}px;
+    border-radius:50%;
+    background:${color};
+    border:${borderWidth}px solid #fff;
+    box-shadow:0 6px 16px rgba(0,0,0,0.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-weight:700;
+    font-size:${size > 24 ? 13 : 11}px;
+  ">
+    ${label}
+  </div>
+`;
+
+const getNodeColor = (nodeInfo, index, totalNodes) => {
+  if (index === 0) return '#52c41a';
+  if (index === totalNodes - 1) return '#f5222d';
+
+  switch (nodeInfo.type) {
+    case '建筑物':
+      return '#1890ff';
+    case '设施':
+      return '#fa8c16';
+    case '路口':
+      return '#722ed1';
+    default:
+      return '#666666';
+  }
+};
+
+const getPathColor = (vehicle) => {
+  const colorMap = {
+    步行: '#52c41a',
+    自行车: '#1890ff',
+    电瓶车: '#fa8c16',
+    混合: '#722ed1',
+    不限: '#13c2c2',
+  };
+
+  return colorMap[vehicle] || '#1677ff';
+};
+
+const getNodeInfo = (nodeId, buildings, facilities) => {
+  const building = buildings.find((item) => item.id === nodeId);
+  if (building) {
+    return {
+      name: building.name || nodeId,
+      type: building.type || '建筑物',
+      id: nodeId,
+    };
+  }
+
+  const facility = facilities.find((item) => item.id === nodeId);
+  if (facility) {
+    return {
+      name: facility.name || nodeId,
+      type: facility.type || '设施',
+      id: nodeId,
+    };
+  }
+
+  if (String(nodeId).includes('intersection')) {
+    return {
+      name: String(nodeId).replace('intersection_', '路口 '),
+      type: '路口',
+      id: nodeId,
+    };
+  }
+
+  return {
+    name: nodeId,
+    type: '未知',
+    id: nodeId,
+  };
+};
+
+const buildVisualizationData = (routeResult, buildings, facilities) => {
+  if (!routeResult) {
+    return {
+      routeCoordinates: [],
+      pathNodes: [],
+      pathEdges: [],
+      allLocationCoordinates: dedupeCoordinates([
+        ...buildings.map((item) => toLngLatFromEntity(item)).filter(Boolean),
+        ...facilities.map((item) => toLngLatFromEntity(item)).filter(Boolean),
+      ]),
+    };
+  }
+
+  const nodeCoordinates = routeResult.nodeCoordinates || {};
+  const getNodeCoordinate = (nodeId) => {
+    const legacyCoordinate = toLngLatFromLegacy(nodeCoordinates[nodeId]);
+    if (legacyCoordinate) {
+      return legacyCoordinate;
     }
-  }, [map, routeCoordinates, buildings, facilities]);
-  
-  return null;
+
+    const building = buildings.find((item) => item.id === nodeId);
+    if (building) {
+      return toLngLatFromEntity(building);
+    }
+
+    const facility = facilities.find((item) => item.id === nodeId);
+    if (facility) {
+      return toLngLatFromEntity(facility);
+    }
+
+    return null;
+  };
+
+  const path = Array.isArray(routeResult.path) ? routeResult.path : [];
+  const mapSegments = Array.isArray(routeResult.mapSegments)
+    ? routeResult.mapSegments
+    : Array.isArray(routeResult.detailed_info?.segments)
+      ? routeResult.detailed_info.segments
+      : [];
+
+  const pathNodes = path
+    .map((nodeId, index) => {
+      const coordinates = getNodeCoordinate(nodeId);
+      if (!coordinates) {
+        return null;
+      }
+
+      const info = getNodeInfo(nodeId, buildings, facilities);
+      return {
+        id: nodeId,
+        coordinates,
+        info,
+        index,
+        isStart: index === 0,
+        isEnd: index === path.length - 1,
+        color: getNodeColor(info, index, path.length),
+      };
+    })
+    .filter(Boolean);
+
+  const fallbackEdges = pathNodes.slice(1).map((node, index) => {
+    const previousNode = pathNodes[index];
+    return {
+      key: `legacy-edge-${index}`,
+      from: previousNode.info.name,
+      to: node.info.name,
+      fromId: previousNode.id,
+      toId: node.id,
+      vehicle: routeResult.vehicle || '不限',
+      distance: 0,
+      time: 0,
+      coordinates: [previousNode.coordinates, node.coordinates],
+      index,
+      instruction: '',
+    };
+  });
+
+  const pathEdges = (mapSegments.length > 0 ? mapSegments : fallbackEdges)
+    .map((segment, index) => {
+      const coordinates = Array.isArray(segment.coordinates) && segment.coordinates.length > 1
+        ? dedupeCoordinates(segment.coordinates)
+        : null;
+
+      if (coordinates && coordinates.length > 1) {
+        return {
+          ...segment,
+          coordinates,
+          index,
+          distance: Number(segment.distance) || 0,
+          time: Number(segment.time) || 0,
+          vehicle: segment.vehicle || routeResult.vehicle || '不限',
+        };
+      }
+
+      const startCoordinate = getNodeCoordinate(segment.fromId || segment.from);
+      const endCoordinate = getNodeCoordinate(segment.toId || segment.to);
+      if (!startCoordinate || !endCoordinate) {
+        return null;
+      }
+
+      return {
+        ...segment,
+        coordinates: [startCoordinate, endCoordinate],
+        index,
+        distance: Number(segment.distance) || 0,
+        time: Number(segment.time) || 0,
+        vehicle: segment.vehicle || routeResult.vehicle || '不限',
+      };
+    })
+    .filter((segment) => Array.isArray(segment?.coordinates) && segment.coordinates.length > 1);
+
+  const routeCoordinates = dedupeCoordinates(
+    Array.isArray(routeResult.mapPath) && routeResult.mapPath.length > 1
+      ? routeResult.mapPath
+      : pathEdges.length > 0
+        ? pathEdges.flatMap((segment) => segment.coordinates)
+        : pathNodes.map((node) => node.coordinates)
+  );
+
+  const synthesizedNodes = pathNodes.length > 0
+    ? pathNodes
+    : routeCoordinates.length > 1
+      ? [
+          {
+            id: 'route-start',
+            coordinates: routeCoordinates[0],
+            info: { id: 'route-start', name: '路线起点', type: '起点' },
+            index: 0,
+            isStart: true,
+            isEnd: false,
+            color: '#52c41a',
+          },
+          {
+            id: 'route-end',
+            coordinates: routeCoordinates[routeCoordinates.length - 1],
+            info: { id: 'route-end', name: '路线终点', type: '终点' },
+            index: 1,
+            isStart: false,
+            isEnd: true,
+            color: '#f5222d',
+          },
+        ]
+      : [];
+
+  return {
+    routeCoordinates,
+    pathNodes: synthesizedNodes,
+    pathEdges,
+    allLocationCoordinates: dedupeCoordinates([
+      ...buildings.map((item) => toLngLatFromEntity(item)).filter(Boolean),
+      ...facilities.map((item) => toLngLatFromEntity(item)).filter(Boolean),
+    ]),
+  };
 };
 
-const RouteMap = ({ 
-  routeResult, 
-  buildings = [], 
-  facilities = [], 
-  onSegmentClick 
-}) => {
+const buildSvgRoutePath = (coordinates = [], width = 520, height = 220) => {
+  if (!Array.isArray(coordinates) || coordinates.length < 2) {
+    return '';
+  }
+
+  const longitudes = coordinates.map((item) => item[0]);
+  const latitudes = coordinates.map((item) => item[1]);
+  const minLng = Math.min(...longitudes);
+  const maxLng = Math.max(...longitudes);
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const lngSpan = maxLng - minLng || 0.001;
+  const latSpan = maxLat - minLat || 0.001;
+  const padding = 24;
+  const innerWidth = width - padding * 2;
+  const innerHeight = height - padding * 2;
+
+  return coordinates
+    .map(([lng, lat], index) => {
+      const x = padding + ((lng - minLng) / lngSpan) * innerWidth;
+      const y = padding + (1 - (lat - minLat) / latSpan) * innerHeight;
+      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(' ');
+};
+
+function LegacyRouteFallback({ mapError, routeCoordinates, pathNodes, pathEdges, currentLocation, routeResult, onSegmentClick }) {
+  const svgPath = buildSvgRoutePath(routeCoordinates);
+
+  return (
+    <div
+      style={{
+        minHeight: 520,
+        borderRadius: 12,
+        padding: 20,
+        background: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)',
+        border: '1px solid #dbeafe',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+      }}
+    >
+      <Alert
+        type={mapError ? 'warning' : 'info'}
+        showIcon
+        message={mapError ? '高德地图不可用，已退回旧结果渲染' : '当前使用旧结果渲染'}
+        description={mapError || routeResult?.fallbackReason || '页面仍可查看路线摘要、节点顺序和分段信息。'}
+      />
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <Tag color={routeResult?.fallback ? 'orange' : 'blue'}>{routeResult?.mapProvider || routeResult?.provider || 'legacy'}</Tag>
+        {routeResult?.vehicle && (
+          <Tag color="processing">
+            <CarOutlined /> {routeResult.vehicle}
+          </Tag>
+        )}
+        {routeResult?.total_time > 0 && (
+          <Tag color="green">
+            <ClockCircleOutlined /> {routeResult.total_time.toFixed(2)} 分钟
+          </Tag>
+        )}
+        {routeResult?.total_distance > 0 && (
+          <Tag color="purple">
+            <LineOutlined /> {routeResult.total_distance.toFixed(0)} 米
+          </Tag>
+        )}
+        {currentLocation && (
+          <Tag color="cyan">
+            <EnvironmentOutlined /> {Number(currentLocation.lat).toFixed(5)}, {Number(currentLocation.lng).toFixed(5)}
+          </Tag>
+        )}
+      </div>
+
+      <div
+        style={{
+          borderRadius: 10,
+          background: '#fff',
+          padding: 12,
+          border: '1px solid #e5e7eb',
+        }}
+      >
+        {svgPath ? (
+          <svg viewBox="0 0 520 220" style={{ width: '100%', height: 220, display: 'block' }}>
+            <defs>
+              <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#1677ff" />
+                <stop offset="100%" stopColor="#52c41a" />
+              </linearGradient>
+            </defs>
+            <path d={svgPath} fill="none" stroke="url(#routeGradient)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : (
+          <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+            暂无可绘制的坐标路径，仍可查看下方节点和分段信息
+          </div>
+        )}
+      </div>
+
+      {pathNodes.length > 0 && (
+        <div>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>节点顺序</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {pathNodes.map((node, index) => (
+              <Tag key={node.id || `node-${index}`} color={index === 0 ? 'green' : index === pathNodes.length - 1 ? 'red' : 'blue'}>
+                {index + 1}. {node.info.name}
+              </Tag>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pathEdges.length > 0 && (
+        <div>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>分段路线</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {pathEdges.map((edge, index) => (
+              <div
+                key={edge.key || `edge-${index}`}
+                onClick={() => onSegmentClick?.(edge)}
+                style={{
+                  padding: '10px 12px',
+                  borderRadius: 10,
+                  background: '#fff',
+                  border: '1px solid #e5e7eb',
+                  cursor: onSegmentClick ? 'pointer' : 'default',
+                }}
+              >
+                <div style={{ fontWeight: 600 }}>{index + 1}. {edge.from}{' -> '}{edge.to}</div>
+                <div style={{ marginTop: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <Tag color="processing">{edge.vehicle || '路线'}</Tag>
+                  {edge.distance > 0 && <Tag color="blue">{edge.distance} 米</Tag>}
+                  {edge.time > 0 && <Tag color="green">{edge.time.toFixed(1)} 分钟</Tag>}
+                  {edge.instruction && <Tag>{edge.instruction}</Tag>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RouteMap({
+  routeResult,
+  buildings = [],
+  facilities = [],
+  onSegmentClick,
+  currentLocation = null,
+  onLocationChange,
+  showControls = true,
+  mapHeight = 520,
+}) {
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const overlayRefs = useRef([]);
+  const animationTimeoutRef = useRef(null);
+
   const [loading, setLoading] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  const [mapError, setMapError] = useState('');
+  const [locating, setLocating] = useState(false);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [pathNodes, setPathNodes] = useState([]);
   const [pathEdges, setPathEdges] = useState([]);
-  
-  // 动画控制状态
   const [animationEnabled, setAnimationEnabled] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [animationSpeed, setAnimationSpeed] = useState(1000); // 每段动画时长（毫秒）
+  const [animationSpeed, setAnimationSpeed] = useState(900);
   const [visibleNodes, setVisibleNodes] = useState(new Set());
   const [visibleEdges, setVisibleEdges] = useState(new Set());
   const [currentAnimationStep, setCurrentAnimationStep] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true); // 自动播放开关
-  const animationTimeoutRef = useRef(); // 用于控制动画定时器
+  const [autoPlay, setAutoPlay] = useState(true);
 
-  // 获取节点坐标的函数
-  const getNodeCoordinates = useCallback((nodeId) => {
-    const routeCoordinate = routeResult?.nodeCoordinates?.[nodeId];
-    if (Array.isArray(routeCoordinate) && routeCoordinate.length === 2) {
-      return [Number(routeCoordinate[0]), Number(routeCoordinate[1])];
+  useEffect(() => {
+    if (!showControls) {
+      setAnimationEnabled(false);
+      setAutoPlay(false);
+      setIsAnimating(false);
     }
+  }, [showControls]);
 
-    // 先在建筑物中查找
-    const building = buildings.find(b => b.id === nodeId);
-    if (building?.lat != null && building?.lng != null) {
-      return [Number(building.lat), Number(building.lng)];
-    }
-    
-    // 再在设施中查找
-    const facility = facilities.find(f => f.id === nodeId);
-    if (facility?.lat != null && facility?.lng != null) {
-      return [Number(facility.lat), Number(facility.lng)];
-    }
-    
-    return null;
-  }, [buildings, facilities, routeResult]);
+  useEffect(() => {
+    let cancelled = false;
 
-  // 获取节点信息的函数
-  const getNodeInfo = useCallback((nodeId) => {
-    const building = buildings.find(b => b.id === nodeId);
-    if (building) {
-      return {
-        name: building.name || nodeId,
-        type: building.type || '建筑物',
-        id: nodeId
-      };
-    }
-    
-    const facility = facilities.find(f => f.id === nodeId);
-    if (facility) {
-      return {
-        name: facility.name || nodeId,
-        type: facility.type || '设施',
-        id: nodeId
-      };
-    }
-    
-    // 如果是路口节点
-    if (nodeId.includes('intersection')) {
-      return {
-        name: nodeId.replace('intersection_', '路口 '),
-        type: '路口',
-        id: nodeId
-      };
-    }
-    
-    return {
-      name: nodeId,
-      type: '未知',
-      id: nodeId
-    };
-  }, [buildings, facilities]);
+    const setupMap = async () => {
+      if (!mapContainerRef.current || mapInstanceRef.current) {
+        return;
+      }
 
-  // 获取节点类型颜色
-  const getNodeColor = (nodeInfo, index, totalNodes) => {
-    if (index === 0) return '#52c41a'; // 起点：绿色
-    if (index === totalNodes - 1) return '#f5222d'; // 终点：红色
-    
-    switch (nodeInfo.type) {
-      case '建筑物': return '#1890ff'; // 蓝色
-      case '设施': return '#fa8c16'; // 橙色
-      case '路口': return '#722ed1'; // 紫色
-      default: return '#666666'; // 灰色
-    }
-  };
+      try {
+        const AMap = await loadAMap();
+        if (cancelled || !mapContainerRef.current) {
+          return;
+        }
 
-  // 启动路径动画
-  const startAnimation = useCallback(() => {
-    if (pathNodes.length === 0) return;
-    
-    setIsAnimating(true);
-    setVisibleNodes(new Set([0])); // 显示起点
-    setVisibleEdges(new Set());
-    setCurrentAnimationStep(0);
-    
-    // 清除之前的定时器
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current);
-    }
-    
-    // 简化的动画逻辑：依次显示边和节点
-    let currentStep = 0;
-    
-    const showNextStep = () => {
-      if (currentStep < pathEdges.length) {
-        // 显示当前边
-        setVisibleEdges(prev => {
-          const newSet = new Set(prev);
-          newSet.add(currentStep);
-          return newSet;
+        const map = new AMap.Map(mapContainerRef.current, {
+          zoom: DEFAULT_ZOOM,
+          center: DEFAULT_CENTER,
+          viewMode: '2D',
+          resizeEnable: true,
+          mapStyle: 'amap://styles/normal',
         });
-        
-        // 等待边动画完成后显示下一个节点
-        animationTimeoutRef.current = setTimeout(() => {
-          setVisibleNodes(prev => {
-            const newSet = new Set(prev);
-            newSet.add(currentStep + 1);
-            return newSet;
-          });
-          
-          setCurrentAnimationStep(currentStep + 1);
-          currentStep++;
-          
-          // 继续下一步
-          if (currentStep < pathEdges.length) {
-            animationTimeoutRef.current = setTimeout(showNextStep, 200);
-          } else {
-            // 动画完成
-            setTimeout(() => {
-              setIsAnimating(false);
-            }, 500);
-          }
-        }, animationSpeed);
+
+        if (AMap.ToolBar) {
+          map.addControl(new AMap.ToolBar());
+        }
+        if (AMap.Scale) {
+          map.addControl(new AMap.Scale());
+        }
+
+        mapInstanceRef.current = map;
+        setMapReady(true);
+        setMapError('');
+      } catch (error) {
+        if (!cancelled) {
+          setMapError(error.message || '高德地图加载失败');
+        }
       }
     };
-    
-    // 开始第一步
-    setTimeout(showNextStep, 500);
-    
-  }, [pathNodes.length, pathEdges.length, animationSpeed]); // 移除pathNodes和pathEdges的依赖
 
-  // 停止动画
-  const stopAnimation = useCallback(() => {
-    setIsAnimating(false);
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current);
-      animationTimeoutRef.current = null;
-    }
+    setupMap();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // 重置动画
-  const resetAnimation = useCallback(() => {
-    stopAnimation();
-    if (animationEnabled) {
-      setVisibleNodes(new Set());
-      setVisibleEdges(new Set());
-      setCurrentAnimationStep(0);
-    } else {
-      // 如果动画被禁用，显示所有元素
-      setVisibleNodes(new Set(pathNodes.map((_, index) => index)));
-      setVisibleEdges(new Set(pathEdges.map((_, index) => index)));
-    }
-  }, [animationEnabled, pathNodes.length, pathEdges.length, stopAnimation]); // 使用length而不是整个数组
-
-  // 组件卸载时清理定时器
   useEffect(() => {
     return () => {
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
       }
+
+      overlayRefs.current.forEach((overlay) => overlay?.setMap?.(null));
+      overlayRefs.current = [];
+      mapInstanceRef.current?.destroy?.();
+      mapInstanceRef.current = null;
     };
   }, []);
 
-  // 处理路径数据
   useEffect(() => {
-    if (!routeResult || !routeResult.path || routeResult.path.length === 0) {
+    if (!routeResult) {
       setRouteCoordinates([]);
       setPathNodes([]);
       setPathEdges([]);
@@ -350,458 +557,438 @@ const RouteMap = ({
     }
 
     setLoading(true);
+
     try {
-      const path = routeResult.path;
-      const coordinates = [];
-      const nodes = [];
-      const edges = [];
-      
-      // 处理所有路径节点
-      for (let i = 0; i < path.length; i++) {
-        const nodeId = path[i];
-        const coord = getNodeCoordinates(nodeId);
-        const nodeInfo = getNodeInfo(nodeId);
-        
-        if (coord) {
-          coordinates.push(coord);
-          
-          // 创建节点信息
-          const nodeData = {
-            id: nodeId,
-            coordinates: coord,
-            info: nodeInfo,
-            index: i,
-            isStart: i === 0,
-            isEnd: i === path.length - 1,
-            color: getNodeColor(nodeInfo, i, path.length)
-          };
-          
-          nodes.push(nodeData);
-          
-          // 创建边信息（从第二个节点开始）
-          if (i > 0) {
-            const fromNode = nodes[i - 1];
-            const toNode = nodeData;
-            
-            // 从详细信息中获取边的信息
-            let edgeInfo = {
-              from: fromNode.info.name,
-              to: toNode.info.name,
-              fromId: fromNode.id,
-              toId: toNode.id,
-              fromCoord: fromNode.coordinates,
-              toCoord: toNode.coordinates,
-              coordinates: [fromNode.coordinates, toNode.coordinates],
-              vehicle: routeResult.vehicle || '不限',
-              distance: 0,
-              time: 0,
-              index: i - 1
-            };
-            
-            // 如果有详细的段信息，使用它
-            if (routeResult.detailed_info && routeResult.detailed_info.segments) {
-              const detailedSegment = routeResult.detailed_info.segments[i - 1];
-              if (detailedSegment) {
-                edgeInfo.vehicle = detailedSegment.vehicle || edgeInfo.vehicle;
-                edgeInfo.distance = detailedSegment.distance || 0;
-                edgeInfo.time = detailedSegment.time || 0;
-              }
-            }
-            
-            edges.push(edgeInfo);
-          }
-        } else {
-          console.warn(`无法找到节点 ${nodeId} 的坐标`);
-        }
-      }
-      
-      setRouteCoordinates(coordinates);
-      setPathNodes(nodes);
-      setPathEdges(edges);
-      
-      // 重置动画状态
+      const visualization = buildVisualizationData(routeResult, buildings, facilities);
+      setRouteCoordinates(visualization.routeCoordinates);
+      setPathNodes(visualization.pathNodes);
+      setPathEdges(visualization.pathEdges);
+
       if (animationEnabled) {
         setVisibleNodes(new Set());
         setVisibleEdges(new Set());
         setCurrentAnimationStep(0);
-        
-        // 如果启用了动画且有路径数据，自动播放动画
-        if (autoPlay && nodes.length > 0) {
-          // 稍等一下再开始动画，让地图有时间调整视图
-          setTimeout(() => {
-            startAnimation();
-          }, 1000);
-        }
       } else {
-        // 静态模式：显示所有元素
-        setVisibleNodes(new Set(nodes.map((_, index) => index)));
-        setVisibleEdges(new Set(edges.map((_, index) => index)));
+        setVisibleNodes(new Set(visualization.pathNodes.map((_, index) => index)));
+        setVisibleEdges(new Set(visualization.pathEdges.map((_, index) => index)));
       }
-      
     } catch (error) {
-      console.error('处理路径数据失败:', error);
       message.error('路径数据处理失败');
+      setRouteCoordinates([]);
+      setPathNodes([]);
+      setPathEdges([]);
     } finally {
       setLoading(false);
     }
-  }, [routeResult, getNodeCoordinates, getNodeInfo, animationEnabled, autoPlay]); // 简化依赖
+  }, [routeResult, buildings, facilities, animationEnabled]);
 
-  // 当动画设置改变时重置状态
   useEffect(() => {
-    resetAnimation();
-  }, [animationEnabled, resetAnimation]);
+    if (!animationEnabled || !autoPlay || pathEdges.length === 0) {
+      return;
+    }
 
-  // 获取路径颜色（根据交通工具）
-  const getPathColor = (vehicle) => {
-    const colorMap = {
-      '步行': '#52c41a',
-      '自行车': '#1890ff',
-      '电瓶车': '#fa8c16',
-      '混合': '#722ed1',
-      '不限': '#13c2c2'
+    const timer = window.setTimeout(() => {
+      setVisibleNodes(new Set([0]));
+      setVisibleEdges(new Set());
+      setCurrentAnimationStep(0);
+      setIsAnimating(true);
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  }, [animationEnabled, autoPlay, pathEdges.length, routeResult]);
+
+  useEffect(() => {
+    if (!isAnimating) {
+      return undefined;
+    }
+
+    if (pathEdges.length === 0) {
+      setIsAnimating(false);
+      return undefined;
+    }
+
+    let stepIndex = 0;
+    setVisibleNodes(new Set([0]));
+    setVisibleEdges(new Set());
+
+    const showNextStep = () => {
+      if (stepIndex >= pathEdges.length) {
+        setIsAnimating(false);
+        return;
+      }
+
+      setVisibleEdges((previous) => {
+        const next = new Set(previous);
+        next.add(stepIndex);
+        return next;
+      });
+
+      animationTimeoutRef.current = window.setTimeout(() => {
+        setVisibleNodes((previous) => {
+          const next = new Set(previous);
+          next.add(stepIndex + 1);
+          return next;
+        });
+        setCurrentAnimationStep(stepIndex + 1);
+        stepIndex += 1;
+        showNextStep();
+      }, animationSpeed);
     };
-    return colorMap[vehicle] || '#666666';
+
+    showNextStep();
+
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, [animationSpeed, isAnimating, pathEdges.length]);
+
+  useEffect(() => {
+    if (!mapReady || !mapInstanceRef.current) {
+      return;
+    }
+
+    const map = mapInstanceRef.current;
+    const AMap = window.AMap;
+    if (!AMap) {
+      return;
+    }
+
+    overlayRefs.current.forEach((overlay) => overlay?.setMap?.(null));
+    overlayRefs.current = [];
+
+    const overlays = [];
+    const visibleEdgeIndexes = animationEnabled ? visibleEdges : new Set(pathEdges.map((_, index) => index));
+    const visibleNodeIndexes = animationEnabled ? visibleNodes : new Set(pathNodes.map((_, index) => index));
+
+    pathEdges.forEach((edge, index) => {
+      if (!visibleEdgeIndexes.has(index)) {
+        return;
+      }
+
+      const polyline = new AMap.Polyline({
+        path: edge.coordinates,
+        strokeColor: getPathColor(edge.vehicle),
+        strokeWeight: 6,
+        strokeOpacity: 0.9,
+        lineJoin: 'round',
+        lineCap: 'round',
+        showDir: true,
+        bubble: true,
+      });
+
+      polyline.on('click', () => {
+        if (onSegmentClick) {
+          onSegmentClick(edge);
+        }
+      });
+
+      map.add(polyline);
+      overlays.push(polyline);
+    });
+
+    pathNodes.forEach((node, index) => {
+      if (!visibleNodeIndexes.has(index)) {
+        return;
+      }
+
+      const marker = new AMap.Marker({
+        position: node.coordinates,
+        title: node.info.name,
+        offset: new AMap.Pixel(-13, -13),
+        content: createMarkerHtml({
+          color: node.color,
+          label: node.isStart ? 'S' : node.isEnd ? 'E' : String(index + 1),
+          size: node.isStart || node.isEnd ? 28 : 24,
+          borderWidth: node.isStart || node.isEnd ? 3 : 2,
+        }),
+      });
+
+      marker.on('click', () => {
+        message.info(`${node.info.name} (${node.info.type})`);
+      });
+
+      map.add(marker);
+      overlays.push(marker);
+    });
+
+    if (currentLocation?.lng != null && currentLocation?.lat != null) {
+      const locationMarker = new AMap.Marker({
+        position: [Number(currentLocation.lng), Number(currentLocation.lat)],
+        title: '当前位置',
+        offset: new AMap.Pixel(-14, -14),
+        content: createMarkerHtml({
+          color: '#1677ff',
+          label: '我',
+          size: 28,
+          borderWidth: 3,
+        }),
+      });
+      map.add(locationMarker);
+      overlays.push(locationMarker);
+    }
+
+    overlayRefs.current = overlays;
+
+    if (overlays.length > 0) {
+      map.setFitView(overlays, false, [60, 60, 60, 60]);
+      return;
+    }
+
+    const fallbackCoordinates = dedupeCoordinates([
+      ...routeCoordinates,
+      ...buildings.map((item) => toLngLatFromEntity(item)).filter(Boolean),
+      ...facilities.map((item) => toLngLatFromEntity(item)).filter(Boolean),
+      currentLocation?.lng != null && currentLocation?.lat != null
+        ? [Number(currentLocation.lng), Number(currentLocation.lat)]
+        : null,
+    ].filter(Boolean));
+
+    if (fallbackCoordinates.length > 0) {
+      map.setCenter(fallbackCoordinates[0]);
+      if (fallbackCoordinates.length === 1) {
+        map.setZoom(17);
+      }
+    } else {
+      map.setZoomAndCenter(DEFAULT_ZOOM, DEFAULT_CENTER);
+    }
+  }, [
+    animationEnabled,
+    buildings,
+    currentLocation,
+    facilities,
+    mapReady,
+    onSegmentClick,
+    pathEdges,
+    pathNodes,
+    routeCoordinates,
+    visibleEdges,
+    visibleNodes,
+  ]);
+
+  const startAnimation = () => {
+    if (pathEdges.length === 0) {
+      return;
+    }
+
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
+    setVisibleNodes(new Set([0]));
+    setVisibleEdges(new Set());
+    setCurrentAnimationStep(0);
+    setIsAnimating(true);
   };
 
-  // 处理路径段点击
-  const handleSegmentClick = (edge) => {
-    if (onSegmentClick) {
-      onSegmentClick(edge);
+  const stopAnimation = () => {
+    setIsAnimating(false);
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
     }
   };
 
-  // 默认地图中心（北京邮电大学）
-  const defaultCenter = [39.9607, 116.3518];
-  const defaultZoom = 16;
+  const resetAnimation = () => {
+    stopAnimation();
+    if (animationEnabled) {
+      setVisibleNodes(new Set());
+      setVisibleEdges(new Set());
+      setCurrentAnimationStep(0);
+      return;
+    }
+
+    setVisibleNodes(new Set(pathNodes.map((_, index) => index)));
+    setVisibleEdges(new Set(pathEdges.map((_, index) => index)));
+  };
+
+  const handleLocateCurrentPosition = async () => {
+    setLocating(true);
+    try {
+      const location = await getCurrentLocation();
+      onLocationChange?.(location);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.setZoomAndCenter(17, [location.lng, location.lat]);
+      }
+      message.success('已定位到当前位置');
+    } catch (error) {
+      message.error(error.message || '定位失败');
+    } finally {
+      setLocating(false);
+    }
+  };
 
   return (
-    <Card title={
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span>路径地图</span>
-        {pathNodes.length > 0 && (
-          <div style={{ fontSize: '12px', fontWeight: 'normal' }}>
+    <Card
+      title={(
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <span>高德地图</span>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Tag color={routeResult?.mapProvider === 'amap' ? 'processing' : 'default'}>
+              {routeResult?.mapProvider === 'amap' ? '高德导航结果' : '旧路径兼容模式'}
+            </Tag>
             <Tag color="blue" icon={<NodeIndexOutlined />}>
               {pathNodes.length} 个节点
             </Tag>
             <Tag color="green" icon={<LineOutlined />}>
-              {pathEdges.length} 条边
+              {pathEdges.length} 条路径段
             </Tag>
-            {isAnimating && (
-              <Tag color="orange">
-                动画进行中... ({currentAnimationStep}/{pathNodes.length})
-              </Tag>
-            )}
           </div>
-        )}
-      </div>
-    } style={{ height: '650px' }}>
-      <Spin spinning={loading} tip="正在处理路径数据...">
-        {/* 动画控制面板 */}
-        {pathNodes.length > 0 && (
-          <div className="animation-control-panel" style={{ 
-            marginBottom: 16, 
-            padding: 12, 
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            flexWrap: 'wrap'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <SettingOutlined style={{ color: '#1890ff' }} />
-              <span style={{ fontWeight: 'bold' }}>动画控制:</span>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span>启用动画:</span>
-              <Switch 
-                checked={animationEnabled}
-                onChange={setAnimationEnabled}
-                size="small"
-              />
-            </div>
-            
-            {animationEnabled && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span>自动播放:</span>
-                  <Tooltip title="路径规划完成后自动开始动画">
-                    <Switch 
-                      checked={autoPlay}
-                      onChange={setAutoPlay}
-                      size="small"
-                    />
-                  </Tooltip>
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span>动画速度:</span>
-                  <Slider
-                    min={200}
-                    max={2000}
-                    step={100}
-                    value={animationSpeed}
-                    onChange={setAnimationSpeed}
-                    style={{ width: 100 }}
-                    tooltip={{ formatter: (value) => `${value}ms` }}
-                  />
-                  <span style={{ fontSize: '12px', color: '#666' }}>
-                    {animationSpeed < 500 ? '快' : animationSpeed < 1000 ? '中' : '慢'}
-                  </span>
-                </div>
-                
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {!isAnimating ? (
-                    <Button
-                      type="primary"
-                      icon={<PlayCircleOutlined />}
-                      onClick={startAnimation}
-                      size="small"
-                    >
-                      播放动画
-                    </Button>
-                  ) : (
-                    <Button
-                      type="primary"
-                      danger
-                      icon={<PauseCircleOutlined />}
-                      onClick={stopAnimation}
-                      size="small"
-                    >
-                      停止动画
-                    </Button>
-                  )}
-                  
-                  <Button
-                    icon={<RedoOutlined />}
-                    onClick={resetAnimation}
-                    size="small"
-                    disabled={isAnimating}
-                  >
-                    重置
-                  </Button>
-                </div>
-              </>
-            )}
-            
-            {animationEnabled && !isAnimating && pathNodes.length > 0 && (
-              <div style={{ 
-                fontSize: '12px', 
-                color: '#666',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4
-              }}>
-                <ThunderboltOutlined style={{ color: '#fa8c16' }} />
-                <span>点击"播放动画"观看路径连接过程</span>
-              </div>
-            )}
-            
-            {isAnimating && (
-              <div style={{ 
-                fontSize: '12px', 
-                color: '#1890ff',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                fontWeight: 'bold'
-              }}>
-                <NodeIndexOutlined style={{ animation: 'pulse 1s infinite' }} />
-                <span>正在连接第 {currentAnimationStep + 1} 个节点...</span>
-              </div>
-            )}
-          </div>
-        )}
-        
-        <div style={{ height: '520px', width: '100%' }}>
-          <MapContainer
-            center={defaultCenter}
-            zoom={defaultZoom}
-            style={{ height: '100%', width: '100%' }}
-            scrollWheelZoom={true}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            
-            {/* 自动调整视图 */}
-            <MapViewUpdater 
-              routeCoordinates={routeCoordinates}
-              buildings={buildings}
-              facilities={facilities}
-            />
-            
-            {/* 路径边 */}
-            {pathEdges.map((edge, index) => {
-              const isVisible = !animationEnabled || visibleEdges.has(index);
-              
-              if (!isVisible) {
-                return null;
-              }
-              
-              if (animationEnabled) {
-                // 使用动画路径线
-                return (
-                  <AnimatedPolyline
-                    key={`animated-edge-${index}`}
-                    positions={edge.coordinates}
-                    color={getPathColor(edge.vehicle)}
-                    weight={5}
-                    opacity={0.8}
-                    delay={0}
-                    duration={animationSpeed * 0.6} // 缩短动画时间
-                    visible={true}
-                  />
-                );
-              } else {
-                // 静态路径线
-                return (
-                  <Polyline
-                    key={`static-edge-${index}`}
-                    positions={edge.coordinates}
-                    color={getPathColor(edge.vehicle)}
-                    weight={5}
-                    opacity={0.8}
-                    eventHandlers={{
-                      click: () => handleSegmentClick(edge)
-                    }}
-                  >
-                    <Popup>
-                      <div>
-                        <h4>路径段 {edge.index + 1}</h4>
-                        <p><strong>从:</strong> {edge.from}</p>
-                        <p><strong>到:</strong> {edge.to}</p>
-                        <p><strong>交通工具:</strong> 
-                          <Tag color={getPathColor(edge.vehicle)} style={{ marginLeft: 8 }}>
-                            <CarOutlined /> {edge.vehicle}
-                          </Tag>
-                        </p>
-                        {edge.distance > 0 && (
-                          <p><strong>距离:</strong> 
-                            <Tag color="blue" style={{ marginLeft: 8 }}>
-                              <LineOutlined /> {edge.distance}米
-                            </Tag>
-                          </p>
-                        )}
-                        {edge.time > 0 && (
-                          <p><strong>时间:</strong> 
-                            <Tag color="orange" style={{ marginLeft: 8 }}>
-                              <ClockCircleOutlined /> {edge.time.toFixed(1)}分钟
-                            </Tag>
-                          </p>
-                        )}
-                      </div>
-                    </Popup>
-                  </Polyline>
-                );
-              }
-            })}
-            
-            {/* 路径节点 */}
-            {pathNodes.map((node, index) => {
-              const isVisible = !animationEnabled || visibleNodes.has(index);
-              const isCurrentlyAnimating = animationEnabled && isAnimating && currentAnimationStep === index;
-              
-              if (!isVisible) return null;
-              
-              return (
-                <Marker
-                  key={`node-${index}`}
-                  position={node.coordinates}
-                  icon={createCustomIcon(
-                    node.color,
-                    node.isStart ? 'start' : node.isEnd ? 'end' : 'waypoint',
-                    node.isStart || node.isEnd ? null : (index + 1).toString(),
-                    isCurrentlyAnimating
-                  )}
-                  zIndexOffset={node.isStart || node.isEnd ? 1000 : 100}
-                >
-                  <Popup>
-                    <div>
-                      <h4>
-                        {node.isStart && <Tag color="green">起点</Tag>}
-                        {node.isEnd && <Tag color="red">终点</Tag>}
-                        {!node.isStart && !node.isEnd && <Tag color="blue">节点 {index + 1}</Tag>}
-                      </h4>
-                      <p><strong>名称:</strong> {node.info.name}</p>
-                      <p><strong>类型:</strong> 
-                        <Tag color={
-                          node.info.type === '建筑物' ? 'blue' :
-                          node.info.type === '设施' ? 'orange' :
-                          node.info.type === '路口' ? 'purple' : 'default'
-                        }>
-                          {node.info.type}
-                        </Tag>
-                      </p>
-                      <p><strong>ID:</strong> <code>{node.info.id}</code></p>
-                      <p><strong>坐标:</strong> {node.coordinates.join(', ')}</p>
-                      {!node.isStart && !node.isEnd && (
-                        <p><strong>路径顺序:</strong> 第 {index + 1} 个节点</p>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </MapContainer>
         </div>
-        
-        {/* 图例 */}
-        {pathNodes.length > 0 && (
-          <div style={{ 
-            marginTop: 16, 
-            padding: 12, 
-            backgroundColor: '#f5f5f5', 
-            borderRadius: 6,
-            fontSize: '12px'
-          }}>
-            <div style={{ marginBottom: 8, fontWeight: 'bold' }}>图例说明:</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ 
-                  width: 16, height: 16, borderRadius: '50%', 
-                  backgroundColor: '#52c41a', border: '2px solid white' 
-                }}></div>
-                <span>起点</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ 
-                  width: 16, height: 16, borderRadius: '50%', 
-                  backgroundColor: '#f5222d', border: '2px solid white' 
-                }}></div>
-                <span>终点</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ 
-                  width: 16, height: 16, borderRadius: '50%', 
-                  backgroundColor: '#1890ff', border: '2px solid white' 
-                }}></div>
-                <span>建筑物</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ 
-                  width: 16, height: 16, borderRadius: '50%', 
-                  backgroundColor: '#fa8c16', border: '2px solid white' 
-                }}></div>
-                <span>设施</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ 
-                  width: 16, height: 16, borderRadius: '50%', 
-                  backgroundColor: '#722ed1', border: '2px solid white' 
-                }}></div>
-                <span>路口</span>
-              </div>
-            </div>
-            <div style={{ marginTop: 8, color: '#666' }}>
-              💡 {animationEnabled ? '使用动画控制面板播放路径动画' : '点击节点查看详细信息，点击路径线查看路段信息'}
-            </div>
+      )}
+      style={{ borderRadius: 18, border: 'none', boxShadow: '0 18px 36px rgba(22, 42, 70, 0.08)' }}
+    >
+      <Spin spinning={loading} tip="正在处理路径数据...">
+        {mapError && (
+          <Alert
+            type="error"
+            showIcon
+            message="高德地图初始化失败"
+            description={mapError}
+            style={{ marginBottom: 16 }}
+          />
+        )}
+
+        {showControls && (
+          <div
+            className="animation-control-panel"
+            style={{
+              marginBottom: 16,
+              padding: 12,
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
+          >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <SettingOutlined style={{ color: '#1890ff' }} />
+            <span style={{ fontWeight: 'bold' }}>地图控制:</span>
           </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>启用路径动画:</span>
+            <Switch checked={animationEnabled} onChange={setAnimationEnabled} size="small" />
+          </div>
+
+          {animationEnabled && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>自动播放:</span>
+                <Tooltip title="路径规划成功后自动播放分段路线">
+                  <Switch checked={autoPlay} onChange={setAutoPlay} size="small" />
+                </Tooltip>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>动画速度:</span>
+                <Slider
+                  min={300}
+                  max={1800}
+                  step={100}
+                  value={animationSpeed}
+                  onChange={setAnimationSpeed}
+                  style={{ width: 120 }}
+                  tooltip={{ formatter: (value) => `${value}ms` }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                {!isAnimating ? (
+                  <Button type="primary" icon={<PlayCircleOutlined />} onClick={startAnimation} size="small" disabled={pathEdges.length === 0}>
+                    播放动画
+                  </Button>
+                ) : (
+                  <Button type="primary" danger icon={<PauseCircleOutlined />} onClick={stopAnimation} size="small">
+                    停止动画
+                  </Button>
+                )}
+
+                <Button icon={<RedoOutlined />} onClick={resetAnimation} size="small" disabled={pathEdges.length === 0}>
+                  重置
+                </Button>
+              </div>
+            </>
+          )}
+
+          <Button
+            icon={<AimOutlined />}
+            onClick={handleLocateCurrentPosition}
+            loading={locating}
+            size="small"
+          >
+            定位到我
+          </Button>
+
+          {currentLocation && (
+            <Tag color="cyan" icon={<EnvironmentOutlined />}>
+              当前坐标: {Number(currentLocation.lat).toFixed(5)}, {Number(currentLocation.lng).toFixed(5)}
+            </Tag>
+          )}
+
+          {animationEnabled && !isAnimating && pathEdges.length > 0 && (
+            <div style={{ fontSize: 12, color: '#666', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <ThunderboltOutlined style={{ color: '#fa8c16' }} />
+              <span>点击“播放动画”查看分段导航过程</span>
+            </div>
+          )}
+
+          {isAnimating && (
+            <div style={{ fontSize: 12, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 'bold' }}>
+              <NodeIndexOutlined />
+              <span>正在连接第 {currentAnimationStep + 1} 个节点...</span>
+            </div>
+          )}
+          </div>
+        )}
+
+        {mapError ? (
+          <LegacyRouteFallback
+            mapError={mapError}
+            routeCoordinates={routeCoordinates}
+            pathNodes={pathNodes}
+            pathEdges={pathEdges}
+            currentLocation={currentLocation}
+            routeResult={routeResult}
+            onSegmentClick={onSegmentClick}
+          />
+        ) : (
+          <div
+            ref={mapContainerRef}
+            style={{ height: `${mapHeight}px`, width: '100%', borderRadius: 12, overflow: 'hidden', background: '#f5f5f5' }}
+          />
+        )}
+
+        {pathEdges.length > 0 && (
+          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {pathEdges.slice(0, 5).map((edge, index) => (
+              <Tag
+                key={edge.key || `legend-${index}`}
+                color={getPathColor(edge.vehicle)}
+                style={{ cursor: onSegmentClick ? 'pointer' : 'default' }}
+                onClick={() => onSegmentClick?.(edge)}
+              >
+                <CarOutlined /> {edge.vehicle || '路线'} · {edge.distance ? `${edge.distance}米` : edge.instruction || `${edge.from} -> ${edge.to}`}
+              </Tag>
+            ))}
+            {pathEdges.length > 5 && <Tag>其余 {pathEdges.length - 5} 段可在结果列表查看</Tag>}
+          </div>
+        )}
+
+        {!routeResult && (
+          <Alert
+            type="info"
+            showIcon
+            message="等待路径规划结果"
+            description="选择起点和终点后，地图将展示高德路线；如果后端仍返回旧节点路径，地图会自动回退兼容显示。"
+            style={{ marginTop: 16 }}
+          />
         )}
       </Spin>
     </Card>
   );
-};
+}
 
-export default RouteMap; 
+export default RouteMap;

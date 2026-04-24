@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tourism.model.entity.SpotBuilding;
 import com.tourism.service.BuildingService;
+import com.tourism.utils.CoordinateTransformUtils;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,7 +46,9 @@ public class BuildingController {
                     .or().like(SpotBuilding::getDescription, keyword));
         }
         wrapper.orderByAsc(SpotBuilding::getName);
-        return Result.success(buildingService.page(new Page<>(page, size), wrapper));
+        Page<SpotBuilding> resultPage = buildingService.page(new Page<>(page, size), wrapper);
+        CoordinateTransformUtils.annotateBuildings(resultPage.getRecords());
+        return Result.success(resultPage);
     }
 
     @Operation(summary = "获取建筑物详情")
@@ -55,13 +58,13 @@ public class BuildingController {
         if (building == null) {
             return Result.fail(404, "建筑物不存在");
         }
-        return Result.success(building);
+        return Result.success(CoordinateTransformUtils.annotateForMap(building));
     }
 
     @Operation(summary = "根据场所ID查询建筑物列表")
     @GetMapping("/place/{placeId}")
     public Result<List<SpotBuilding>> listByPlace(@PathVariable String placeId) {
-        return Result.success(buildingService.listByPlaceId(placeId));
+        return Result.success(CoordinateTransformUtils.annotateBuildings(buildingService.listByPlaceId(placeId)));
     }
 
     @Operation(summary = "搜索建筑物")
@@ -77,6 +80,6 @@ public class BuildingController {
                 .or().like(SpotBuilding::getDescription, query))
                 .orderByAsc(SpotBuilding::getName)
                 .last("limit 100");
-        return Result.success(buildingService.list(wrapper));
+        return Result.success(CoordinateTransformUtils.annotateBuildings(buildingService.list(wrapper)));
     }
 }

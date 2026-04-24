@@ -133,14 +133,14 @@ function HomePage() {
           <Button 
             type="primary" 
             size="large" 
-            onClick={() => navigate('/places')}
+            onClick={() => navigate('/location-search')}
             style={{ 
               height: '52px',
               padding: '0 32px',
               fontSize: '17px',
             }}
           >
-            浏览场所
+            地点搜索
           </Button>
           <Button 
             size="large" 
@@ -195,10 +195,10 @@ function HomePage() {
             }}>
               <Row justify="space-between" align="middle">
                 <Col>
-                  <Title level={4} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>推荐场所</Title>
+                  <Title level={4} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>推荐地点</Title>
                 </Col>
                 <Col>
-                  <Button type="link" onClick={() => navigate('/places')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
+                  <Button type="link" onClick={() => navigate('/location-search')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
                 </Col>
               </Row>
             </div>
@@ -248,7 +248,7 @@ function HomePage() {
                   )}
                 />
               ) : (
-                <Empty description="暂无推荐场所" style={{ margin: '40px 0' }} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <Empty description="暂无推荐地点" style={{ margin: '40px 0' }} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               )}
             </div>
           </div>
@@ -269,10 +269,10 @@ function HomePage() {
             }}>
               <Row justify="space-between" align="middle">
                 <Col>
-                  <Title level={4} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>热门场所排行</Title>
+                  <Title level={4} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>热门地点排行</Title>
                 </Col>
                 <Col>
-                  <Button type="link" onClick={() => navigate('/places')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
+                  <Button type="link" onClick={() => navigate('/location-search')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
                 </Col>
               </Row>
             </div>
@@ -324,7 +324,7 @@ function HomePage() {
                   )}
                 />
               ) : (
-                <Empty description="暂无热门场所" style={{ margin: '40px 0' }} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <Empty description="暂无热门地点" style={{ margin: '40px 0' }} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               )}
             </div>
           </div>
@@ -400,9 +400,9 @@ function HomePage() {
         <div style={{ padding: '32px 24px' }}>
           <Row gutter={[20, 20]}>
             {[
-              { title: '浏览场所', desc: '发现精彩地点', icon: <EnvironmentOutlined />, route: '/places' },
+              { title: '地点搜索', desc: '统一搜索景区学校美食', icon: <EnvironmentOutlined />, route: '/location-search' },
               { title: '写游记', desc: '记录美好时光', icon: <BookOutlined />, route: '/diaries?create=true' },
-              { title: '路线规划', desc: '智能路径推荐', icon: <RightOutlined />, route: '/route-planning' },
+              { title: '校内导航', desc: '北邮校园步行导航', icon: <EnvironmentOutlined />, route: '/campus-navigation' },
               { title: '统计分析', desc: '数据洞察分析', icon: <BarChartOutlined />, route: '/stats' }
             ].map((action, idx) => (
               <Col xs={12} sm={6} key={idx}>

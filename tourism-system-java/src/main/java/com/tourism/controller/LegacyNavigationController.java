@@ -2,6 +2,7 @@ package com.tourism.controller;
 
 import com.tourism.algorithm.IndoorNavigationAlgorithm;
 import com.tourism.algorithm.ShortestPathAlgorithm;
+import com.tourism.service.OutdoorRouteService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -17,11 +18,14 @@ public class LegacyNavigationController {
 
     private final ShortestPathAlgorithm shortestPathAlgorithm;
     private final IndoorNavigationAlgorithm indoorNavigationAlgorithm;
+    private final OutdoorRouteService outdoorRouteService;
 
     public LegacyNavigationController(ShortestPathAlgorithm shortestPathAlgorithm,
-                                      IndoorNavigationAlgorithm indoorNavigationAlgorithm) {
+                                      IndoorNavigationAlgorithm indoorNavigationAlgorithm,
+                                      OutdoorRouteService outdoorRouteService) {
         this.shortestPathAlgorithm = shortestPathAlgorithm;
         this.indoorNavigationAlgorithm = indoorNavigationAlgorithm;
+        this.outdoorRouteService = outdoorRouteService;
     }
 
     @PostMapping("/routes/single")
@@ -31,82 +35,47 @@ public class LegacyNavigationController {
         String strategy = stringValue(request.getOrDefault("strategy", "distance"));
         String vehicle = stringValue(request.get("vehicle"));
         String placeType = stringValue(request.getOrDefault("placeType", "景区"));
+        String provider = stringValue(request.get("provider"));
+        Double startLat = doubleValue(request.get("startLat"));
+        Double startLng = doubleValue(request.get("startLng"));
+        Double endLat = doubleValue(request.get("endLat"));
+        Double endLng = doubleValue(request.get("endLng"));
         boolean useMixedVehicles = Boolean.TRUE.equals(request.get("useMixedVehicles"));
 
-        if (start == null || end == null) {
+        if (start == null && (startLat == null || startLng == null)) {
+            return fail("起点不能为空");
+        }
+        if (end == null && (endLat == null || endLng == null)) {
             return fail("起点和终点不能为空");
         }
 
         if ("time".equals(strategy) && (useMixedVehicles || vehicle == null || vehicle.isBlank())) {
-            List<ShortestPathAlgorithm.RouteSegment> segments =
-                    shortestPathAlgorithm.dijkstraWithMixedVehicles(start, end, placeType);
-            if (segments.isEmpty()) {
+            if (start == null || end == null) {
+                return fail("混合交通模式当前需要提供起点和终点节点 ID");
+            }
+            Map<String, Object> mixedRoute = outdoorRouteService.buildMixedVehicleRoute(start, end, placeType);
+            if (mixedRoute.isEmpty()) {
                 return fail("无法找到有效路径");
             }
-
-            double totalDistance = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getDistance).sum();
-            double totalTime = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getTime).sum();
-            List<String> path = new java.util.ArrayList<>();
-            path.add(start);
-            for (ShortestPathAlgorithm.RouteSegment segment : segments) {
-                path.add(segment.getTo());
-            }
-
-            Map<String, Object> detailedInfo = new LinkedHashMap<>();
-            detailedInfo.put("path", path);
-            detailedInfo.put("total_distance", totalDistance);
-            detailedInfo.put("total_time", totalTime);
-            detailedInfo.put("strategy", "time");
-            detailedInfo.put("vehicle", "混合");
-            detailedInfo.put("segments", segments);
-
-            Map<String, Object> data = new LinkedHashMap<>();
-            data.put("path", path);
-            data.put("total_distance", totalDistance);
-            data.put("total_time", totalTime);
-            data.put("strategy", "time");
-            data.put("vehicle", "混合");
-            data.put("available_vehicles", shortestPathAlgorithm.getAvailableVehicles(placeType));
-            data.put("detailed_info", detailedInfo);
-            data.put("message", "路径规划完成");
-            return success(data);
+            return success(toLegacyRoutePayload(mixedRoute, true));
         }
 
-        String normalizedVehicle = vehicle == null || vehicle.isBlank() ? "步行" : vehicle;
-        ShortestPathAlgorithm.PathResult result;
-        if ("distance".equals(strategy)) {
-            result = shortestPathAlgorithm.dijkstraDistanceOnly(start, end);
-        } else {
-            result = shortestPathAlgorithm.astar(start, end, normalizedVehicle);
+        OutdoorRouteService.PlannedRoute plannedRoute = outdoorRouteService.planSingleRoute(
+                start,
+                end,
+                startLat,
+                startLng,
+                endLat,
+                endLng,
+                vehicle,
+                strategy,
+                placeType,
+                provider
+        );
+        if (!plannedRoute.success()) {
+            return fail(plannedRoute.message());
         }
-
-        if (!result.isReachable()) {
-            return fail("无法找到有效路径");
-        }
-
-        double totalDistance = shortestPathAlgorithm.calculatePathDistance(result.getPath());
-        Double totalTime = "time".equals(strategy) ? result.getCost() : null;
-        List<ShortestPathAlgorithm.RouteSegment> segments =
-                "time".equals(strategy) ? shortestPathAlgorithm.buildPathSegments(result.getPath(), normalizedVehicle) : List.of();
-
-        Map<String, Object> detailedInfo = new LinkedHashMap<>();
-        detailedInfo.put("path", result.getPath());
-        detailedInfo.put("total_distance", totalDistance);
-        detailedInfo.put("total_time", totalTime);
-        detailedInfo.put("strategy", strategy);
-        detailedInfo.put("vehicle", "distance".equals(strategy) ? "不限" : normalizedVehicle);
-        detailedInfo.put("segments", segments);
-
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("path", result.getPath());
-        data.put("total_distance", totalDistance);
-        data.put("total_time", totalTime);
-        data.put("strategy", strategy);
-        data.put("vehicle", "distance".equals(strategy) ? "不限" : normalizedVehicle);
-        data.put("available_vehicles", shortestPathAlgorithm.getAvailableVehicles(placeType));
-        data.put("detailed_info", detailedInfo);
-        data.put("message", "路径规划完成");
-        return success(data);
+        return success(toLegacyRoutePayload(plannedRoute.payload(), false));
     }
 
     @PostMapping("/routes/multi")
@@ -131,6 +100,9 @@ public class LegacyNavigationController {
         data.put("target_path", result.getTargetPath());
         data.put("unreachable_destinations", result.getUnreachableDestinations());
         data.put("segments", result.getSegments());
+        data.put("provider", "local");
+        data.put("source", "multi_destination_tsp");
+        data.put("fallback", false);
         data.put("message", "多目标路径规划完成（基于最短距离）");
 
         Map<String, Object> response = success(data);
@@ -191,10 +163,81 @@ public class LegacyNavigationController {
         return success(data);
     }
 
+    @PostMapping("/nearest-node")
+    public Map<String, Object> nearestNode(@RequestBody Map<String, Object> request) {
+        Double lat = doubleValue(request.get("lat"));
+        Double lng = doubleValue(request.get("lng"));
+        if (lat == null || lng == null) {
+            return fail("经纬度不能为空");
+        }
+        ShortestPathAlgorithm.NearestNodeResult nearestNode = shortestPathAlgorithm.findNearestNode(lat, lng);
+        if (nearestNode == null) {
+            return fail("当前路图没有可用节点");
+        }
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("node_id", nearestNode.getNodeId());
+        data.put("distance", nearestNode.getDistance());
+        data.put("coordinate", nearestNode.getCoordinate());
+        data.put("provider", "local");
+        data.put("source", "nearest_graph_node");
+        return success(data);
+    }
+
     private String buildPathDescription(IndoorNavigationAlgorithm.NavigationResult result) {
         return "从大门出发，经过 " + Math.max(result.getPath().size() - 2, 0)
                 + " 个关键节点，到达 " + result.getDestination().get("name")
                 + "，预计 " + result.getEstimatedTime() + " 分钟。";
+    }
+
+    private Map<String, Object> toLegacyRoutePayload(Map<String, Object> payload, boolean mixedVehicle) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        Object vehicle = mixedVehicle ? "混合" : ("distance".equals(payload.get("strategy")) ? "不限" : payload.get("vehicle"));
+        Map<String, Object> detailedInfo = new LinkedHashMap<>();
+        detailedInfo.put("path", payload.get("path"));
+        detailedInfo.put("total_distance", payload.get("totalDistance"));
+        detailedInfo.put("total_time", payload.get("totalTime"));
+        detailedInfo.put("strategy", payload.get("strategy"));
+        detailedInfo.put("vehicle", vehicle);
+        detailedInfo.put("segments", payload.get("segments"));
+
+        data.put("path", payload.get("path"));
+        data.put("total_distance", payload.get("totalDistance"));
+        data.put("total_time", payload.get("totalTime"));
+        data.put("strategy", payload.get("strategy"));
+        data.put("vehicle", vehicle);
+        data.put("available_vehicles", payload.get("availableVehicles"));
+        data.put("provider", payload.get("provider"));
+        data.put("source", payload.get("source"));
+        data.put("fallback", payload.get("fallback"));
+        if (payload.containsKey("fallbackReason")) {
+            data.put("fallback_reason", payload.get("fallbackReason"));
+        }
+        if (payload.containsKey("requestedStart")) {
+            data.put("requested_start", payload.get("requestedStart"));
+        }
+        if (payload.containsKey("requestedEnd")) {
+            data.put("requested_end", payload.get("requestedEnd"));
+        }
+        if (payload.containsKey("resolvedStartNode")) {
+            data.put("resolved_start_node", payload.get("resolvedStartNode"));
+        }
+        if (payload.containsKey("resolvedEndNode")) {
+            data.put("resolved_end_node", payload.get("resolvedEndNode"));
+        }
+        if (payload.containsKey("startResolution")) {
+            data.put("start_resolution", payload.get("startResolution"));
+            data.put("start_nearest_node_distance", payload.get("startNearestNodeDistance"));
+        }
+        if (payload.containsKey("endResolution")) {
+            data.put("end_resolution", payload.get("endResolution"));
+            data.put("end_nearest_node_distance", payload.get("endNearestNodeDistance"));
+        }
+        if (payload.containsKey("detailed_path")) {
+            data.put("detailed_path", payload.get("detailed_path"));
+        }
+        data.put("detailed_info", detailedInfo);
+        data.put("message", "路径规划完成");
+        return data;
     }
 
     private Map<String, Object> success(Object data) {
@@ -215,5 +258,19 @@ public class LegacyNavigationController {
 
     private String stringValue(Object value) {
         return value == null ? null : String.valueOf(value);
+    }
+
+    private Double doubleValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 }

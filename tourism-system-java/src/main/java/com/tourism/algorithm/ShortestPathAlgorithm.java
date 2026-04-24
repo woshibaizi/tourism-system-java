@@ -8,6 +8,7 @@ import com.tourism.model.entity.SpotPlace;
 import com.tourism.model.entity.SpotBuilding;
 import com.tourism.model.entity.SpotFacility;
 import com.tourism.model.entity.SpotRoadEdge;
+import com.tourism.utils.GeoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -99,6 +100,22 @@ public class ShortestPathAlgorithm {
         public String getAlgorithm() { return algorithm; }
         public List<String> getUnreachableDestinations() { return unreachableDestinations; }
         public List<RouteSegment> getSegments() { return segments; }
+    }
+
+    public static class NearestNodeResult {
+        private final String nodeId;
+        private final double distance;
+        private final List<Double> coordinate;
+
+        public NearestNodeResult(String nodeId, double distance, List<Double> coordinate) {
+            this.nodeId = nodeId;
+            this.distance = distance;
+            this.coordinate = coordinate;
+        }
+
+        public String getNodeId() { return nodeId; }
+        public double getDistance() { return distance; }
+        public List<Double> getCoordinate() { return coordinate; }
     }
 
     // ==================== 内部图边信息 ====================
@@ -886,6 +903,32 @@ public class ShortestPathAlgorithm {
             }
         }
         return result;
+    }
+
+    public NearestNodeResult findNearestNode(double lat, double lng) {
+        String nearestNodeId = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (Map.Entry<String, double[]> entry : coordinates.entrySet()) {
+            if (!graph.containsKey(entry.getKey()) || graph.get(entry.getKey()).isEmpty()) {
+                continue;
+            }
+            double[] coordinate = entry.getValue();
+            if (coordinate == null || coordinate.length < 2) {
+                continue;
+            }
+            double distance = GeoUtils.distance(lat, lng, coordinate[0], coordinate[1]);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestNodeId = entry.getKey();
+            }
+        }
+
+        if (nearestNodeId == null) {
+            return null;
+        }
+        double[] coordinate = coordinates.get(nearestNodeId);
+        return new NearestNodeResult(nearestNodeId, minDistance, List.of(coordinate[0], coordinate[1]));
     }
 
     private List<String> parseJsonArray(String json) {

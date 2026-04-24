@@ -2,6 +2,8 @@ package com.tourism.controller;
 
 import com.tourism.algorithm.IndoorNavigationAlgorithm;
 import com.tourism.algorithm.ShortestPathAlgorithm;
+import com.tourism.service.AmapNavigationService;
+import com.tourism.service.OutdoorRouteService;
 import com.tourism.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +29,19 @@ public class NavigationController {
     @Autowired
     private IndoorNavigationAlgorithm indoorNavigationAlgorithm;
 
+    @Autowired
+    private OutdoorRouteService outdoorRouteService;
+
     // ==================== 户外路径规划 ====================
+
+    @Autowired
+    private AmapNavigationService amapNavigationService;
+
+    @Operation(summary = "获取高德地图前端配置")
+    @GetMapping("/providers/amap/config")
+    public Result<?> amapProviderConfig() {
+        return Result.success(amapNavigationService.getFrontendConfig());
+    }
 
     /**
      * 单目标最短路径（A* 算法）
@@ -37,52 +51,31 @@ public class NavigationController {
     public Result<?> shortestPath(@RequestBody Map<String, Object> request) {
         String start = (String) request.get("start");
         String end = (String) request.get("end");
+        Double startLat = doubleValue(request.get("startLat"));
+        Double startLng = doubleValue(request.get("startLng"));
+        Double endLat = doubleValue(request.get("endLat"));
+        Double endLng = doubleValue(request.get("endLng"));
         String vehicle = (String) request.getOrDefault("vehicle", "步行");
         String strategy = (String) request.getOrDefault("strategy", "time");
         String placeType = (String) request.getOrDefault("placeType", "景区");
+        String provider = (String) request.get("provider");
 
-        if (start == null || end == null) {
-            return Result.fail("起点(start)和终点(end)不能为空");
+        OutdoorRouteService.PlannedRoute plannedRoute = outdoorRouteService.planSingleRoute(
+                start,
+                end,
+                startLat,
+                startLng,
+                endLat,
+                endLng,
+                vehicle,
+                strategy,
+                placeType,
+                provider
+        );
+        if (!plannedRoute.success()) {
+            return Result.fail(plannedRoute.message());
         }
-        if (!shortestPathAlgorithm.containsNode(start)) {
-            return Result.fail("起点节点 [" + start + "] 不存在");
-        }
-        if (!shortestPathAlgorithm.containsNode(end)) {
-            return Result.fail("终点节点 [" + end + "] 不存在");
-        }
-
-        ShortestPathAlgorithm.PathResult result;
-        if ("distance".equals(strategy)) {
-            result = shortestPathAlgorithm.dijkstraDistanceOnly(start, end);
-        } else {
-            result = shortestPathAlgorithm.astar(start, end, vehicle);
-        }
-
-        if (!result.isReachable()) {
-            return Result.fail("从 [" + start + "] 到 [" + end + "] 无法到达");
-        }
-
-        List<ShortestPathAlgorithm.RouteSegment> segments = shortestPathAlgorithm.buildPathSegments(result.getPath(), vehicle);
-        double totalDistance = "distance".equals(strategy)
-                ? result.getCost()
-                : shortestPathAlgorithm.calculatePathDistance(result.getPath());
-        double totalTime = "distance".equals(strategy)
-                ? shortestPathAlgorithm.calculatePathTravelTime(result.getPath(), vehicle)
-                : result.getCost();
-
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("path", result.getPath());
-        data.put("cost", result.getCost());
-        data.put("nodeCount", result.getPath().size());
-        data.put("vehicle", vehicle);
-        data.put("strategy", strategy);
-        data.put("placeType", placeType);
-        data.put("availableVehicles", shortestPathAlgorithm.getAvailableVehicles(placeType));
-        data.put("totalDistance", totalDistance);
-        data.put("totalTime", totalTime);
-        data.put("segments", segments);
-        data.put("nodeCoordinates", shortestPathAlgorithm.getNodeCoordinates(result.getPath()));
-        return Result.success(data);
+        return Result.success(plannedRoute.payload());
     }
 
     /**
@@ -99,26 +92,10 @@ public class NavigationController {
             return Result.fail("起点(start)和终点(end)不能为空");
         }
 
-        List<ShortestPathAlgorithm.RouteSegment> segments =
-                shortestPathAlgorithm.dijkstraWithMixedVehicles(start, end, placeType);
-
-        if (segments.isEmpty()) {
+        Map<String, Object> data = outdoorRouteService.buildMixedVehicleRoute(start, end, placeType);
+        if (data.isEmpty()) {
             return Result.fail("从 [" + start + "] 到 [" + end + "] 无法到达（混合交通）");
         }
-
-        double totalTime = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getTime).sum();
-        double totalDistance = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getDistance).sum();
-        List<String> path = buildPathFromSegments(segments);
-
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("path", path);
-        data.put("segments", segments);
-        data.put("totalTime", totalTime);
-        data.put("totalDistance", totalDistance);
-        data.put("placeType", placeType);
-        data.put("vehicle", "混合");
-        data.put("strategy", "time");
-        data.put("nodeCoordinates", shortestPathAlgorithm.getNodeCoordinates(path));
         return Result.success(data);
     }
 
@@ -161,6 +138,27 @@ public class NavigationController {
         data.put("unreachableDestinations", result.getUnreachableDestinations());
         data.put("segments", result.getSegments());
         data.put("nodeCoordinates", shortestPathAlgorithm.getNodeCoordinates(result.getPath()));
+        return Result.success(outdoorRouteService.attachLocalMetadata(data, "multi_destination_tsp"));
+    }
+
+    @Operation(summary = "根据经纬度查找最近图节点")
+    @PostMapping("/nearest-node")
+    public Result<?> nearestNode(@RequestBody Map<String, Object> request) {
+        Double lat = doubleValue(request.get("lat"));
+        Double lng = doubleValue(request.get("lng"));
+        if (lat == null || lng == null) {
+            return Result.fail("经纬度(lat/lng)不能为空");
+        }
+        ShortestPathAlgorithm.NearestNodeResult nearestNode = shortestPathAlgorithm.findNearestNode(lat, lng);
+        if (nearestNode == null) {
+            return Result.fail("当前路图没有可用节点");
+        }
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("nodeId", nearestNode.getNodeId());
+        data.put("distance", nearestNode.getDistance());
+        data.put("coordinate", nearestNode.getCoordinate());
+        data.put("provider", "local");
+        data.put("source", "nearest_graph_node");
         return Result.success(data);
     }
 
@@ -251,5 +249,19 @@ public class NavigationController {
             path.add(segment.getTo());
         }
         return path;
+    }
+
+    private Double doubleValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 }

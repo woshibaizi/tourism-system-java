@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Avatar, Dropdown, message, Button, Space, Card, Descriptions, Tag, Typography } from 'antd';
 import {
   HomeOutlined,
@@ -19,17 +19,15 @@ import {
 
 // 导入页面组件
 import HomePage from './pages/HomePage';
-import PlacesPage from './pages/PlacesPage';
+import LocationSearchPage from './pages/LocationSearchPage';
 import PlaceDetailPage from './pages/PlaceDetailPage';
 import DiariesPage from './pages/DiariesPage';
 import DiaryDetailPage from './pages/DiaryDetailPage';
 import RoutePage from './pages/RoutePage';
-import FacilityQueryPage from './pages/FacilityQueryPage';
 import StatsPage from './pages/StatsPage';
 import LoginPage from './pages/LoginPage';
 import DiaryManagementPage from './pages/DiaryManagementPage';
-import FoodSearchPage from './pages/FoodSearchPage';
-import IndoorNavigationPage from './pages/IndoorNavigationPage';
+import CampusNavigationPage from './pages/CampusNavigationPage';
 import ConcurrencyTestPage from './pages/ConcurrencyTestPage';
 
 const { Header, Content } = Layout;
@@ -119,7 +117,7 @@ function App() {
       localStorage.setItem('token', user.token);
     }
     localStorage.setItem('isLoggedIn', 'true');
-    navigate('/places');
+    navigate('/location-search');
   };
 
   const handleLogout = () => {
@@ -137,26 +135,21 @@ function App() {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
   }
 
-  const routeModuleItems = [
+  const discoverModuleItems = [
     {
-      key: '/places',
+      key: '/location-search',
       icon: <EnvironmentOutlined />,
-      label: '场所浏览',
+      label: '地点搜索',
     },
     {
       key: '/route-planning',
       icon: <CarOutlined />,
-      label: '路线规划',
+      label: '高德导航',
     },
     {
-      key: '/facility-query',
-      icon: <SearchOutlined />,
-      label: '场所查询',
-    },
-    {
-      key: '/food-search',
-      icon: <FireOutlined />,
-      label: '美食搜索',
+      key: '/campus-navigation',
+      icon: <BuildOutlined />,
+      label: '校内导航',
     },
   ];
 
@@ -255,7 +248,7 @@ function App() {
           
           <div className="atlas-top-nav">
             <Space size={10} wrap>
-              <NavGroup title="路线规划" icon={<CarOutlined />} items={routeModuleItems} active={isGroupActive(routeModuleItems)} onMenuClick={handleMenuClick} />
+              <NavGroup title="地点与导航" icon={<SearchOutlined />} items={discoverModuleItems} active={isGroupActive(discoverModuleItems)} onMenuClick={handleMenuClick} />
               <NavGroup title="日记板块" icon={<BookOutlined />} items={diaryModuleItems} active={isGroupActive(diaryModuleItems)} onMenuClick={handleMenuClick} />
               <NavGroup title="其他" icon={<BarChartOutlined />} items={otherModuleItems} active={isGroupActive(otherModuleItems)} onMenuClick={handleMenuClick} />
               <Dropdown menu={{ items: personalItems, onClick: handleMenuClick }} placement="bottomRight" trigger={['click']}>
@@ -281,16 +274,18 @@ function App() {
           <div style={{ padding: '24px', minHeight: 'calc(100vh - 72px)' }}>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/places" element={<PlacesPage />} />
+              <Route path="/location-search" element={<LocationSearchPage />} />
+              <Route path="/places" element={<Navigate to="/location-search" replace />} />
               <Route path="/places/:placeId" element={<PlaceDetailPage />} />
               <Route path="/diaries" element={<DiariesPage />} />
               <Route path="/diaries/:diaryId" element={<DiaryDetailPage />} />
               <Route path="/route-planning" element={<RoutePage />} />
-              <Route path="/facility-query" element={<FacilityQueryPage />} />
+              <Route path="/facility-query" element={<Navigate to="/location-search" replace />} />
               <Route path="/stats" element={<StatsPage />} />
               <Route path="/diary-management" element={<DiaryManagementPage />} />
-              <Route path="/food-search" element={<FoodSearchPage />} />
-              <Route path="/indoor-navigation" element={<IndoorNavigationPage />} />
+              <Route path="/food-search" element={<Navigate to="/location-search" replace />} />
+              <Route path="/campus-navigation" element={<CampusNavigationPage />} />
+              <Route path="/indoor-navigation" element={<Navigate to="/campus-navigation" replace />} />
               <Route path="/profile" element={<PersonalPage currentUser={currentUser} />} />
               <Route path="/concurrency-test" element={<ConcurrencyTestPage />} />
             </Routes>
