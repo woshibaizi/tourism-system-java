@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-个性化旅游系统 — a full-stack tourism platform with Spring Boot backend, React frontend, and iOS SwiftUI client. Backend handles A* path planning, indoor navigation, Huffman compression, AC-automaton text filtering, recommendation/sorting algorithms, and full CRUD for places, diaries, foods, and facilities.
+个性化旅游系统 — a full-stack tourism platform with Spring Boot backend, React frontend, iOS SwiftUI client, and Python FastAPI agent service. Backend handles A* path planning, indoor navigation, Huffman compression, AC-automaton text filtering, recommendation/sorting algorithms, and full CRUD for places, diaries, foods, and facilities.
 
 ## Quick-start shortcuts
 
-When the user says **"启动后端"** or **"启动前端"**, run the script directly — no exploration needed:
+When the user says **"启动后端"** or **"启动前端"** or **"启动agent"** or **"启动所有服务"**, run the script directly — no exploration needed:
 
 ```bash
 # Start backend (port 8080)
@@ -17,7 +17,13 @@ bash scripts/start-backend.sh
 # Start frontend (port 5173)
 bash scripts/start-frontend.sh
 
-# Stop both
+# Start agent (port 9000)
+bash scripts/start-agent.sh
+
+# Start all services
+bash scripts/start-all.sh
+
+# Stop all
 bash scripts/stop-all.sh
 ```
 
@@ -36,6 +42,12 @@ npm run dev        # dev server
 npm run build      # production build
 npm run lint       # eslint
 
+# Agent
+cd agent-service
+pip install -e .
+cp .env.example .env  # 编辑 .env 填入 LLM_API_KEY
+uvicorn app.main:app --reload --host 0.0.0.0 --port 9000
+
 # iOS app
 cd TourismSystemApp
 xcodebuild -project TourismSystemApp.xcodeproj -scheme TourismSystemApp \
@@ -47,12 +59,38 @@ xcodebuild -project TourismSystemApp.xcodeproj -scheme TourismSystemApp \
 | Layer | Tech |
 |---|---|
 | Backend | Spring Boot 3.3.5, MyBatis-Plus 3.5.8, MySQL 8, Redis (Lettuce), JGraphT 1.5.2 |
+| Agent | Python FastAPI, Uvicorn, Pydantic v2 (port 9000) |
 | Auth | Spring Security + JWT (jjwt 0.12.6) |
 | API docs | Springdoc OpenAPI 2.6.0 (Swagger UI at `/swagger-ui.html`) |
 | Frontend | Vite + React + Ant Design + Axios |
 | iOS | SwiftUI, MapKit |
 | Algorithms | A*, Dijkstra, TSP (NN/DP/SA/GA), Huffman, AC automaton, TF-IDF, Top-K sorting |
 | Test | H2 in-memory DB, MockMvc |
+
+## Agent LLM 配置
+
+Agent 通过统一的 `llm_client` 接口支持多种大模型，切换模型只需改 `.env` 环境变量。
+
+| 配置项 | 说明 |
+|--------|------|
+| `LLM_PROVIDER` | `openai_compatible`（默认）或 `anthropic` |
+| `LLM_MODEL` | 模型名，如 `gpt-4o`, `deepseek-chat`, `claude-opus-4-7` |
+| `LLM_API_KEY` | API 密钥 |
+| `LLM_BASE_URL` | API 地址（OpenAI 兼容接口可自定义） |
+
+**未配置 LLM_API_KEY 时自动降级为规则模式**，不影响服务正常启动。
+
+核心文件：
+
+| 文件 | 作用 |
+|------|------|
+| `agent-service/app/agent/llm_client.py` | 统一接口：`BaseLLMProvider` → `OpenAICompatibleProvider` / `AnthropicProvider` |
+| `agent-service/app/agent/orchestrator.py` | 编排器：意图识别 → LLM 回复 / 降级规则 |
+| `agent-service/app/agent/prompts.py` | 提示词集中管理 |
+| `agent-service/app/config.py` | LLM 配置字段 |
+| `agent-service/.env.example` | 环境变量模板 |
+
+扩展新 provider：继承 `BaseLLMProvider`，实现 `chat()` / `chat_stream()`，在 `create_llm_provider()` 中注册即可。
 
 ## API response format
 

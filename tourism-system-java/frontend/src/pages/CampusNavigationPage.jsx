@@ -365,24 +365,26 @@ function CampusNavigationPage() {
   }
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #eef4fb 0%, #dde7f2 100%)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <div
         className="page-header"
         style={{
-          background: 'linear-gradient(135deg, #0d5b8c 0%, #2e7d5a 100%)',
+          background: 'var(--glass-surface)',
+          backdropFilter: 'blur(var(--glass-blur))',
+          WebkitBackdropFilter: 'blur(var(--glass-blur))',
           padding: '34px',
-          borderRadius: '22px',
-          boxShadow: '0 20px 44px rgba(21, 87, 128, 0.22)',
+          borderRadius: '18px',
+          border: '1px solid var(--glass-border-strong)',
+          boxShadow: 'var(--glass-shadow)',
           marginBottom: '26px',
-          color: 'white',
         }}
       >
-        <Title level={2} style={{ margin: 0, color: 'white' }}>
+        <Title level={2} style={{ margin: 0, color: 'var(--text-primary)' }}>
           <CompassOutlined style={{ marginRight: 12 }} />
           校内导航
         </Title>
-        <Paragraph style={{ color: 'rgba(255,255,255,0.88)', marginTop: 10, marginBottom: 0, fontSize: 16 }}>
-          先做北京邮电大学学校内导航，使用高德地图承载展示，路径仍走你现有的校园路网和算法。室内导航先保留到下一阶段。
+        <Paragraph style={{ color: 'var(--text-secondary)', marginTop: 10, marginBottom: 0, fontSize: 15 }}>
+          使用高德地图承载展示，路径走你现有的校园路网和算法。
         </Paragraph>
       </div>
 

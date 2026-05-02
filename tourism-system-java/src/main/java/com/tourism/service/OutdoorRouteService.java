@@ -116,7 +116,8 @@ public class OutdoorRouteService {
             return Collections.emptyMap();
         }
 
-        double totalTime = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getTime).sum();
+        double totalTimeSeconds = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getTime).sum();
+        double totalTimeMinutes = totalTimeSeconds / 60.0;
         double totalDistance = segments.stream().mapToDouble(ShortestPathAlgorithm.RouteSegment::getDistance).sum();
         List<String> path = buildPathFromSegments(segments);
 
@@ -126,7 +127,7 @@ public class OutdoorRouteService {
                 "time",
                 normalizedPlaceType,
                 totalDistance,
-                totalTime,
+                totalTimeMinutes,
                 buildSegments(segments),
                 shortestPathAlgorithm.getNodeCoordinates(path),
                 resolvePoint("起点", start, null, null, "current_location"),
@@ -136,7 +137,7 @@ public class OutdoorRouteService {
                 PROVIDER_LOCAL,
                 "mixed_vehicle_dijkstra"
         );
-        payload.put("cost", totalTime);
+        payload.put("cost", totalTimeMinutes);
         return payload;
     }
 
@@ -196,9 +197,10 @@ public class OutdoorRouteService {
         double totalDistance = "distance".equals(strategy)
                 ? result.getCost()
                 : shortestPathAlgorithm.calculatePathDistance(result.getPath());
-        double totalTime = "distance".equals(strategy)
+        double totalTimeSeconds = "distance".equals(strategy)
                 ? shortestPathAlgorithm.calculatePathTravelTime(result.getPath(), vehicle)
                 : result.getCost();
+        double totalTimeMinutes = totalTimeSeconds / 60.0;
 
         Map<String, Object> payload = buildBasePayload(
                 result.getPath(),
@@ -206,7 +208,7 @@ public class OutdoorRouteService {
                 strategy,
                 placeType,
                 totalDistance,
-                totalTime,
+                totalTimeMinutes,
                 buildSegments(segments),
                 CoordinateTransformUtils.toGcj02NodeCoordinates(shortestPathAlgorithm.getNodeCoordinates(result.getPath())),
                 start,
@@ -216,7 +218,7 @@ public class OutdoorRouteService {
                 PROVIDER_LOCAL,
                 source
         );
-        payload.put("cost", result.getCost());
+        payload.put("cost", totalTimeMinutes);
         return payload;
     }
 
@@ -368,7 +370,7 @@ public class OutdoorRouteService {
             item.put("from", segment.getFrom());
             item.put("to", segment.getTo());
             item.put("vehicle", segment.getVehicle());
-            item.put("time", segment.getTime());
+            item.put("time", segment.getTime() / 60.0);
             item.put("distance", segment.getDistance());
             mapped.add(item);
         }

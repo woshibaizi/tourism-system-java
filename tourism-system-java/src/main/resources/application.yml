@@ -65,6 +65,10 @@ app:
       key: ${TOURISM_AMAP_KEY:}
       base-url: ${TOURISM_AMAP_BASE_URL:https://restapi.amap.com}
       timeout-ms: ${TOURISM_AMAP_TIMEOUT_MS:5000}
+  agent:
+    base-url: ${TOURISM_AGENT_BASE_URL:http://127.0.0.1:9000}
+    connect-timeout-ms: ${TOURISM_AGENT_CONNECT_TIMEOUT_MS:3000}
+    read-timeout-ms: ${TOURISM_AGENT_READ_TIMEOUT_MS:15000}
 
 # Swagger
 springdoc:

@@ -405,23 +405,25 @@ function RoutePage() {
   };
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #eef4fb 0%, #dde7f2 100%)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <div
         className="page-header"
         style={{
-          background: 'linear-gradient(135deg, #0f5c8d 0%, #157f83 100%)',
+          background: 'var(--glass-surface)',
+          backdropFilter: 'blur(var(--glass-blur))',
+          WebkitBackdropFilter: 'blur(var(--glass-blur))',
           padding: '34px',
-          borderRadius: '22px',
-          boxShadow: '0 20px 44px rgba(21, 87, 128, 0.22)',
+          borderRadius: '18px',
+          border: '1px solid var(--glass-border-strong)',
+          boxShadow: 'var(--glass-shadow)',
           marginBottom: '26px',
-          color: 'white',
         }}
       >
-        <Title level={2} style={{ margin: 0, color: 'white' }}>
+        <Title level={2} style={{ margin: 0, color: 'var(--text-primary)' }}>
           <CompassOutlined style={{ marginRight: 12 }} />
           高德导航
         </Title>
-        <Paragraph style={{ color: 'rgba(255,255,255,0.88)', marginTop: 10, marginBottom: 0, fontSize: 16 }}>
+        <Paragraph style={{ color: 'var(--text-secondary)', marginTop: 10, marginBottom: 0, fontSize: 15 }}>
           这一页完全使用高德 API：地址搜索、定位、路线规划和地图展示都不再查你的数据库。
         </Paragraph>
       </div>

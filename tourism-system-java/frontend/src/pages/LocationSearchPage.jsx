@@ -178,24 +178,26 @@ function LocationSearchPage() {
   };
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f6f7fb 0%, #e5edf7 100%)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }} className="animate-on-load delay-1">
       <div
         className="page-header"
         style={{
-          background: 'linear-gradient(135deg, #1e4d92 0%, #1f7a8c 100%)',
+          background: 'var(--glass-surface)',
+          backdropFilter: 'blur(var(--glass-blur))',
+          WebkitBackdropFilter: 'blur(var(--glass-blur))',
           padding: '36px',
-          borderRadius: '22px',
-          boxShadow: '0 20px 44px rgba(31, 76, 120, 0.24)',
+          borderRadius: '18px',
+          border: '1px solid var(--glass-border-strong)',
+          boxShadow: 'var(--glass-shadow)',
           marginBottom: '28px',
-          color: 'white',
         }}
       >
-        <Title level={2} style={{ color: 'white', margin: 0 }}>
+        <Title level={2} style={{ color: 'var(--text-primary)', margin: 0 }}>
           <SearchOutlined style={{ marginRight: 12 }} />
           地点搜索
         </Title>
-        <Paragraph style={{ color: 'rgba(255,255,255,0.88)', marginTop: 10, marginBottom: 0, fontSize: 16 }}>
-          把景区、学校、公园和美食收进一个入口里找，不再拆成两个页面来回切。
+        <Paragraph style={{ color: 'var(--text-secondary)', marginTop: 10, marginBottom: 0, fontSize: 15 }}>
+          把景区、学校、公园和美食收进一个入口里找。
         </Paragraph>
       </div>
 

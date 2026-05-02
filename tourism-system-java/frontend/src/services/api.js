@@ -399,6 +399,69 @@ const normalizeDiary = (diary) => {
   };
 };
 
+const normalizeAgentMessage = (messageItem) => {
+  if (!messageItem || typeof messageItem !== 'object') {
+    return messageItem;
+  }
+
+  return {
+    ...messageItem,
+    // Python 侧用 created_at，前端统一收敛成 createdAt，页面里只认一种命名。
+    role: messageItem.role || 'assistant',
+    content: messageItem.content || '',
+    createdAt: messageItem.createdAt ?? messageItem.created_at ?? new Date().toISOString(),
+  };
+};
+
+const normalizeAgentSessionSummary = (session) => {
+  if (!session || typeof session !== 'object') {
+    return session;
+  }
+
+  return {
+    ...session,
+    // 会话相关字段同样做一次 snake_case -> camelCase 归一化，减少页面层判断。
+    sessionId: session.sessionId ?? session.session_id,
+    userId: session.userId ?? session.user_id,
+    title: session.title || '新对话',
+    preview: session.preview || '',
+    mode: session.mode || 'travel_assistant',
+    createdAt: session.createdAt ?? session.created_at,
+    updatedAt: session.updatedAt ?? session.updated_at,
+    messageCount: Number(session.messageCount ?? session.message_count ?? 0),
+  };
+};
+
+const normalizeAgentSessionDetail = (session) => {
+  const normalized = normalizeAgentSessionSummary(session);
+  if (!normalized || typeof normalized !== 'object') {
+    return normalized;
+  }
+
+  return {
+    ...normalized,
+    // 详情接口会带消息数组，逐条做结构标准化，避免页面兼容多种后端命名。
+    messages: normalizeArrayItems(session?.messages, normalizeAgentMessage),
+  };
+};
+
+const normalizeAgentReply = (reply) => {
+  if (!reply || typeof reply !== 'object') {
+    return reply;
+  }
+
+  return {
+    ...reply,
+    content: reply.content || '',
+    intent: reply.intent || 'general_travel_chat',
+    traceId: reply.traceId ?? reply.trace_id,
+    suggestions: Array.isArray(reply.suggestions) ? reply.suggestions : [],
+    toolsUsed: Array.isArray(reply.toolsUsed ?? reply.tools_used)
+      ? (reply.toolsUsed ?? reply.tools_used)
+      : [],
+  };
+};
+
 const normalizeArrayItems = (items, normalizer) =>
   Array.isArray(items) ? items.map(normalizer) : [];
 
@@ -1153,6 +1216,52 @@ export const searchDiariesByDestination = (destination) => diaryAPI.searchDiarie
 export const getRecommendedDiaries = (userId, algorithm) => diaryAPI.recommendDiaries(userId, algorithm);
 export const getUserDiaryRating = (diaryId, userId) => diaryAPI.getUserDiaryRating(diaryId, userId);
 export const rateDiary = (diaryId, rating, userId) => diaryAPI.rateDiary(diaryId, rating, userId);
+
+// ==================== 个性化旅游助手相关API ====================
+
+export const agentAPI = {
+  getHealth: async () => {
+    // 用于页面首屏判断 Python agent 是否在线。
+    const response = await api.get('/agent/health');
+    return successResult(response.data, response.message);
+  },
+
+  getSessions: async () => {
+    // 历史会话列表只返回摘要信息，避免首次加载把整段聊天内容全部拉下来。
+    const response = await api.get('/agent/sessions');
+    return successResult(normalizeArrayItems(response.data, normalizeAgentSessionSummary), response.message);
+  },
+
+  getSession: async (sessionId) => {
+    // 详情接口在用户点击左侧历史会话后再按需拉取。
+    const response = await api.get(`/agent/sessions/${sessionId}`);
+    return successResult(normalizeAgentSessionDetail(response.data), response.message);
+  },
+
+  chat: async (payload) => {
+    // 前端用 camelCase，转为 Python agent 期望的 snake_case
+    const requestBody = {
+      user_id: payload.userId || payload.user_id || 'anonymous',
+      message: payload.message,
+      session_id: payload.sessionId || payload.session_id || null,
+      mode: payload.mode || (payload.metadata && payload.metadata.mode) || 'travel_assistant',
+      metadata: payload.metadata || {},
+    };
+    const response = await api.post('/agent/chat', requestBody);
+    if (!response.success) {
+      return response;
+    }
+    return successResult({
+      session: normalizeAgentSessionDetail(response.data?.session),
+      reply: normalizeAgentReply(response.data?.reply),
+    }, response.message);
+  },
+};
+
+export const getAgentHealth = () => agentAPI.getHealth();
+export const getAgentSessions = () => agentAPI.getSessions();
+export const getAgentSession = (sessionId) => agentAPI.getSession(sessionId);
+export const chatWithAgent = (payload) => agentAPI.chat(payload);
 
 // ==================== 文件上传相关API ====================
 

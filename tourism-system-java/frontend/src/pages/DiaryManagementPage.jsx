@@ -296,7 +296,7 @@ const DiaryManagementPage = () => {
   ];
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
       {/* 页面标题 */}
       <div className="page-header" style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

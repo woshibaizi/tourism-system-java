@@ -1,22 +1,31 @@
 :root {
-  /* Apple Light Mode Palette */
-  --apple-bg: #f5f5f7;
-  --apple-bg-base: #ffffff;
-  --apple-text-primary: #1d1d1f;
-  --apple-text-secondary: #86868b;
-  --apple-text-tertiary: #a1a1a6;
-  --apple-blue: #0066cc;
-  --apple-blue-hover: #0077ed;
-  --apple-border: rgba(0, 0, 0, 0.08);
-  --apple-glass: rgba(255, 255, 255, 0.72);
-  --apple-card-bg: rgba(255, 255, 255, 1);
-  --apple-hover-bg: rgba(0, 0, 0, 0.02);
-  
+  /* Glass frost palette */
+  --glass-bg: #f8f8fa;
+  --glass-surface: rgba(255,255,255,0.68);
+  --glass-surface-hover: rgba(255,255,255,0.88);
+  --glass-border: rgba(0,0,0,0.06);
+  --glass-border-strong: rgba(0,0,0,0.09);
+  --glass-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  --glass-shadow-hover: 0 2px 6px rgba(0,0,0,0.06), 0 8px 22px rgba(0,0,0,0.05);
+  --glass-blur: 18px;
+
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #999;
+
+  --accent: #0066cc;
+  --accent-hover: #0077ed;
+  --accent-soft: rgba(0,102,204,0.08);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 98px;
+
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Base resets & typography */
 * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
@@ -26,249 +35,354 @@
 body {
   margin: 0;
   font-family: var(--font-body);
-  background-color: var(--apple-bg);
-  color: var(--apple-text-primary);
-  line-height: 1.47059;
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  line-height: 1.5;
   font-weight: 400;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  color: var(--apple-text-primary);
+  color: var(--text-primary);
   letter-spacing: -0.015em;
   font-weight: 600;
 }
 
 /* Animations */
-@keyframes appleFadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(16px) scale(0.985); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .animate-on-load {
-  animation: appleFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity;
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.15s; }
+.delay-3 { animation-delay: 0.25s; }
 
-/* Layout framework */
+/* Layout */
 .main-layout {
   min-height: 100vh;
-  background-color: var(--apple-bg) !important;
+  background: var(--glass-bg) !important;
 }
 
 .content-wrapper {
-  padding: 32px 24px;
-  background-color: transparent !important;
-  background-image: none !important;
-  min-height: calc(100vh - 72px);
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0 24px;
+  background: transparent !important;
+  min-height: calc(100vh - 64px);
 }
 
-/* Header & Glassmorphism */
+.content-wrapper > div {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==================== HEADER ==================== */
+
 .header-nav {
-  background: var(--apple-glass) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  border-bottom: 1px solid var(--apple-border) !important;
-  box-shadow: none !important;
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03) !important;
 }
 
 .atlas-top-nav .ant-btn {
   background: transparent !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   box-shadow: none !important;
-  color: var(--apple-text-primary) !important;
-  font-weight: 400 !important;
-  font-size: 14px;
-  border-radius: 98px !important;
-  transition: all 0.2s ease;
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+  font-size: 13.5px;
+  border-radius: var(--radius-sm) !important;
+  padding: 4px 14px !important;
+  transition: all 0.15s ease;
+  outline: none !important;
 }
-
-.atlas-top-nav .ant-btn:hover {
-  background: var(--apple-hover-bg) !important;
-  color: var(--apple-blue) !important;
-  transform: none !important;
-}
-
-/* Page Headers */
-.page-header {
+.atlas-top-nav .ant-btn:focus,
+.atlas-top-nav .ant-btn:focus-visible,
+.atlas-top-nav .ant-btn:active,
+.atlas-top-nav .ant-btn.ant-dropdown-open {
   background: transparent !important;
-  padding: 0 0 24px 0 !important;
-  border: none !important;
   box-shadow: none !important;
-  border-radius: 0 !important;
+  outline: none !important;
+  border-color: transparent !important;
+}
+.atlas-top-nav .ant-btn:hover {
+  background: rgba(0,0,0,0.04) !important;
 }
 
-.page-header::before, .page-header::after {
-  display: none !important;
+/* ==================== DROPDOWN MENUS ==================== */
+
+.ant-dropdown-menu {
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%) !important;
+  border: 1px solid var(--glass-border-strong) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--glass-shadow-hover) !important;
+  padding: 6px !important;
 }
 
-.page-header .ant-typography,
-.page-header h1,
-.page-header h2,
-.page-header h3 {
-  color: var(--apple-text-primary) !important;
-  font-weight: 600;
-  font-size: 40px;
-  letter-spacing: -0.015em;
+.ant-dropdown-menu-item {
+  border-radius: var(--radius-sm) !important;
+  padding: 8px 14px !important;
+  margin: 2px 0 !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  transition: all 0.12s ease;
+}
+.ant-dropdown-menu-item:hover {
+  background: rgba(0,0,0,0.05) !important;
+  color: var(--text-primary) !important;
+}
+.ant-dropdown-menu-item .anticon {
+  color: var(--text-secondary) !important;
 }
 
-/* Ant Design Global Overrides - Apple Style */
+/* ==================== CARDS ==================== */
+
 .ant-card {
-  background: var(--apple-card-bg) !important;
-  border: 1px solid var(--apple-border) !important;
-  border-radius: 18px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
-  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease !important;
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--glass-shadow) !important;
+  transition: box-shadow 0.25s ease, transform 0.25s ease !important;
   overflow: hidden;
 }
-
 .ant-card:hover {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-2px) !important;
-  border-color: rgba(0,0,0,0.12) !important;
+  box-shadow: var(--glass-shadow-hover) !important;
+  transform: translateY(-1px) !important;
 }
-
 .ant-card-head {
-  border-bottom: 1px solid var(--apple-border) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
   background: transparent !important;
 }
 
+/* ==================== BUTTONS ==================== */
+
 .ant-btn {
-  border-radius: 98px !important;
+  border-radius: var(--radius-pill) !important;
   font-weight: 500 !important;
   box-shadow: none !important;
-  border: 1px solid var(--apple-border) !important;
-  transition: all 0.2s ease;
+  border: 1px solid var(--glass-border-strong) !important;
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  transition: all 0.15s ease;
+}
+.ant-btn:hover {
+  background: var(--glass-surface-hover) !important;
+  border-color: rgba(0,0,0,0.15) !important;
 }
 
 .ant-btn-primary {
-  background-color: var(--apple-text-primary) !important;
+  background: var(--text-primary) !important;
   color: #fff !important;
   border: none !important;
 }
-
 .ant-btn-primary:hover {
-  background-color: #333336 !important;
-  transform: scale(1.02) !important;
+  background: #333 !important;
 }
+
+/* kill ALL blue focus rings everywhere */
+.ant-btn:focus,
+.ant-btn:focus-visible,
+.ant-btn:active,
+.ant-btn-primary:focus,
+.ant-btn-primary:focus-visible,
+.ant-btn-primary:active,
+.ant-btn-default:focus,
+.ant-btn-default:focus-visible,
+.ant-btn-link:focus,
+.ant-btn-link:focus-visible,
+.ant-btn-text:focus,
+.ant-btn-text:focus-visible,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused,
+.ant-input-number-focused,
+.ant-tabs-tab:focus-visible,
+.ant-tabs-tab-btn:focus,
+.ant-menu-item:focus-visible,
+.ant-menu-item:focus,
+.ant-dropdown-menu-item:focus-visible,
+.ant-radio-button-wrapper:focus-within,
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within,
+.ant-segmented-item:focus,
+.ant-segmented-thumb {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* also override the ::after pseudo element Ant Design uses for focus rings */
+.ant-btn::after {
+  display: none !important;
+}
+
+.ant-select-item-option-selected {
+  background: rgba(0,0,0,0.05) !important;
+  color: var(--text-primary) !important;
+}
+.ant-select-item-option-active {
+  background: rgba(0,0,0,0.03) !important;
+}
+
+/* ==================== INPUTS ==================== */
 
 .ant-input,
 .ant-input-affix-wrapper,
 .ant-select-selector,
 .ant-picker,
 .ant-input-number {
-  border-radius: 12px !important;
-  border: 1px solid var(--apple-border) !important;
-  background-color: #ffffff !important;
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--glass-border-strong) !important;
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
   box-shadow: none !important;
 }
-
 .ant-input:focus,
 .ant-input-focused,
 .ant-input-affix-wrapper-focused,
 .ant-select-focused .ant-select-selector,
 .ant-picker-focused {
-  border-color: var(--apple-blue) !important;
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15) !important;
+  border-color: rgba(0,0,0,0.18) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06) !important;
 }
+.ant-input:hover,
+.ant-input-affix-wrapper:hover,
+.ant-select:hover .ant-select-selector,
+.ant-picker:hover {
+  border-color: rgba(0,0,0,0.14) !important;
+}
+
+/* ==================== TAGS ==================== */
 
 .ant-tag {
   border-radius: 6px !important;
   border: none !important;
-  background-color: var(--apple-bg) !important;
-  color: var(--apple-text-secondary) !important;
+  background: rgba(0,0,0,0.04) !important;
+  color: var(--text-secondary) !important;
   font-weight: 500 !important;
 }
 
-/* Map Containers */
-.map-container {
-  height: 400px;
-  border-radius: 18px;
+/* ==================== MODALS ==================== */
+
+.ant-modal-content {
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+  border: 1px solid var(--glass-border-strong) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12) !important;
+}
+
+/* ==================== TABLES ==================== */
+
+.ant-table {
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--glass-border) !important;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-  border: 1px solid var(--apple-border);
 }
 
-.leaflet-container {
-  font-family: var(--font-body);
-}
+/* ==================== CONTAINERS ==================== */
 
-/* Search container */
-.search-container, .filter-container {
+.search-container,
+.filter-container {
   margin-bottom: 24px;
   padding: 24px;
-  background: var(--apple-card-bg);
-  border: 1px solid var(--apple-border);
-  border-radius: 18px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+  background: var(--glass-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
 }
 
-/* Details Pages */
 .detail-container {
-  background: var(--apple-card-bg);
-  border-radius: 18px;
-  border: 1px solid var(--apple-border);
+  background: var(--glass-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--glass-shadow);
 }
 
-.detail-header, .detail-content, .detail-sidebar {
+.detail-header,
+.detail-content,
+.detail-sidebar {
   padding: 24px;
   background: transparent;
 }
-.detail-header { border-bottom: 1px solid var(--apple-border); }
-.detail-sidebar { border-left: 1px solid var(--apple-border); }
+.detail-header { border-bottom: 1px solid var(--glass-border); }
+.detail-sidebar { border-left: 1px solid var(--glass-border); }
 
-/* Remove custom scrollbar styles to defer to OS defaults (macOS native is beautiful) */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,0,0,0.3);
-}
-
-/* Animations reset */
-.content-wrapper > div {
-  animation: appleFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Profile / Special forms */
 .form-container {
-  background: var(--apple-card-bg);
+  background: var(--glass-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   padding: 32px;
-  border-radius: 18px;
-  border: 1px solid var(--apple-border);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
-/* specific resets for removing glowing gradients */
+/* ==================== PAGE HEADERS ==================== */
+
+.page-header {
+  background: transparent !important;
+  padding: 0 0 24px 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.page-header::before, .page-header::after { display: none !important; }
+.page-header h1, .page-header h2, .page-header h3 {
+  font-weight: 600;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+/* ==================== MAPS ==================== */
+
+.map-container {
+  height: 400px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+}
+
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.24); }
+
+/* ==================== MISC ==================== */
+
 .atlas-shell {
-  background: var(--apple-bg) !important;
+  background: var(--glass-bg) !important;
+}
+
+.ant-alert {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--glass-border-strong) !important;
+}
+
+.ant-pagination-item {
+  border-radius: var(--radius-sm) !important;
 }
 
 @media (max-width: 768px) {
-  .page-header h1 {
-    font-size: 32px !important;
-  }
+  .page-header h1 { font-size: 26px !important; }
 }
