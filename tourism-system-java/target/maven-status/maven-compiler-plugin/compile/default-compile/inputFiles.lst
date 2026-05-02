@@ -8,12 +8,15 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/algorithm/ShortestPathAlgorithm.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/algorithm/SortingAlgorithm.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/algorithm/TreapTopK.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/AgentClientConfig.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/AgentProperties.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/AmapProperties.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/MybatisPlusConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/RedisConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/SecurityConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/SwaggerConfig.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/config/WebMvcConfig.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/AgentController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/AlgorithmController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/AuthController.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/controller/BuildingController.java
@@ -36,6 +39,7 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/mapper/RoadEdgeMapper.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/mapper/UserBehaviorMapper.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/mapper/UserMapper.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/dto/AgentChatRequest.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/dto/LoginDTO.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/dto/RegisterDTO.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/entity/SpotBuilding.java
@@ -51,6 +55,8 @@
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/model/vo/UserProfileVO.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/security/JwtAuthenticationFilter.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/security/UserDetailsServiceImpl.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AgentClient.java
+/Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AgentService.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AigcService.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AmapNavigationService.java
 /Users/wangbosheng/TravelSystem/tourism-system-java/src/main/java/com/tourism/service/AuthService.java

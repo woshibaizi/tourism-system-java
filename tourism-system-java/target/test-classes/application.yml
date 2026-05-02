@@ -31,3 +31,7 @@ app:
       key:
       base-url: https://restapi.amap.com
       timeout-ms: 2000
+  agent:
+    base-url: http://127.0.0.1:9000
+    connect-timeout-ms: 1000
+    read-timeout-ms: 1000

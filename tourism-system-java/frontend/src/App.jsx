@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Avatar, Dropdown, message, Button, Space, Card, Descriptions, Tag, Typography } from 'antd';
 import {
-  HomeOutlined,
   EnvironmentOutlined,
   BookOutlined,
   UserOutlined,
@@ -10,11 +9,11 @@ import {
   CarOutlined,
   SearchOutlined,
   LogoutOutlined,
-  FireOutlined,
   BuildOutlined,
   SettingOutlined,
   ThunderboltOutlined,
   DownOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 
 // 导入页面组件
@@ -29,9 +28,11 @@ import LoginPage from './pages/LoginPage';
 import DiaryManagementPage from './pages/DiaryManagementPage';
 import CampusNavigationPage from './pages/CampusNavigationPage';
 import ConcurrencyTestPage from './pages/ConcurrencyTestPage';
+import PersonalTravelAssistantPage from './pages/PersonalTravelAssistantPage';
+import './App.css';
 
 const { Header, Content } = Layout;
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
 function NavGroup({ title, icon, items, active, onMenuClick }) {
   return (
@@ -52,18 +53,12 @@ function PersonalPage({ currentUser }) {
   const favoriteCategories = currentUser?.favoriteCategories || [];
 
   return (
-    <div className="profile-atlas-page">
+    <div className="profile-atlas-page" style={{ maxWidth: 600 }}>
       <Card>
-        <Title level={2}>个人界面</Title>
-        <Paragraph type="secondary">
-          查看当前登录用户的基础信息。后续可在这里继续扩展收藏、浏览历史和偏好设置。
-        </Paragraph>
-        <Descriptions bordered column={1}>
+        <Title level={3} style={{ marginTop: 0 }}>个人中心</Title>
+        <Descriptions bordered column={1} size="small">
           <Descriptions.Item label="用户名">
             {currentUser?.username || currentUser?.name || '未命名用户'}
-          </Descriptions.Item>
-          <Descriptions.Item label="用户 ID">
-            {currentUser?.id || '暂无'}
           </Descriptions.Item>
           <Descriptions.Item label="兴趣标签">
             {interests.length > 0
@@ -166,6 +161,15 @@ function App() {
     },
   ];
 
+  const assistantModuleItems = [
+    {
+      key: '/travel-assistant',
+      icon: <MessageOutlined />,
+      // 当前先只放一个入口，后续可以扩展“图片日记”“草稿发布”等子页面。
+      label: '个性化旅游助手',
+    },
+  ];
+
   const otherModuleItems = [
     {
       key: '/stats',
@@ -181,14 +185,9 @@ function App() {
 
   const personalItems = [
     {
-      key: '/',
-      icon: <HomeOutlined />,
-      label: '返回首页',
-    },
-    {
       key: '/profile',
       icon: <UserOutlined />,
-      label: '个人界面',
+      label: '个人中心',
     },
     {
       key: 'logout',
@@ -209,20 +208,16 @@ function App() {
   const isGroupActive = (items) => items.some((item) => item.key === location.pathname);
 
   return (
-    <Layout className="main-layout atlas-shell" style={{ minHeight: '100vh' }}>
+    <Layout className="main-layout" style={{ minHeight: '100vh' }}>
       <Layout>
-        <Header 
-          className="header-nav" 
-          style={{ 
-            padding: '0 28px', 
-            display: 'flex', 
+        <Header
+          className="header-nav"
+          style={{
+            padding: '0 28px',
+            display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: 'rgba(250, 246, 235, 0.86)',
-            backdropFilter: 'blur(18px)',
-            boxShadow: '0 16px 40px rgba(30, 44, 35, 0.1)',
-            borderBottom: '1px solid rgba(61, 83, 68, 0.12)',
-            height: 72,
+            height: 64,
             position: 'fixed',
             top: 0,
             right: 0,
@@ -232,29 +227,30 @@ function App() {
         >
           <div
             onClick={() => navigate('/')}
-            style={{ 
-              color: 'var(--apple-text-primary)', 
-              fontSize: 22, 
+            style={{
+              color: 'var(--text-primary)',
+              fontSize: 18,
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               gap: 8,
               cursor: 'pointer',
-              letterSpacing: '-0.015em'
-            }}>
-              <span style={{ fontSize: 24 }}></span>
-              个性化旅游系统
-            </div>
-          
+            }}
+          >
+            个性化旅游系统
+          </div>
+
           <div className="atlas-top-nav">
-            <Space size={10} wrap>
+            <Space size={6} wrap>
               <NavGroup title="地点与导航" icon={<SearchOutlined />} items={discoverModuleItems} active={isGroupActive(discoverModuleItems)} onMenuClick={handleMenuClick} />
               <NavGroup title="日记板块" icon={<BookOutlined />} items={diaryModuleItems} active={isGroupActive(diaryModuleItems)} onMenuClick={handleMenuClick} />
+              <NavGroup title="旅游助手" icon={<MessageOutlined />} items={assistantModuleItems} active={isGroupActive(assistantModuleItems)} onMenuClick={handleMenuClick} />
               <NavGroup title="其他" icon={<BarChartOutlined />} items={otherModuleItems} active={isGroupActive(otherModuleItems)} onMenuClick={handleMenuClick} />
               <Dropdown menu={{ items: personalItems, onClick: handleMenuClick }} placement="bottomRight" trigger={['click']}>
                 <Button
                   className={`atlas-nav-button atlas-user-button ${isGroupActive(personalItems) ? 'active' : ''}`}
-                  icon={<Avatar size={24} icon={<UserOutlined />} src={currentUser.avatar} />}
+                  icon={<Avatar size={22} icon={<UserOutlined />} src={currentUser?.avatar} />}
+                  style={{ borderRadius: 10 }}
                 >
                   {currentUser?.username || currentUser?.name || '个人'}
                   <DownOutlined />
@@ -263,15 +259,16 @@ function App() {
             </Space>
           </div>
         </Header>
-        
-        <Content className="content-wrapper" style={{ 
-          margin: 0,
-          background: 'none',
-          minHeight: '100vh',
-          overflow: 'auto',
-          paddingTop: 72,
-        }}>
-          <div style={{ padding: '24px', minHeight: 'calc(100vh - 72px)' }}>
+
+        <Content
+          className="content-wrapper"
+          style={{
+            background: 'none',
+            minHeight: '100vh',
+            paddingTop: 64,
+          }}
+        >
+          <div style={{ padding: '24px 0', minHeight: 'calc(100vh - 64px)' }}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/location-search" element={<LocationSearchPage />} />
@@ -280,6 +277,7 @@ function App() {
               <Route path="/diaries" element={<DiariesPage />} />
               <Route path="/diaries/:diaryId" element={<DiaryDetailPage />} />
               <Route path="/route-planning" element={<RoutePage />} />
+              <Route path="/travel-assistant" element={<PersonalTravelAssistantPage />} />
               <Route path="/facility-query" element={<Navigate to="/location-search" replace />} />
               <Route path="/stats" element={<StatsPage />} />
               <Route path="/diary-management" element={<DiaryManagementPage />} />

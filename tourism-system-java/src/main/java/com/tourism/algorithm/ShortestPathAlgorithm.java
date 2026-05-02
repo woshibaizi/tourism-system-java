@@ -200,6 +200,8 @@ public class ShortestPathAlgorithm {
         for (SpotRoadEdge edge : edges) {
             String from = edge.getFromNode();
             String to = edge.getToNode();
+            if (from == null || to == null || from.equals(to)) continue;
+            if (from.startsWith("building_") && to.startsWith("building_")) continue;
             graph.computeIfAbsent(from, k -> new HashMap<>());
             graph.computeIfAbsent(to, k -> new HashMap<>());
 
@@ -310,8 +312,10 @@ public class ShortestPathAlgorithm {
             case "电瓶车" -> 5.0;
             default -> 1.0;
         };
-        double actualSpeed = road.idealSpeed * road.congestionRate * speedMultiplier;
-        return actualSpeed <= 0 ? Double.MAX_VALUE : road.distance / actualSpeed;
+        double actualSpeedKmh = road.idealSpeed * road.congestionRate * speedMultiplier;
+        if (actualSpeedKmh <= 0) return Double.MAX_VALUE;
+        double actualSpeedMs = actualSpeedKmh * 1000.0 / 3600.0;
+        return road.distance / actualSpeedMs;
     }
 
     public List<String> getAvailableVehicles(String placeType) {
@@ -336,15 +340,6 @@ public class ShortestPathAlgorithm {
         Set<String> closedSet = new HashSet<>();
         gScore.put(start, 0.0);
 
-        // 优先队列 [fScore, node]
-        PriorityQueue<double[]> openSet = new PriorityQueue<>(Comparator.comparingDouble(a -> a[0]));
-        Map<String, Double> fScore = new HashMap<>();
-        fScore.put(start, heuristic(start, end, vehicle));
-        openSet.offer(new double[]{fScore.get(start), start.hashCode()});
-        Map<Double, String> hashToNode = new HashMap<>();
-        hashToNode.put((double) start.hashCode(), start);
-
-        // 由于hashCode可能碰撞，用完整map替代
         PriorityQueue<Object[]> pq = new PriorityQueue<>(Comparator.comparingDouble(a -> (double) a[0]));
         pq.offer(new Object[]{heuristic(start, end, vehicle), start});
 

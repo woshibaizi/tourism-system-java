@@ -101,7 +101,7 @@ function HomePage() {
   }
 
   return (
-    <div className="animate-on-load delay-1" style={{ minHeight: '100vh', padding: '0 24px', maxWidth: 1200, margin: '0 auto' }}>
+    <div className="animate-on-load delay-1" style={{ minHeight: '100vh' }}>
       
       {/* 极简Hero区 */}
       <div
@@ -111,48 +111,36 @@ function HomePage() {
           textAlign: 'center',
         }}
       >
-        <Title level={1} style={{ 
-          fontSize: '56px',
+        <Title level={1} style={{
+          fontSize: '48px',
           fontWeight: 600,
           letterSpacing: '-0.02em',
-          color: 'var(--apple-text-primary)'
+          color: 'var(--text-primary)'
         }}>
           发现属于你的旅程
         </Title>
-        <Paragraph style={{ 
-          fontSize: '24px', 
-          color: 'var(--apple-text-secondary)',
+        <Paragraph style={{
+          fontSize: '20px',
+          color: 'var(--text-secondary)',
           fontWeight: 400,
-          marginTop: 16,
-          marginBottom: 40,
-          letterSpacing: '-0.015em'
+          marginTop: 12,
+          marginBottom: 36,
         }}>
           为你量身定制的地点与路线，一触即发。
         </Paragraph>
         <Space size="large">
-          <Button 
-            type="primary" 
-            size="large" 
+          <Button
+            type="primary"
+            size="large"
             onClick={() => navigate('/location-search')}
-            style={{ 
-              height: '52px',
-              padding: '0 32px',
-              fontSize: '17px',
-            }}
+            style={{ height: 48, padding: '0 28px', fontSize: 16, borderRadius: 12 }}
           >
             地点搜索
           </Button>
-          <Button 
-            size="large" 
+          <Button
+            size="large"
             onClick={() => navigate('/diaries')}
-            style={{ 
-              height: '52px',
-              padding: '0 32px',
-              fontSize: '17px',
-              border: 'none',
-              background: 'rgba(0,0,0,0.05)',
-              color: 'var(--apple-text-primary)'
-            }}
+            style={{ height: 48, padding: '0 28px', fontSize: 16, borderRadius: 12 }}
           >
             旅游日记
           </Button>
@@ -167,12 +155,12 @@ function HomePage() {
           { title: '路径网络', val: stats.roads, icon: <NodeIndexOutlined /> }
          ].map((stat, idx) => (
           <Col xs={12} sm={6} key={idx}>
-            <Card style={{ textAlign: 'center', padding: '16px 0' }} bordered={false}>
+            <Card style={{ textAlign: 'center' }} bordered={false}>
               <Statistic
-                title={<span style={{ color: 'var(--apple-text-secondary)', fontWeight: 500 }}>{stat.title}</span>}
+                title={<span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{stat.title}</span>}
                 value={stat.val || 0}
-                prefix={<span style={{ color: 'var(--apple-text-primary)' }}>{stat.icon}</span>}
-                valueStyle={{ color: 'var(--apple-text-primary)', fontWeight: '600', fontSize: '36px' }}
+                prefix={<span style={{ color: 'var(--text-primary)' }}>{stat.icon}</span>}
+                valueStyle={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '36px' }}
               />
             </Card>
           </Col>
@@ -182,20 +170,14 @@ function HomePage() {
       <Row gutter={[24, 24]}>
         {/* 推荐场所 */}
         <Col xs={24} lg={12}>
-          <div style={{
-            borderRadius: '16px',
-            background: 'var(--apple-bg-base)',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
-            border: '1px solid var(--apple-border)',
-            overflow: 'hidden',
-          }}>
+          <div className="detail-container">
             <div style={{
               padding: '24px 24px 8px 24px',
-              borderBottom: '1px solid var(--apple-border)'
+              borderBottom: '1px solid var(--glass-border-strong)'
             }}>
               <Row justify="space-between" align="middle">
                 <Col>
-                  <Title level={4} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>推荐地点</Title>
+                  <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>推荐地点</Title>
                 </Col>
                 <Col>
                   <Button type="link" onClick={() => navigate('/location-search')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
@@ -214,7 +196,7 @@ function HomePage() {
                       style={{ 
                         cursor: 'pointer', 
                         padding: '16px 0',
-                        borderBottom: index === recommendedPlaces.length - 1 ? 'none' : '1px solid var(--apple-border)',
+                        borderBottom: index === recommendedPlaces.length - 1 ? 'none' : '1px solid var(--glass-border-strong)',
                       }}
                     >
                       <List.Item.Meta
@@ -223,12 +205,12 @@ function HomePage() {
                             size={56}
                             src={place.image ? getFileUrl(place.image) : null}
                             icon={<EnvironmentOutlined />}
-                            style={{ border: '1px solid var(--apple-border)' }}
+                            style={{ border: '1px solid var(--glass-border-strong)' }}
                           />
                         }
                         title={
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontWeight: '500', color: 'var(--apple-text-primary)', fontSize: '16px' }}>
+                            <span style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '16px' }}>
                               {place.name}
                             </span>
                           </div>
@@ -236,9 +218,9 @@ function HomePage() {
                         description={
                           <div>
                             <div style={{ marginBottom: 4 }}>
-                              <Rate disabled value={place.rating || 0} style={{ fontSize: 12, color: 'var(--apple-text-primary)' }} />
+                              <Rate disabled value={place.rating || 0} style={{ fontSize: 12, color: 'var(--text-primary)' }} />
                             </div>
-                            <Text style={{ color: 'var(--apple-text-secondary)', fontSize: 13, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            <Text style={{ color: 'var(--text-secondary)', fontSize: 13, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                               {place.description || '暂无描述'}
                             </Text>
                           </div>
@@ -256,20 +238,14 @@ function HomePage() {
 
         {/* 热门场所 */}
         <Col xs={24} lg={12}>
-          <div style={{
-            borderRadius: '16px',
-            background: 'var(--apple-bg-base)',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
-            border: '1px solid var(--apple-border)',
-            overflow: 'hidden',
-          }}>
+          <div className="detail-container">
             <div style={{
               padding: '24px 24px 8px 24px',
-              borderBottom: '1px solid var(--apple-border)'
+              borderBottom: '1px solid var(--glass-border-strong)'
             }}>
               <Row justify="space-between" align="middle">
                 <Col>
-                  <Title level={4} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>热门地点排行</Title>
+                  <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>热门地点排行</Title>
                 </Col>
                 <Col>
                   <Button type="link" onClick={() => navigate('/location-search')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
@@ -288,14 +264,14 @@ function HomePage() {
                       style={{ 
                         cursor: 'pointer', 
                         padding: '16px 0',
-                        borderBottom: index === popularPlaces.length - 1 ? 'none' : '1px solid var(--apple-border)',
+                        borderBottom: index === popularPlaces.length - 1 ? 'none' : '1px solid var(--glass-border-strong)',
                       }}
                     >
                       <List.Item.Meta
                         avatar={
                           <div style={{
                             width: 48, height: 48, borderRadius: '50%',
-                            background: index < 3 ? 'var(--apple-text-primary)' : 'var(--apple-text-secondary)',
+                            background: index < 3 ? 'var(--text-primary)' : 'var(--text-secondary)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             color: '#fff', fontWeight: 'bold', fontSize: '18px',
                           }}>
@@ -304,7 +280,7 @@ function HomePage() {
                         }
                         title={
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontWeight: '500', color: 'var(--apple-text-primary)', fontSize: '16px' }}>
+                            <span style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '16px' }}>
                               {place.name}
                             </span>
                           </div>
@@ -312,9 +288,9 @@ function HomePage() {
                         description={
                           <div>
                             <div style={{ marginBottom: 4 }}>
-                              <Rate disabled value={place.rating || 0} style={{ fontSize: 12, color: 'var(--apple-text-primary)' }} />
+                              <Rate disabled value={place.rating || 0} style={{ fontSize: 12, color: 'var(--text-primary)' }} />
                             </div>
-                            <Text style={{ color: 'var(--apple-text-secondary)', fontSize: 13 }}>
+                            <Text style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
                               🔥 {place.clickCount || 0} 浏览 · {place.type || '景点'}
                             </Text>
                           </div>
@@ -333,13 +309,13 @@ function HomePage() {
 
       {/* 推荐日记 */}
       <Card
-        style={{ marginTop: 32, borderRadius: '16px', border: '1px solid var(--apple-border)', background: 'var(--apple-bg-base)' }}
+        style={{ marginTop: 32, borderRadius: '16px', border: '1px solid var(--glass-border-strong)', background: 'var(--glass-surface)' }}
         bodyStyle={{ padding: 0 }}
       >
-        <div style={{ padding: '32px 32px 8px 32px', borderBottom: '1px solid var(--apple-border)' }}>
+        <div style={{ padding: '32px 32px 8px 32px', borderBottom: '1px solid var(--glass-border-strong)' }}>
           <Row justify="space-between" align="middle">
             <Col>
-              <Title level={3} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>精选旅游日记</Title>
+              <Title level={3} style={{ margin: 0, color: 'var(--text-primary)' }}>精选旅游日记</Title>
             </Col>
             <Col>
               <Button type="link" onClick={() => navigate('/diaries')} style={{ padding: 0 }}>查看更多 <RightOutlined /></Button>
@@ -363,14 +339,14 @@ function HomePage() {
                         <img alt={diary.title} src={getFileUrl(diary.images[0])} style={{ height: '100%', width: '100%', objectFit: 'cover' }} />
                       ) : (
                         <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <BookOutlined style={{ fontSize: 32, color: 'var(--apple-text-tertiary)' }} />
+                          <BookOutlined style={{ fontSize: 32, color: 'var(--text-tertiary)' }} />
                         </div>
                       )}
                     </div>
                     <Title level={5} style={{ margin: '0 0 12px 0', fontSize: 16, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {diary.title}
                     </Title>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--apple-text-secondary)', fontSize: 13 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
                       <Rate disabled value={diary.rating || 0} style={{ fontSize: 12 }} />
                       <span><EyeOutlined /> {diary.clickCount || 0}</span>
                     </div>
@@ -386,13 +362,13 @@ function HomePage() {
 
       {/* 快速操作 */}
       <Card
-        style={{ marginTop: 32, marginBottom: 64, borderRadius: '16px', border: '1px solid var(--apple-border)', background: 'var(--apple-bg-base)' }}
+        style={{ marginTop: 32, marginBottom: 64, borderRadius: '16px', border: '1px solid var(--glass-border-strong)', background: 'var(--glass-surface)' }}
         bodyStyle={{ padding: 0 }}
       >
-        <div style={{ padding: '32px 32px 8px 32px', borderBottom: '1px solid var(--apple-border)' }}>
+        <div style={{ padding: '32px 32px 8px 32px', borderBottom: '1px solid var(--glass-border-strong)' }}>
           <Row justify="space-between" align="middle">
             <Col>
-              <Title level={3} style={{ margin: 0, color: 'var(--apple-text-primary)' }}>快速操作</Title>
+              <Title level={3} style={{ margin: 0, color: 'var(--text-primary)' }}>快速操作</Title>
             </Col>
           </Row>
         </div>
@@ -412,13 +388,13 @@ function HomePage() {
                   bordered={true}
                   style={{ cursor: 'pointer', textAlign: 'center', padding: '12px 0', height: '100%', borderRadius: 12 }}
                 >
-                  <div style={{ fontSize: '32px', color: 'var(--apple-text-primary)', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '32px', color: 'var(--text-primary)', marginBottom: '12px' }}>
                     {action.icon}
                   </div>
-                  <Text style={{ color: 'var(--apple-text-primary)', fontSize: '16px', fontWeight: 600, display: 'block' }}>
+                  <Text style={{ color: 'var(--text-primary)', fontSize: '16px', fontWeight: 600, display: 'block' }}>
                     {action.title}
                   </Text>
-                  <Text style={{ color: 'var(--apple-text-secondary)', fontSize: '13px', display: 'block', marginTop: '4px' }}>
+                  <Text style={{ color: 'var(--text-secondary)', fontSize: '13px', display: 'block', marginTop: '4px' }}>
                     {action.desc}
                   </Text>
                 </Card>

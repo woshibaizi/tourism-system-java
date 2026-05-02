@@ -178,21 +178,23 @@ function StatsPage() {
   const typeDistribution = getTypeDistribution();
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <div className="page-header" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'var(--glass-surface)',
+        backdropFilter: 'blur(var(--glass-blur))',
+        WebkitBackdropFilter: 'blur(var(--glass-blur))',
         padding: '32px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+        borderRadius: '18px',
+        border: '1px solid var(--glass-border-strong)',
+        boxShadow: 'var(--glass-shadow)',
         marginBottom: '32px',
         textAlign: 'center',
-        color: 'white',
       }}>
-        <Title level={2} style={{ margin: 0, color: 'white', fontSize: '28px', fontWeight: 'bold' }}>
-          <DashboardOutlined style={{ marginRight: 12, fontSize: '32px' }} />
+        <Title level={2} style={{ margin: 0, color: 'var(--text-primary)', fontSize: 28, fontWeight: 600 }}>
+          <DashboardOutlined style={{ marginRight: 12, fontSize: 32 }} />
           统计分析
         </Title>
-        <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
+        <Text style={{ fontSize: 16, color: 'var(--text-secondary)', marginTop: 8, display: 'block' }}>
           系统数据统计与分析报告，全面了解平台运营状况
         </Text>
       </div>

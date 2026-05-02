@@ -505,7 +505,7 @@ function DiariesPage() {
           border: 'none',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+          background: 'var(--glass-surface)',
         }}
         cover={
           <div style={{ 
@@ -837,22 +837,24 @@ function DiariesPage() {
   };
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <div className="page-header" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'var(--glass-surface)',
+        backdropFilter: 'blur(var(--glass-blur))',
+        WebkitBackdropFilter: 'blur(var(--glass-blur))',
         padding: '32px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+        borderRadius: '18px',
+        border: '1px solid var(--glass-border-strong)',
+        boxShadow: 'var(--glass-shadow)',
         marginBottom: '32px',
         textAlign: 'center',
-        color: 'white',
       }}>
-        <Title level={2} style={{ margin: 0, color: 'white', fontSize: '28px', fontWeight: 'bold' }}>
-          <BookOutlined style={{ marginRight: 12, fontSize: '32px' }} />
+        <Title level={2} style={{ margin: 0, color: 'var(--text-primary)', fontSize: 28, fontWeight: 600 }}>
+          <BookOutlined style={{ marginRight: 12, fontSize: 32 }} />
           旅游日记
         </Title>
-        <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
-          记录美好旅程，分享精彩时光，发现个性化推荐内容
+        <Text style={{ fontSize: 16, color: 'var(--text-secondary)', marginTop: 8, display: 'block' }}>
+          记录旅程，分享时光，发现个性化推荐
         </Text>
         <div className="action-buttons" style={{ marginTop: '16px' }}>
           <Button 
