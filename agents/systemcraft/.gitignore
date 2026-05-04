@@ -1,0 +1,32 @@
+# ── 环境与密钥 ──
+.env
+.venv/
+venv/
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# ── Node ──
+node_modules/
+frontend/build/
+frontend/dist/
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Claude ──
+.claude/
+
+# ── Temp ──
+.tmp_*/
+
+# ── OS ──
+.DS_Store
+Thumbs.db

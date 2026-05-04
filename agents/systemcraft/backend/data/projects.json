@@ -1,0 +1,56 @@
+{
+  "f279394d": {
+    "id": "f279394d",
+    "description": "我想做一个校园二手交易平台，支持发布商品、收藏、聊天和订单跟踪。",
+    "difficulty": "medium",
+    "status": "running",
+    "current_stage": "requirements_analysis",
+    "status_detail": "需求分析进行中，请稍候...",
+    "progress_percent": 8,
+    "progress_message": "PM Agent 已接收需求，正在拆解功能、角色与核心用例。",
+    "project_name": "",
+    "requirements_doc": "",
+    "architecture_doc": "",
+    "code_artifacts": "",
+    "test_report": "",
+    "mentor_notes": "",
+    "knowledge_cards": "",
+    "iteration_count": 0,
+    "agent_messages": [
+      {
+        "agent_role": "pm",
+        "agent_name": "PM Agent",
+        "content": "PM Agent 已接收需求，正在拆解功能、角色与核心用例。",
+        "stage": "requirements_analysis",
+        "msg_type": "thinking"
+      }
+    ],
+    "learning_chat": [],
+    "_state": {
+      "user_input": "我想做一个校园二手交易平台，支持发布商品、收藏、聊天和订单跟踪。",
+      "difficulty": "medium",
+      "project_name": "",
+      "requirements_doc": "",
+      "architecture_doc": "",
+      "code_artifacts": "",
+      "test_report": "",
+      "mentor_notes": "",
+      "knowledge_cards": "",
+      "current_stage": "init",
+      "has_bugs": false,
+      "iteration_count": 0,
+      "max_iterations": 2,
+      "agent_messages": [
+        {
+          "agent_role": "pm",
+          "agent_name": "PM Agent",
+          "content": "PM Agent 已接收需求，正在拆解功能、角色与核心用例。",
+          "stage": "requirements_analysis",
+          "msg_type": "thinking"
+        }
+      ]
+    },
+    "_pause_requested": false,
+    "_next_stage": "requirements_analysis"
+  }
+}
