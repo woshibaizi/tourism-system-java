@@ -1,7 +1,11 @@
 .DS_Store
-
-tourism-system/
 *.iml
+
+# Build artifacts
+target/
+**/__pycache__/
+*.pyc
+*.db
 
 # --- React Frontend (Vite) ---
 # Logs
