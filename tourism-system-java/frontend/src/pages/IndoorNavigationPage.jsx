@@ -1,390 +1,158 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Select, 
-  Button, 
-  Typography, 
-  Space, 
-  Steps, 
-  Alert, 
-  Row, 
-  Col,
-  Spin,
-  message,
-  Switch,
-  Divider,
-  Tag,
-  Timeline
-} from 'antd';
-import { 
-  HomeOutlined, 
-  EnvironmentOutlined, 
-  ClockCircleOutlined,
-  RightOutlined,
-  UpOutlined,
-  DownOutlined,
-  CompassOutlined
-} from '@ant-design/icons';
+import { Building, Navigation, AlertCircle, Switch, Layers } from 'lucide-react';
 import { indoorNavigationAPI } from '../services/api';
+import CTAButton from '../components/ui/CTAButton';
+import SectionLabel from '../components/ui/SectionLabel';
 
-const { Title, Text, Paragraph } = Typography;
-const { Option } = Select;
-
-const IndoorNavigationPage = () => {
+function IndoorNavigationPage() {
+  const [loading, setLoading] = useState(true);
   const [buildingInfo, setBuildingInfo] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState('');
-  const [avoidCongestion, setAvoidCongestion] = useState(true);
-  const [navigationResult, setNavigationResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [avoidCongestion, setAvoidCongestion] = useState(false);
+  const [navResult, setNavResult] = useState(null);
+  const [navigating, setNavigating] = useState(false);
 
-  // 初始化数据
   useEffect(() => {
-    loadInitialData();
+    const load = async () => {
+      try {
+        const [info, r] = await Promise.all([indoorNavigationAPI.getBuildingInfo(), indoorNavigationAPI.getRooms()]);
+        setBuildingInfo(info.data || info);
+        setRooms(r.data || []);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
+    };
+    load();
   }, []);
 
-  const loadInitialData = async () => {
-    try {
-      setInitialLoading(true);
-      
-      const [buildingResponse, roomsResponse] = await Promise.all([
-        indoorNavigationAPI.getBuildingInfo(),
-        indoorNavigationAPI.getRooms()
-      ]);
-
-      if (buildingResponse.success) {
-        setBuildingInfo(buildingResponse.data);
-      }
-
-      if (roomsResponse.success) {
-        setRooms(roomsResponse.data);
-      }
-    } catch (error) {
-      message.error('加载数据失败');
-      console.error('加载数据失败:', error);
-    } finally {
-      setInitialLoading(false);
-    }
-  };
-
   const handleNavigate = async () => {
-    if (!selectedRoom) {
-      message.warning('请选择目标房间');
-      return;
-    }
-
-    setLoading(true);
+    if (!selectedRoom) return;
+    setNavigating(true);
     try {
-      const response = await indoorNavigationAPI.navigate({
-        roomId: selectedRoom,
-        avoidCongestion,
-        useTimeWeight: avoidCongestion
-      });
-
-      if (response.success) {
-        setNavigationResult(response.data);
-        message.success('导航路径计算成功');
-      } else {
-        message.error(response.message || '导航计算失败');
-        setNavigationResult(null);
-      }
-    } catch (error) {
-      message.error('导航计算失败');
-      console.error('导航计算失败:', error);
-      setNavigationResult(null);
-    } finally {
-      setLoading(false);
-    }
+      const res = await indoorNavigationAPI.navigate({ roomId: selectedRoom, avoidCongestion, useTimeWeight: true });
+      if (res.success) setNavResult(res.data);
+    } catch (e) { console.error(e); }
+    finally { setNavigating(false); }
   };
 
-  const getFloorColor = (floor) => {
-    const colors = ['blue', 'green', 'orange'];
-    return colors[(floor - 1) % colors.length];
-  };
+  const roomsByFloor = rooms.reduce((acc, r) => {
+    const floor = r.floor || '未知';
+    if (!acc[floor]) acc[floor] = [];
+    acc[floor].push(r);
+    return acc;
+  }, {});
 
-  const getStepIcon = (step) => {
-    if (step.floor_change) {
-      return String(step.from || '').includes('楼') && String(step.to || '').includes('楼') ? 
-        <UpOutlined /> : <RightOutlined />;
-    }
-    return <RightOutlined />;
-  };
-
-  const floorList = Array.from(new Set(rooms.map((room) => room.floor))).sort((a, b) => a - b);
-
-  if (initialLoading) {
-    return (
-      <div style={{ 
-        padding: '24px', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        minHeight: '400px'
-      }}>
-        <Spin size="large" tip="加载室内导航系统..." />
-      </div>
-    );
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" /></div>;
   }
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
-      {/* 页面标题 */}
-      <div className="page-header" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '32px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
-        marginBottom: '32px',
-        textAlign: 'center',
-        color: 'white',
-      }}>
-        <Title level={2} style={{ margin: 0, color: 'white', fontSize: '28px', fontWeight: 'bold' }}>
-          <CompassOutlined style={{ marginRight: 12, fontSize: '32px' }} />
-          室内导航
-        </Title>
-        <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
-          智能室内导航系统，为您提供最优路径规划
-        </Text>
-      </div>
-      
-      {buildingInfo && (
-        <Alert
-          message={`${buildingInfo.name} - ${buildingInfo.description}`}
-          type="info"
-          showIcon
-          style={{ 
-            marginBottom: '32px',
-            borderRadius: '12px',
-            border: 'none',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-          }}
-        />
-      )}
+    <div className="max-w-screen-xl mx-auto px-6 py-12">
+      <SectionLabel>Indoor Navigation</SectionLabel>
+      <h1 className="font-serif text-3xl text-heading mb-8">室内导航</h1>
 
-      <Card style={{
-        background: 'white',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        marginBottom: '32px',
-        border: 'none',
-      }}>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8}>
-            <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>选择目标房间：</Text>
-            <Select
-              style={{ width: '100%', marginTop: '8px', borderRadius: '12px' }}
-              placeholder="请选择要前往的房间"
-              size="large"
-              value={selectedRoom}
-              onChange={setSelectedRoom}
-              showSearch
-              filterOption={(input, option) =>
-                String(option?.title || '').toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {rooms.map(room => (
-                <Option key={room.id} value={room.id} title={room.name}>
-                  <Space>
-                    <Tag color={getFloorColor(room.floor)}>{room.floor}楼</Tag>
-                    {room.name}
-                  </Space>
-                </Option>
-              ))}
-            </Select>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Text strong>导航选项：</Text>
-            <div style={{ marginTop: '8px' }}>
-              <Switch
-                checked={avoidCongestion}
-                onChange={setAvoidCongestion}
-                checkedChildren="避开拥挤"
-                unCheckedChildren="最短距离"
-              />
-            </div>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <div style={{ marginTop: '32px' }}>
-              <Button 
-                type="primary" 
-                onClick={handleNavigate}
-                loading={loading}
-                disabled={!selectedRoom}
-                block
-              >
-                开始导航
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      </Card>
-
-      {/* 导航结果 */}
-      {navigationResult && (
-        <Row gutter={[24, 24]}>
-          {/* 路径概览 */}
-          <Col xs={24} lg={12}>
-            <Card style={{
-              borderRadius: '16px',
-              border: 'none',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-              background: 'white',
-              overflow: 'hidden',
-              height: '100%'
-            }}>
-              <div style={{
-                background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
-                margin: '-24px -24px 24px -24px',
-                padding: '20px 24px',
-                color: 'white',
-              }}>
-                <Title level={4} style={{ margin: 0, color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
-                  🧭 导航概览
-                </Title>
+      {!buildingInfo ? (
+        <div className="text-center py-16">
+          <AlertCircle size={48} className="mx-auto mb-4 text-amber-200" />
+          <p className="font-sans text-sm text-muted">无法获取建筑信息，请确保后端服务正常运行</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="space-y-6">
+            <div className="border border-neutral-100 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Building size={18} className="text-muted" />
+                <h2 className="font-serif text-lg text-heading">{buildingInfo.name || '教学楼'}</h2>
               </div>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div>
-                  <Text strong>目的地：</Text>
-                  <Tag color={getFloorColor(navigationResult.destination.floor)}>
-                    {navigationResult.destination.floor}楼
-                  </Tag>
-                  {navigationResult.destination.name}
+              {buildingInfo.floors && (
+                <div className="flex flex-wrap gap-2">
+                  {(buildingInfo.floors || []).map((f) => (
+                    <span key={f} className="px-3 py-1 text-xs border border-neutral-200 font-sans">{f}</span>
+                  ))}
                 </div>
-                
-                <div>
-                  <Text strong>总距离：</Text>
-                  <Text type="success">{navigationResult.total_distance}米</Text>
-                </div>
-                
-                <div>
-                  <Text strong>预计时间：</Text>
-                  <Text type="warning">
-                    <ClockCircleOutlined /> {navigationResult.estimated_time}分钟
-                  </Text>
-                </div>
-                
-                <div>
-                  <Text strong>路径策略：</Text>
-                  <Tag color={navigationResult.avoid_congestion ? 'orange' : 'blue'}>
-                    {navigationResult.avoid_congestion ? '避开拥挤区域' : '最短距离优先'}
-                  </Tag>
-                </div>
+              )}
+            </div>
 
-                <Divider />
-                
-                <Paragraph>
-                  <Text strong>路径描述：</Text>
-                  <br />
-                  {navigationResult.path_description}
-                </Paragraph>
-              </Space>
-            </Card>
-          </Col>
-
-          {/* 详细步骤 */}
-          <Col xs={24} lg={12}>
-            <Card style={{
-              borderRadius: '16px',
-              border: 'none',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-              background: 'white',
-              overflow: 'hidden',
-              height: '100%'
-            }}>
-              <div style={{
-                background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
-                margin: '-24px -24px 24px -24px',
-                padding: '20px 24px',
-                color: 'white',
-              }}>
-                <Title level={4} style={{ margin: 0, color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
-                  📍 导航步骤
-                </Title>
-              </div>
-              <Timeline>
-                <Timeline.Item 
-                  dot={<HomeOutlined style={{ color: '#1890ff' }} />}
-                  color="blue"
-                >
-                  <Text strong>起点：大门</Text>
-                  <br />
-                  <Text type="secondary">开始室内导航</Text>
-                </Timeline.Item>
-                
-                {navigationResult.navigation_steps.map((step, index) => (
-                  <Timeline.Item
-                    key={index}
-                    dot={getStepIcon(step)}
-                    color={step.floor_change ? 'red' : 'green'}
-                  >
-                    <div>
-                      <Text strong>步骤 {step.step}：{step.action}</Text>
-                      {step.floor_change && (
-                        <Tag color="red" style={{ marginLeft: '8px' }}>
-                          跨楼层
-                        </Tag>
-                      )}
-                      <br />
-                      <Text type="secondary">
-                        {step.description} ({step.distance}米)
-                      </Text>
-                    </div>
-                  </Timeline.Item>
+            <div className="border border-neutral-100 p-6">
+              <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-2">目标房间</label>
+              <select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)}
+                className="w-full border border-neutral-200 px-3 py-2 text-sm font-sans bg-white">
+                <option value="">选择房间</option>
+                {Object.entries(roomsByFloor).map(([floor, rooms]) => (
+                  <optgroup key={floor} label={`${floor}楼`}>
+                    {rooms.map((r) => <option key={r.id || r.roomId} value={r.id || r.roomId}>{r.name || r.roomName}</option>)}
+                  </optgroup>
                 ))}
-                
-                <Timeline.Item 
-                  dot={<EnvironmentOutlined style={{ color: '#52c41a' }} />}
-                  color="green"
-                >
-                  <Text strong>到达：{navigationResult.destination.name}</Text>
-                  <br />
-                  <Text type="secondary">导航完成</Text>
-                </Timeline.Item>
-              </Timeline>
-            </Card>
-          </Col>
-        </Row>
-      )}
+              </select>
+            </div>
 
-      {/* 房间列表 */}
-      <Card title="所有房间" style={{ marginTop: '24px' }}>
-        <Row gutter={[8, 8]}>
-          {(floorList.length > 0 ? floorList : [1, 2, 3]).map(floor => (
-            <Col key={floor} xs={24} sm={8}>
-              <Card 
-                size="small" 
-                title={`${floor}楼房间`}
-                headStyle={{ backgroundColor: '#f0f2f5' }}
+            <div className="flex items-center justify-between p-4 border border-neutral-100">
+              <span className="font-sans text-xs uppercase tracking-widest text-muted">避开拥挤</span>
+              <button
+                onClick={() => setAvoidCongestion(!avoidCongestion)}
+                className={`relative w-10 h-5 rounded-full transition-colors ${avoidCongestion ? 'bg-black' : 'bg-neutral-300'}`}
               >
-                <Space wrap>
-                  {rooms
-                    .filter(room => room.floor === floor)
-                    .map(room => (
-                      <Tag
-                        key={room.id}
-                        color={selectedRoom === room.id ? 'blue' : 'default'}
-                        style={{ 
-                          cursor: 'pointer',
-                          marginBottom: '4px'
-                        }}
-                        onClick={() => setSelectedRoom(room.id)}
-                      >
-                        {room.name}
-                      </Tag>
-                    ))
-                  }
-                </Space>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Card>
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${avoidCongestion ? 'left-5' : 'left-0.5'}`} />
+              </button>
+            </div>
+
+            <CTAButton onClick={handleNavigate} disabled={!selectedRoom || navigating} className="w-full justify-center">
+              <Navigation size={16} className="inline mr-1" /> {navigating ? '规划中...' : '开始室内导航'}
+            </CTAButton>
+          </div>
+
+          <div className="lg:col-span-2">
+            {navResult ? (
+              <div className="border border-neutral-100 p-6 space-y-6">
+                <div className="flex items-center gap-6">
+                  <div>
+                    <span className="font-sans text-xs uppercase tracking-widest text-muted">目的地</span>
+                    <p className="font-serif text-lg text-heading">{navResult.destination || selectedRoom}</p>
+                  </div>
+                  <div>
+                    <span className="font-sans text-xs uppercase tracking-widest text-muted">距离</span>
+                    <p className="font-serif text-lg text-heading">{navResult.distance || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="font-sans text-xs uppercase tracking-widest text-muted">预计时间</span>
+                    <p className="font-serif text-lg text-heading">{navResult.duration || '-'}</p>
+                  </div>
+                </div>
+
+                {navResult.steps && navResult.steps.length > 0 && (
+                  <div className="border-t border-neutral-100 pt-4 space-y-3">
+                    <h3 className="font-sans text-xs uppercase tracking-widest text-muted">导航步骤</h3>
+                    {navResult.steps.map((step, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-6 h-6 flex items-center justify-center border border-neutral-300 rounded-full flex-shrink-0">
+                          <span className="font-mono text-xs">{i + 1}</span>
+                        </div>
+                        <div>
+                          <p className="font-sans text-sm text-body">{step.instruction || step.description || `第${i + 1}步`}</p>
+                          {step.floor && (
+                            <span className="inline-flex items-center gap-1 mt-1 font-sans text-xs text-muted">
+                              <Layers size={10} /> {step.floor}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center border border-neutral-100 py-16">
+                <div className="text-center">
+                  <Building size={48} className="mx-auto mb-4 text-neutral-200" />
+                  <p className="font-sans text-sm text-muted">选择一个房间开始室内导航</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
 
-export default IndoorNavigationPage; 
+export default IndoorNavigationPage;

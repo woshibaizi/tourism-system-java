@@ -1,239 +1,149 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message, Typography } from 'antd';
-import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
+import { User, Lock, LogIn } from 'lucide-react';
 import { login } from '../services/api';
-
-const { Title, Text } = Typography;
+import { useToast } from '../components/ui/Toast';
+import CTAButton from '../components/ui/CTAButton';
 
 function LoginPage({ onLoginSuccess }) {
-  const [form] = Form.useForm();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
+  const { showToast } = useToast();
 
   const clearErrors = () => {
     setSubmitError('');
-    form.setFields([
-      { name: 'username', errors: [] },
-      { name: 'password', errors: [] },
-    ]);
+    setErrors({});
   };
 
   const showLoginError = (messageText = '登录失败，请稍后重试') => {
-    const normalizedMessage = messageText || '登录失败，请稍后重试';
-
-    if (normalizedMessage.includes('用户名或密码错误') || normalizedMessage.includes('密码错误')) {
-      form.setFields([
-        { name: 'password', errors: ['用户名或密码错误，请重新输入'] },
-      ]);
+    if (messageText.includes('用户名或密码错误') || messageText.includes('密码错误')) {
+      setErrors({ password: '用户名或密码错误，请重新输入' });
       setSubmitError('用户名或密码错误，请检查后重新登录');
       return;
     }
-
-    setSubmitError(normalizedMessage);
-    message.error(normalizedMessage);
+    setSubmitError(messageText);
   };
 
-  const handleSubmitClick = () => {
-    form.submit();
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+    if (!username.trim()) newErrors.username = '请输入用户名';
+    if (!password.trim()) newErrors.password = '请输入密码';
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setSubmitError('请填写完整的用户名和密码');
+      return;
+    }
 
-  const handleLogin = async (values) => {
     setLoading(true);
     clearErrors();
 
     try {
-      const response = await login({
-        username: values.username,
-        password: values.password
-      });
-
+      const response = await login({ username: username.trim(), password });
       if (response.success) {
-        setSubmitError('');
-        message.success('登录成功！');
+        showToast('success', '登录成功！');
         onLoginSuccess(response.data);
       } else {
         showLoginError(response.message || '登录失败');
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || '网络错误，请稍后重试';
-      showLoginError(errorMessage);
+      showLoginError(error.response?.data?.message || '网络错误，请稍后重试');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* 背景装饰 */}
-      <div style={{
-        position: 'absolute',
-        top: '-50%',
-        left: '-50%',
-        width: '200%',
-        height: '200%',
-        background: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
-        backgroundSize: '50px 50px',
-        animation: 'float 20s ease-in-out infinite',
-        opacity: 0.3
-      }} />
-      
-      <Card
-        style={{ 
-          width: 450, 
-          borderRadius: '20px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-          border: 'none',
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          overflow: 'hidden'
-        }}
-        bodyStyle={{ padding: '40px' }}
-      >
-        {/* 标题区域 */}
-        <div style={{ 
-          textAlign: 'center', 
-          marginBottom: '40px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          margin: '-40px -40px 40px -40px',
-          padding: '40px',
-          color: 'white'
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🌟</div>
-          <Title level={2} style={{ 
-            margin: 0, 
-            color: 'white',
-            fontSize: '28px',
-            fontWeight: 'bold',
-            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}>
-            个性化旅游系统
-          </Title>
-          <Text style={{ 
-            color: 'rgba(255, 255, 255, 0.9)', 
-            fontSize: 16,
-            display: 'block',
-            marginTop: 8
-          }}>
-            发现精彩旅程，记录美好时光
-          </Text>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-6">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <h1 className="font-serif text-3xl tracking-[0.1em] text-heading mb-2">
+            VOYAGE
+          </h1>
+          <p className="font-sans text-sm text-muted">发现精彩旅程，记录美好时光</p>
         </div>
 
-        <Form
-          form={form}
-          name="login"
-          onFinish={handleLogin}
-          onFinishFailed={() => {
-            setSubmitError('请填写完整的用户名和密码');
-          }}
-          onValuesChange={() => {
-            clearErrors();
-          }}
-          autoComplete="off"
-          size="large"
-          layout="vertical"
-        >
-          <Form.Item
-            name="username"
-            label={<span style={{ fontWeight: 600, color: '#2c3e50' }}>用户名</span>}
-            rules={[{ required: true, message: '请输入用户名!' }]}
-          >
-            <Input
-              prefix={<UserOutlined style={{ color: '#667eea' }} />}
-              placeholder="请输入用户名"
-              style={{ 
-                borderRadius: '12px',
-                height: '48px',
-                border: '2px solid #f0f0f0',
-                fontSize: '16px'
-              }}
-            />
-          </Form.Item>
+        <div className="bg-white border border-neutral-100 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block font-sans text-xs uppercase tracking-widest text-heading mb-2">
+                用户名
+              </label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => { setUsername(e.target.value); clearErrors(); }}
+                  placeholder="请输入用户名"
+                  className="w-full pl-10 pr-4 py-3 border border-neutral-200 text-sm font-sans focus:border-neutral-900 focus:ring-0 focus:outline-none transition-colors"
+                />
+              </div>
+              {errors.username && (
+                <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+              )}
+            </div>
 
-          <Form.Item
-            name="password"
-            label={<span style={{ fontWeight: 600, color: '#2c3e50' }}>密码</span>}
-            rules={[{ required: true, message: '请输入密码!' }]}
-          >
-            <Input.Password
-              prefix={<LockOutlined style={{ color: '#667eea' }} />}
-              placeholder="请输入密码"
-              style={{ 
-                borderRadius: '12px',
-                height: '48px',
-                border: '2px solid #f0f0f0',
-                fontSize: '16px'
-              }}
-            />
-          </Form.Item>
+            <div>
+              <label className="block font-sans text-xs uppercase tracking-widest text-heading mb-2">
+                密码
+              </label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); clearErrors(); }}
+                  placeholder="请输入密码"
+                  className="w-full pl-10 pr-4 py-3 border border-neutral-200 text-sm font-sans focus:border-neutral-900 focus:ring-0 focus:outline-none transition-colors"
+                />
+              </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              )}
+            </div>
 
-          <Form.Item style={{ marginTop: '32px' }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              onClick={handleSubmitClick}
-              loading={loading}
-              block
-              icon={<LoginOutlined />}
-              style={{ 
-                height: '52px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: 'none',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                transition: 'all 0.3s ease'
-              }}
+            {submitError && (
+              <p className="text-red-500 text-sm text-center">{submitError}</p>
+            )}
+
+            <CTAButton
+              type="submit"
+              size="lg"
+              className="w-full justify-center"
+              disabled={loading}
             >
-              立即登录
-            </Button>
-          </Form.Item>
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  登录中...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <LogIn size={18} />
+                  立即登录
+                </span>
+              )}
+            </CTAButton>
+          </form>
 
-          {submitError ? (
-            <Form.Item style={{ marginTop: '-8px', marginBottom: '8px' }}>
-              <Text style={{ color: '#ff4d4f' }}>{submitError}</Text>
-            </Form.Item>
-          ) : null}
-        </Form>
-
-        {/* 测试账号信息 */}
-        <div style={{ 
-          marginTop: '32px', 
-          padding: '20px',
-          background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-          borderRadius: '12px',
-          border: '1px solid #e9ecef'
-        }}>
-          <Text style={{ 
-            display: 'block',
-            textAlign: 'center',
-            fontWeight: 600,
-            color: '#495057',
-            marginBottom: '12px',
-            fontSize: '14px'
-          }}>
-            🔑 测试账号
-          </Text>
-          <div style={{ textAlign: 'center', lineHeight: '1.8' }}>
-            <Text style={{ color: '#6c757d', fontSize: '13px', display: 'block' }}>
-              👤 用户名：<span style={{ fontWeight: 600, color: '#495057' }}>张三</span> | 密码：<span style={{ fontWeight: 600, color: '#495057' }}>123456</span>
-            </Text>
-            <Text style={{ color: '#6c757d', fontSize: '13px', display: 'block' }}>
-              👤 用户名：<span style={{ fontWeight: 600, color: '#495057' }}>李四</span> | 密码：<span style={{ fontWeight: 600, color: '#495057' }}>123456</span>
-            </Text>
+          <div className="mt-8 p-4 bg-neutral-50 border border-neutral-100 text-center">
+            <p className="font-sans text-xs uppercase tracking-widest text-muted mb-2">
+              测试账号
+            </p>
+            <p className="font-sans text-xs text-muted">
+              用户名：张三 | 密码：123456
+            </p>
+            <p className="font-sans text-xs text-muted">
+              用户名：李四 | 密码：123456
+            </p>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
 
-export default LoginPage; 
+export default LoginPage;

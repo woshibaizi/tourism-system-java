@@ -1,595 +1,179 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Input, 
-  Select, 
-  Space, 
-  message, 
-  Modal, 
-  Form, 
-  Tag, 
-  Popconfirm,
-  Row,
-  Col,
-  Typography,
-  Tooltip,
-  Avatar
-} from 'antd';
-import { 
-  EditOutlined, 
-  DeleteOutlined, 
-  SearchOutlined, 
-  PlusOutlined,
-  EyeOutlined,
-  BookOutlined,
-  SettingOutlined,
-  UserOutlined,
-  EnvironmentOutlined
-} from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { Pencil, Trash2, Eye, Search, X } from 'lucide-react';
 import { getDiaries, getPlaces, getUsers, updateDiary, deleteDiary } from '../services/api';
+import { useToast } from '../components/ui/Toast';
+import CTAButton from '../components/ui/CTAButton';
+import SectionLabel from '../components/ui/SectionLabel';
 
-const { Title, Text } = Typography;
-const { TextArea } = Input;
-const { Option } = Select;
-
-const DiaryManagementPage = () => {
+function DiaryManagementPage() {
+  const { showToast } = useToast();
   const [diaries, setDiaries] = useState([]);
-  const [filteredDiaries, setFilteredDiaries] = useState([]);
   const [places, setPlaces] = useState([]);
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedPlace, setSelectedPlace] = useState('');
   const [selectedAuthor, setSelectedAuthor] = useState('');
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editingDiary, setEditingDiary] = useState(null);
-  const [form] = Form.useForm();
-  
-  const navigate = useNavigate();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ title: '', content: '', destination: '', placeId: '' });
 
-  // 初始化数据
   useEffect(() => {
-    loadData();
+    const load = async () => {
+      try {
+        const [d, p, u] = await Promise.all([getDiaries({ pageSize: 1000 }), getPlaces(), getUsers()]);
+        setDiaries(d.data || []);
+        setPlaces(p.data || []);
+        setUsers(u.data || []);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
+    };
+    load();
   }, []);
 
-  // 搜索和筛选
-  useEffect(() => {
-    filterDiaries();
-  }, [diaries, searchText, selectedPlace, selectedAuthor]);
+  const filtered = diaries.filter((d) => {
+    if (searchText && !(d.title || '').includes(searchText) && !(d.content || '').includes(searchText)) return false;
+    if (selectedPlace && d.placeId !== selectedPlace) return false;
+    if (selectedAuthor && d.authorId !== selectedAuthor) return false;
+    return true;
+  });
 
-  const loadData = async () => {
-    setLoading(true);
+  const handleEdit = (d) => {
+    setEditing(d);
+    setForm({ title: d.title || '', content: d.content || '', destination: d.destination || '', placeId: d.placeId || '' });
+    setEditOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!editing) return;
     try {
-      const [diariesRes, placesRes, usersRes] = await Promise.allSettled([
-        getDiaries({ pageSize: 1000 }),
-        getPlaces(),
-        getUsers()
-      ]);
-
-      if (diariesRes.status === 'fulfilled' && diariesRes.value.success) {
-        setDiaries(diariesRes.value.data || []);
-      }
-      if (placesRes.status === 'fulfilled' && placesRes.value.success) {
-        setPlaces(placesRes.value.data || []);
-      }
-      if (usersRes.status === 'fulfilled' && usersRes.value.success) {
-        setUsers(usersRes.value.data || []);
-      }
-    } catch (error) {
-      message.error('加载数据失败');
-      console.error('加载数据失败:', error);
-    } finally {
-      setLoading(false);
-    }
+      await updateDiary(editing.id, form);
+      showToast('success', '已保存');
+      setDiaries((p) => p.map((d) => d.id === editing.id ? { ...d, ...form } : d));
+      setEditOpen(false);
+    } catch { showToast('error', '保存失败'); }
   };
 
-  const filterDiaries = () => {
-    let filtered = [...diaries];
-
-    // 文本搜索
-    if (searchText) {
-      const searchLower = searchText.toLowerCase();
-      filtered = filtered.filter(diary => 
-        diary.title?.toLowerCase().includes(searchLower) ||
-        diary.content?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // 场所筛选
-    if (selectedPlace) {
-      filtered = filtered.filter(diary => diary.placeId === selectedPlace);
-    }
-
-    // 作者筛选
-    if (selectedAuthor) {
-      filtered = filtered.filter(diary => diary.authorId === selectedAuthor);
-    }
-
-    setFilteredDiaries(filtered);
-  };
-
-  const handleEdit = (diary) => {
-    setEditingDiary(diary);
-    form.setFieldsValue({
-      title: diary.title,
-      content: diary.content,
-      placeId: diary.placeId,
-      tags: diary.tags || []
-    });
-    setEditModalVisible(true);
-  };
-
-  const handleSaveEdit = async () => {
+  const handleDelete = async (id) => {
     try {
-      const values = await form.validateFields();
-      
-      // 调用更新API
-      const response = await updateDiary(editingDiary.id, values);
-      
-      if (response.success) {
-        // 重新加载数据
-        await loadData();
-
-        message.success('日记更新成功');
-        setEditModalVisible(false);
-        setEditingDiary(null);
-        form.resetFields();
-      } else {
-        message.error(response.message || '更新失败');
-      }
-    } catch (error) {
-      message.error('更新失败');
-      console.error('更新失败:', error);
-    }
+      await deleteDiary(id);
+      showToast('success', '已删除');
+      setDiaries((p) => p.filter((d) => d.id !== id));
+    } catch { showToast('error', '删除失败'); }
   };
 
-  const handleDelete = async (diaryId) => {
-    try {
-      // 调用删除API
-      const response = await deleteDiary(diaryId);
-      
-      if (response.success) {
-        // 更新本地状态
-        const updatedDiaries = diaries.filter(diary => diary.id !== diaryId);
-        setDiaries(updatedDiaries);
-        message.success('日记删除成功');
-      } else {
-        message.error(response.message || '删除失败');
-      }
-    } catch (error) {
-      message.error('删除失败');
-      console.error('删除失败:', error);
-    }
-  };
+  const getUserName = (id) => users.find((u) => u.id === id)?.username || '匿名';
+  const getPlaceName = (id) => places.find((p) => p.id === id)?.name || '';
 
-  const handleView = (diaryId) => {
-    navigate(`/diaries/${diaryId}`);
-  };
-
-  const getPlaceName = (placeId) => {
-    const place = places.find(p => p.id === placeId);
-    return place ? place.name : '未知场所';
-  };
-
-  const getAuthorName = (authorId) => {
-    const user = users.find(u => u.id === authorId);
-    return user ? user.username || user.name : '未知用户';
-  };
-
-  const columns = [
-    {
-      title: '标题',
-      dataIndex: 'title',
-      key: 'title',
-      width: 200,
-      render: (text, record) => (
-        <div>
-          <Text strong style={{ display: 'block' }}>{text}</Text>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            ID: {record.id}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: '作者',
-      dataIndex: 'authorId',
-      key: 'authorId',
-      width: 120,
-      render: (authorId) => (
-        <Space>
-          <Avatar size="small" icon={<BookOutlined />} />
-          {getAuthorName(authorId)}
-        </Space>
-      ),
-    },
-    {
-      title: '场所',
-      dataIndex: 'placeId',
-      key: 'placeId',
-      width: 150,
-      render: (placeId) => (
-        <Tag color="blue">{getPlaceName(placeId)}</Tag>
-      ),
-    },
-    {
-      title: '内容预览',
-      dataIndex: 'content',
-      key: 'content',
-      width: 250,
-      render: (content) => (
-        <Tooltip title={content}>
-          <Text ellipsis style={{ maxWidth: 200 }}>
-            {content?.substring(0, 50)}...
-          </Text>
-        </Tooltip>
-      ),
-    },
-    {
-      title: '统计',
-      key: 'stats',
-      width: 120,
-      render: (_, record) => (
-        <div>
-          <Text style={{ fontSize: '12px', display: 'block' }}>
-            点击: {record.clickCount || 0}
-          </Text>
-          <Text style={{ fontSize: '12px', display: 'block' }}>
-            评分: {record.rating || 0}/5
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 120,
-      render: (date) => (
-        <Text style={{ fontSize: '12px' }}>
-          {new Date(date).toLocaleDateString()}
-        </Text>
-      ),
-    },
-    {
-      title: '操作',
-      key: 'actions',
-      width: 150,
-      fixed: 'right',
-      render: (_, record) => (
-        <Space>
-          <Tooltip title="查看详情">
-            <Button 
-              type="text" 
-              icon={<EyeOutlined />} 
-              onClick={() => handleView(record.id)}
-            />
-          </Tooltip>
-          <Tooltip title="编辑">
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
-              onClick={() => handleEdit(record)}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="确定要删除这篇日记吗？"
-            description="删除后无法恢复"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Tooltip title="删除">
-              <Button 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />}
-              />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" /></div>;
+  }
 
   return (
-    <div style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
-      {/* 页面标题 */}
-      <div className="page-header" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '32px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
-        marginBottom: '32px',
-        textAlign: 'center',
-        color: 'white',
-      }}>
-        <Title level={2} style={{ margin: 0, color: 'white', fontSize: '28px', fontWeight: 'bold' }}>
-          <SettingOutlined style={{ marginRight: 12, fontSize: '32px' }} />
-          旅游日记管理
-        </Title>
-        <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
-          管理和编辑所有旅游日记，查看统计数据和用户反馈
-        </Text>
+    <div className="max-w-screen-xl mx-auto px-6 py-12">
+      <SectionLabel>Admin</SectionLabel>
+      <h1 className="font-serif text-3xl text-heading mb-8">日记管理</h1>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        {[
+          { label: '总日记', value: diaries.length },
+          { label: '筛选结果', value: filtered.length },
+          { label: '总浏览', value: diaries.reduce((s, d) => s + (d.clickCount || 0), 0) },
+          { label: '平均评分', value: diaries.length ? (diaries.reduce((s, d) => s + (d.rating || 0), 0) / diaries.length).toFixed(1) : 0 },
+        ].map((s, i) => (
+          <div key={i} className="border border-neutral-100 p-6 text-center">
+            <p className="font-serif text-3xl text-heading">{s.value}</p>
+            <p className="font-sans text-xs uppercase tracking-widest text-muted mt-1">{s.label}</p>
+          </div>
+        ))}
       </div>
-        
-      {/* 搜索和筛选 */}
-      <Card style={{
-        background: 'white',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        marginBottom: '32px',
-        border: 'none',
-      }}>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={8} md={6}>
-            <Input
-              placeholder="搜索标题或内容"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              allowClear
-              size="large"
-              style={{ borderRadius: '12px' }}
-            />
-          </Col>
-          <Col xs={24} sm={8} md={6}>
-            <Select
-              placeholder="选择场所"
-              style={{ width: '100%', borderRadius: '12px' }}
-              value={selectedPlace}
-              onChange={setSelectedPlace}
-              allowClear
-              size="large"
-            >
-              {places.map(place => (
-                <Option key={place.id} value={place.id}>
-                  <Space>
-                    <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                    {place.name}
-                  </Space>
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={8} md={6}>
-            <Select
-              placeholder="选择作者"
-              style={{ width: '100%', borderRadius: '12px' }}
-              value={selectedAuthor}
-              onChange={setSelectedAuthor}
-              allowClear
-              size="large"
-            >
-              {users.map(user => (
-                <Option key={user.id} value={user.id}>
-                  <Space>
-                    <UserOutlined style={{ color: '#52c41a' }} />
-                    {user.username || user.name}
-                  </Space>
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={8} md={6}>
-            <Space>
-              <Button 
-                onClick={loadData} 
-                loading={loading}
-                size="large"
-                style={{ borderRadius: '12px' }}
-              >
-                🔄 刷新
-              </Button>
-              <Button 
-                type="primary" 
-                icon={<PlusOutlined />}
-                onClick={() => navigate('/diaries?create=true')}
-                size="large"
-                style={{
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: 'none',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                }}
-              >
-                ✍️ 新建日记
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
 
-      {/* 统计信息 */}
-      <Row gutter={[20, 20]} style={{ marginBottom: 32 }}>
-        <Col xs={12} sm={6}>
-          <Card style={{
-            borderRadius: '16px',
-            border: 'none',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-            overflow: 'hidden',
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <Text style={{ color: '#2c3e50', fontWeight: 600, fontSize: 14 }}>总日记数</Text>
-              <Title level={3} style={{ margin: '8px 0 0 0', color: '#27ae60', fontWeight: 'bold' }}>
-                📚 {diaries.length}
-              </Title>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={12} sm={6}>
-          <Card style={{
-            borderRadius: '16px',
-            border: 'none',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-            overflow: 'hidden',
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <Text style={{ color: '#2c3e50', fontWeight: 600, fontSize: 14 }}>筛选结果</Text>
-              <Title level={3} style={{ margin: '8px 0 0 0', color: '#e74c3c', fontWeight: 'bold' }}>
-                🔍 {filteredDiaries.length}
-              </Title>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={12} sm={6}>
-          <Card style={{
-            borderRadius: '16px',
-            border: 'none',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            background: 'linear-gradient(135deg, #a8caba 0%, #5d4e75 100%)',
-            overflow: 'hidden',
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <Text style={{ color: 'white', fontWeight: 600, fontSize: 14 }}>总点击量</Text>
-              <Title level={3} style={{ margin: '8px 0 0 0', color: '#f39c12', fontWeight: 'bold' }}>
-                👁️ {diaries.reduce((sum, diary) => sum + (diary.clickCount || 0), 0)}
-              </Title>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={12} sm={6}>
-          <Card style={{
-            borderRadius: '16px',
-            border: 'none',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            background: 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
-            overflow: 'hidden',
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <Text style={{ color: '#2c3e50', fontWeight: 600, fontSize: 14 }}>平均评分</Text>
-              <Title level={3} style={{ margin: '8px 0 0 0', color: '#9b59b6', fontWeight: 'bold' }}>
-                ⭐ {diaries.length > 0 ? 
-                  (diaries.reduce((sum, diary) => sum + (diary.rating || 0), 0) / diaries.length).toFixed(1) 
-                  : '0.0'}
-              </Title>
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* 日记列表 */}
-      <Card style={{
-        borderRadius: '16px',
-        border: 'none',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        background: 'white',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
-          margin: '-24px -24px 24px -24px',
-          padding: '20px 24px',
-          color: 'white',
-        }}>
-          <Title level={4} style={{ margin: 0, color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
-            📋 日记列表管理
-          </Title>
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-3 mb-6 pb-6 border-b border-neutral-100">
+        <div className="flex-1 relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            placeholder="搜索标题或内容..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 border border-neutral-200 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none"
+          />
         </div>
-        <Table
-          columns={columns}
-          dataSource={filteredDiaries}
-          rowKey="id"
-          loading={loading}
-          scroll={{ x: 1200 }}
-          style={{ 
-            borderRadius: '12px',
-            overflow: 'hidden',
-          }}
-          pagination={{
-            total: filteredDiaries.length,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => (
-              <span style={{ color: '#666', fontSize: 14 }}>
-                第 {range[0]}-{range[1]} 条，共 {total} 条记录
-              </span>
-            ),
-            style: { marginTop: '24px' }
-          }}
-        />
-      </Card>
+        <select value={selectedPlace} onChange={(e) => setSelectedPlace(e.target.value)} className="border border-neutral-200 px-3 py-2 text-xs font-sans bg-white">
+          <option value="">全部景区</option>
+          {places.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+        <select value={selectedAuthor} onChange={(e) => setSelectedAuthor(e.target.value)} className="border border-neutral-200 px-3 py-2 text-xs font-sans bg-white">
+          <option value="">全部作者</option>
+          {users.map((u) => <option key={u.id} value={u.id}>{u.username || u.name}</option>)}
+        </select>
+      </div>
 
-      {/* 编辑模态框 */}
-      <Modal
-        title="编辑日记"
-        open={editModalVisible}
-        onOk={handleSaveEdit}
-        onCancel={() => {
-          setEditModalVisible(false);
-          setEditingDiary(null);
-          form.resetFields();
-        }}
-        width={800}
-        okText="保存"
-        cancelText="取消"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-        >
-          <Form.Item
-            name="title"
-            label="标题"
-            rules={[{ required: true, message: '请输入标题' }]}
-          >
-            <Input placeholder="请输入日记标题" />
-          </Form.Item>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-neutral-200 text-left">
+              <th className="py-3 font-sans text-xs uppercase tracking-widest text-muted">标题</th>
+              <th className="py-3 font-sans text-xs uppercase tracking-widest text-muted">作者</th>
+              <th className="py-3 font-sans text-xs uppercase tracking-widest text-muted">目的地</th>
+              <th className="py-3 font-sans text-xs uppercase tracking-widest text-muted">评分</th>
+              <th className="py-3 font-sans text-xs uppercase tracking-widest text-muted">浏览</th>
+              <th className="py-3 font-sans text-xs uppercase tracking-widest text-muted w-24">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((d) => (
+              <tr key={d.id} className="border-b border-neutral-50 hover:bg-neutral-50">
+                <td className="py-3 font-sans text-sm text-body max-w-xs truncate">{d.title}</td>
+                <td className="py-3 font-sans text-xs text-muted">{getUserName(d.authorId)}</td>
+                <td className="py-3 font-sans text-xs text-muted">{d.destination || getPlaceName(d.placeId)}</td>
+                <td className="py-3 font-sans text-xs">{d.rating || '-'}</td>
+                <td className="py-3 font-sans text-xs text-muted">{d.clickCount || 0}</td>
+                <td className="py-3">
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEdit(d)} className="text-muted hover:text-heading"><Pencil size={14} /></button>
+                    <button onClick={() => handleDelete(d.id)} className="text-red-400 hover:text-red-600"><Trash2 size={14} /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-          <Form.Item
-            name="placeId"
-            label="场所"
-            rules={[{ required: true, message: '请选择场所' }]}
-          >
-            <Select placeholder="请选择场所">
-              {places.map(place => (
-                <Option key={place.id} value={place.id}>
-                  {place.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="content"
-            label="内容"
-            rules={[{ required: true, message: '请输入内容' }]}
-          >
-            <TextArea 
-              rows={8} 
-              placeholder="请输入日记内容"
-              showCount
-              maxLength={2000}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="tags"
-            label="标签"
-          >
-            <Select
-              mode="tags"
-              placeholder="添加标签（可自定义）"
-              style={{ width: '100%' }}
-            >
-              <Option value="美食">美食</Option>
-              <Option value="风景">风景</Option>
-              <Option value="文化">文化</Option>
-              <Option value="历史">历史</Option>
-              <Option value="购物">购物</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+      {/* Edit Modal */}
+      {editOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/40 flex items-center justify-center" onClick={() => setEditOpen(false)}>
+          <div className="bg-white w-full max-w-lg mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between mb-6">
+              <h2 className="font-serif text-xl">编辑日记</h2>
+              <button onClick={() => setEditOpen(false)}><X size={20} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-1">标题</label>
+                <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full border border-neutral-200 px-3 py-2 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none" />
+              </div>
+              <div>
+                <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-1">内容</label>
+                <textarea rows={5} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })}
+                  className="w-full border border-neutral-200 px-3 py-2 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none resize-none" />
+              </div>
+              <div>
+                <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-1">目的地</label>
+                <input value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })}
+                  className="w-full border border-neutral-200 px-3 py-2 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none" />
+              </div>
+              <CTAButton className="w-full justify-center" onClick={handleSave}>保存修改</CTAButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
 
-export default DiaryManagementPage; 
+export default DiaryManagementPage;

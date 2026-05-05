@@ -1,16 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Avatar, Button, Input, Spin, Typography } from 'antd';
-import {
-  ArrowUpOutlined,
-  HistoryOutlined,
-  MessageOutlined,
-  PlusOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { chatWithAgent, getAgentHealth, getAgentSessions } from '../services/api';
-
-const { Text, Paragraph } = Typography;
-const { TextArea } = Input;
+import { AlertCircle, History, MessageCircle, Plus, User, Trash2 } from 'lucide-react';
+import { chatWithAgent, getAgentHealth, getAgentSession, getAgentSessions } from '../services/api';
+import api from '../services/api';
+import ChatBubble from '../components/Chat/ChatBubble';
+import ChatInput from '../components/Chat/ChatInput';
+import TypingIndicator from '../components/Chat/TypingIndicator';
 
 const formatTime = (v) => {
   if (!v) return '';
@@ -32,6 +26,7 @@ function PersonalTravelAssistantPage() {
   const [agentError, setAgentError] = useState('');
   const [sessionId, setSessionId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionLoading, setSessionLoading] = useState(false);
   const msgEndRef = useRef(null);
 
   const currentUser = useMemo(() => {
@@ -59,13 +54,11 @@ function PersonalTravelAssistantPage() {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, sending]);
 
-  const handleSend = async () => {
-    const text = inputValue.trim();
+  const handleSend = async (text) => {
     if (!text || sending) return;
 
     const userMsg = { role: 'user', content: text, createdAt: new Date().toISOString() };
     setMessages((p) => [...p, userMsg]);
-    setInputValue('');
     setSending(true);
     setAgentError('');
 
@@ -94,162 +87,141 @@ function PersonalTravelAssistantPage() {
     setSessions((p) => [s, ...p.filter((i) => i.sessionId !== s.sessionId)]);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
   const handleNewChat = () => {
     setSessionId(null);
     setMessages([]);
-    setInputValue('');
     setAgentError('');
   };
 
-  const handleSelectSession = (id) => {
+  const handleSelectSession = async (id) => {
+    if (id === sessionId) return;
     setSessionId(id);
-    const found = sessions.find((s) => s.sessionId === id);
-    if (found?.messages) {
-      setMessages(found.messages);
-    } else {
+    setSessionLoading(true);
+    try {
+      const res = await getAgentSession(id);
+      if (res.success && res.data) {
+        setMessages(res.data.messages || []);
+      } else {
+        setMessages([]);
+      }
+    } catch {
       setMessages([]);
+    } finally {
+      setSessionLoading(false);
     }
   };
 
+  const handleDeleteSession = async (e, id) => {
+    e.stopPropagation();
+    try {
+      await api.delete(`/agent/sessions/${id}`, { params: { user_id: currentUser?.id || 'anonymous' } });
+      setSessions((p) => p.filter((s) => s.sessionId !== id));
+      if (sessionId === id) {
+        setSessionId(null);
+        setMessages([]);
+      }
+    } catch { /* ignore */ }
+  };
+
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><Spin /></div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" />
+      </div>
+    );
   }
 
   const userName = currentUser?.username || currentUser?.name || '游客';
 
   return (
-    <div className="assistant-layout">
-      {/* ====== SIDEBAR ====== */}
-      <aside className="assistant-sidebar">
-        {/* user info */}
-        <div className="assistant-sidebar-user">
-          <Avatar size={40} icon={<UserOutlined />} style={{ backgroundColor: '#1890ff', flexShrink: 0 }} />
-          <div className="assistant-sidebar-user-text">
-            <Text strong style={{ fontSize: 14 }}>{userName}</Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>旅游助手</Text>
+    <div className="flex h-[calc(100vh-0px)] md:min-h-0">
+      {/* Sidebar */}
+      <aside className="hidden md:flex flex-col w-72 border-r border-neutral-100 bg-white flex-shrink-0">
+        <div className="p-4 border-b border-neutral-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+              <User size={20} className="text-neutral-400" />
+            </div>
+            <div>
+              <p className="font-sans text-sm text-heading font-medium">{userName}</p>
+              <p className="font-sans text-xs text-muted">旅游助手</p>
+            </div>
           </div>
+          <button
+            onClick={handleNewChat}
+            className="w-full py-2.5 bg-black text-white text-xs uppercase tracking-widest font-sans hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
+          >
+            <Plus size={14} /> 新对话
+          </button>
         </div>
 
-        {/* new chat */}
-        <Button
-          type="primary"
-          block
-          icon={<PlusOutlined />}
-          onClick={handleNewChat}
-          style={{ marginBottom: 16, borderRadius: 8 }}
-        >
-          新对话
-        </Button>
-
-        {/* agent status */}
-        <div className="assistant-agent-status">
-          <span className={`assistant-dot ${agentOnline ? 'online' : ''}`} />
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {agentOnline ? '助手在线' : '未连接'}
-          </Text>
+        <div className="px-4 py-3 border-b border-neutral-100 flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${agentOnline ? 'bg-green-500' : 'bg-neutral-300'}`} />
+          <span className="font-sans text-xs text-muted">{agentOnline ? '助手在线' : '未连接'}</span>
         </div>
 
-        {/* divider */}
-        <div className="assistant-sidebar-divider" />
-
-        {/* history sessions */}
-        <div className="assistant-session-list">
-          <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, padding: '0 0 8px', display: 'block' }}>
-            历史对话
-          </Text>
+        <div className="flex-1 overflow-y-auto p-2">
+          <p className="font-sans text-[10px] uppercase tracking-widest text-muted px-2 py-2">历史对话</p>
           {sessions.length === 0 ? (
-            <Text type="secondary" style={{ fontSize: 12 }}>暂无历史对话</Text>
+            <p className="font-sans text-xs text-muted px-2">暂无历史对话</p>
           ) : (
             sessions.slice(0, 20).map((s) => (
               <div
                 key={s.sessionId}
-                className={`assistant-session-item ${s.sessionId === sessionId ? 'active' : ''}`}
                 onClick={() => handleSelectSession(s.sessionId)}
+                className={`group flex items-center gap-3 px-3 py-2.5 cursor-pointer text-sm transition-colors ${
+                  s.sessionId === sessionId
+                    ? 'bg-neutral-100 text-heading'
+                    : 'text-muted hover:bg-neutral-50 hover:text-heading'
+                }`}
               >
-                <HistoryOutlined style={{ fontSize: 13, color: '#999', flexShrink: 0 }} />
-                <div className="assistant-session-item-text">
-                  <span className="assistant-session-title">{(s.title || s.preview || '新对话').slice(0, 18)}</span>
-                  <span className="assistant-session-time">{s.updatedAt ? formatTime(s.updatedAt) : ''}</span>
+                <History size={13} className="flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-xs truncate">{(s.title || s.preview || '新对话').slice(0, 18)}</p>
+                  <p className="font-sans text-[10px] text-muted">{s.updatedAt ? formatTime(s.updatedAt) : ''}</p>
                 </div>
+                <button
+                  onClick={(e) => handleDeleteSession(e, s.sessionId)}
+                  className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-all"
+                >
+                  <Trash2 size={12} />
+                </button>
               </div>
             ))
           )}
         </div>
       </aside>
 
-      {/* ====== DIVIDER ====== */}
-      <div className="assistant-divider" />
-
-      {/* ====== CHAT AREA ====== */}
-      <main className="assistant-chat">
-        {/* messages */}
-        <div className="assistant-messages">
-          {messages.length === 0 ? (
-            <div className="assistant-empty">
-              <MessageOutlined style={{ fontSize: 40, color: '#d9d9d9', marginBottom: 16 }} />
-              <Paragraph type="secondary">输入旅行问题，例如：推荐杭州一日游路线</Paragraph>
+      {/* Chat Area */}
+      <main className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 overflow-y-auto px-4 py-6">
+          {sessionLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="w-6 h-6 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" />
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <MessageCircle size={40} className="text-neutral-200 mb-4" />
+              <p className="font-sans text-sm text-muted">输入旅行问题，例如：推荐杭州一日游路线</p>
             </div>
           ) : (
             messages.map((m, i) => (
-              <div key={`${m.role}-${i}`} className={`assistant-bubble-row ${m.role === 'user' ? 'is-user' : 'is-assistant'}`}>
-                {m.role === 'assistant' && <span className="assistant-role-tag">AI</span>}
-                <div className={`assistant-bubble ${m.role}`}>
-                  <div className="assistant-bubble-content">{m.content}</div>
-                  <div className="assistant-bubble-time">{formatTime(m.createdAt)}</div>
-                </div>
-                {m.role === 'user' && <span className="assistant-role-tag user">Me</span>}
-              </div>
+              <ChatBubble key={`${m.role}-${i}`} message={m} />
             ))
           )}
-          {/* AI thinking spinner */}
-          {sending && (
-            <div className="assistant-bubble-row is-assistant">
-              <span className="assistant-role-tag">AI</span>
-              <div className="assistant-bubble assistant">
-                <div className="assistant-thinking">
-                  <span className="thinking-dot" />
-                  <span className="thinking-dot" />
-                  <span className="thinking-dot" />
-                </div>
-              </div>
-            </div>
-          )}
+          {sending && <TypingIndicator />}
           <div ref={msgEndRef} />
         </div>
 
-        {/* error */}
         {agentError && (
-          <Alert type="warning" message={agentError} showIcon closable onClose={() => setAgentError('')} style={{ margin: '0 16px 8px', flexShrink: 0 }} />
+          <div className="mx-4 mb-2 flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+            <AlertCircle size={14} />
+            <span className="flex-1">{agentError}</span>
+            <button onClick={() => setAgentError('')} className="text-amber-600 hover:text-amber-800">&times;</button>
+          </div>
         )}
 
-        {/* input */}
-        <div className="assistant-composer">
-          <TextArea
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="输入消息，Enter 发送…"
-            autoSize={{ minRows: 2, maxRows: 5 }}
-            disabled={sending}
-            style={{ borderRadius: 12, resize: 'none' }}
-          />
-          <Button
-            type="primary"
-            shape="circle"
-            icon={<ArrowUpOutlined />}
-            loading={sending}
-            onClick={handleSend}
-            style={{ flexShrink: 0, marginLeft: 10 }}
-            size="large"
-          />
-        </div>
+        <ChatInput onSend={handleSend} disabled={sending} />
       </main>
     </div>
   );

@@ -1,432 +1,142 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Input, 
-  Select, 
-  Button, 
-  List, 
-  Typography, 
-  Space, 
-  Tag, 
-  Row, 
-  Col,
-  Spin,
-  message,
-  Empty
-} from 'antd';
-import { SearchOutlined, FireOutlined, EnvironmentOutlined, ShopOutlined, StarOutlined } from '@ant-design/icons';
+import { Search, MapPin, Star, Flame, Coffee } from 'lucide-react';
 import { foodAPI, getPlaces } from '../services/api';
+import { getFileUrl } from '../services/api';
+import SectionLabel from '../components/ui/SectionLabel';
+import StarRating from '../components/ui/StarRating';
+import EmptyState from '../components/ui/EmptyState';
 
-const { Title, Text } = Typography;
-const { Option } = Select;
+const SORT_OPTIONS = [
+  { value: 'popularity', label: '按热度' },
+  { value: 'rating', label: '按评分' },
+  { value: 'distance', label: '按距离' },
+];
 
-const FoodSearchPage = () => {
+function FoodSearchPage() {
   const [foods, setFoods] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedPlace, setSelectedPlace] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [cuisines, setCuisines] = useState([]);
   const [places, setPlaces] = useState([]);
-  const [total, setTotal] = useState(0);
   const [sortBy, setSortBy] = useState('popularity');
-  const [submittedSearchText, setSubmittedSearchText] = useState('');
-  const [searchVersion, setSearchVersion] = useState(0);
+  const [page, setPage] = useState(1);
+  const pageSize = 9;
 
-  // 加载场所列表
   useEffect(() => {
-    const fetchPlaces = async () => {
+    const load = async () => {
       try {
-        const response = await getPlaces();
-        if (response.success && Array.isArray(response.data)) {
-          setPlaces(response.data);
-          if (response.data.length > 0) {
-            setSelectedPlace(response.data[0].id);
-          }
-        }
-      } catch {
-        message.error('获取场所列表失败');
-      }
+        const [p, f] = await Promise.all([getPlaces(), foodAPI.searchFoods(undefined, { limit: 500, sortBy: 'popularity' })]);
+        setPlaces(p.data || []);
+        setFoods(f.data || []);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
     };
-
-    fetchPlaces();
+    load();
   }, []);
 
   useEffect(() => {
-    if (!selectedPlace) return;
-
-    const fetchCuisines = async () => {
+    if (!selectedPlace) { setCuisines([]); return; }
+    const load = async () => {
       try {
-        const response = await foodAPI.getCuisines(selectedPlace);
-        if (response.success) {
-          setCuisines(response.data);
-        }
-      } catch {
-        message.error('获取菜系列表失败');
-      }
+        const c = await foodAPI.getCuisines(selectedPlace);
+        setCuisines(c.data || []);
+        setSelectedCuisine('');
+      } catch { setCuisines([]); }
     };
-
-    fetchCuisines();
+    load();
   }, [selectedPlace]);
 
-  // 初始加载及筛选变化后刷新美食数据
-  useEffect(() => {
-    if (!selectedPlace) return;
+  const filtered = foods.filter((f) => {
+    if (selectedPlace && f.placeId !== selectedPlace) return false;
+    if (selectedCuisine && f.cuisine !== selectedCuisine) return false;
+    if (searchText.trim()) {
+      const kw = searchText.toLowerCase();
+      if (!(f.name || f.foodName || '').toLowerCase().includes(kw) &&
+          !(f.description || '').toLowerCase().includes(kw)) return false;
+    }
+    return true;
+  });
 
-    const fetchFoods = async () => {
-      setLoading(true);
-      try {
-        const params = {
-          sortBy,
-          limit: 12,
-        };
+  if (sortBy === 'rating') filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  else if (sortBy === 'popularity') filtered.sort((a, b) => (b.popularity || b.clickCount || 0) - (a.popularity || a.clickCount || 0));
 
-        if (selectedCuisine) {
-          params.cuisine = selectedCuisine;
-        }
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.ceil(filtered.length / pageSize);
 
-        if (submittedSearchText) {
-          params.search = submittedSearchText;
-        }
-
-        const response = await foodAPI.searchFoods(selectedPlace, params);
-        
-        if (response.success) {
-          setFoods(response.data);
-          setTotal(response.total);
-        } else {
-          message.error('获取美食数据失败');
-        }
-      } catch {
-        message.error('网络请求失败');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFoods();
-  }, [selectedPlace, selectedCuisine, searchVersion, submittedSearchText, sortBy]);
-
-  const handleSearch = () => {
-    setSubmittedSearchText(searchText.trim());
-    setSearchVersion((version) => version + 1);
-  };
-
-  const handleCuisineChange = (value) => {
-    setSelectedCuisine(value);
-  };
-
-  const handleSortChange = (value) => {
-    setSortBy(value);
-  };
-
-  const handlePlaceChange = (value) => {
-    setSelectedPlace(value);
-    setSelectedCuisine('');
-  };
-
-  const getCuisineColor = (cuisine) => {
-    return cuisine === '中式' ? 'red' : 'blue';
-  };
-
-  const getPopularityLevel = (popularity) => {
-    if (popularity >= 3000) return { text: '超高人气', color: 'red' };
-    if (popularity >= 2500) return { text: '高人气', color: 'orange' };
-    if (popularity >= 2000) return { text: '中等人气', color: 'green' };
-    return { text: '一般人气', color: 'default' };
-  };
-
-  const sortLabels = {
-    popularity: '热度排序',
-    rating: '评分排序',
-    distance: '距离排序',
-  };
-
-  const formatDistance = (distance) => {
-    if (distance == null || Number.isNaN(Number(distance))) return '暂无距离';
-    const meters = Number(distance);
-    return meters >= 1000 ? `${(meters / 1000).toFixed(1)}公里` : `${Math.round(meters)}米`;
-  };
-
-  const getShopText = (food) =>
-    food.shopName || food.restaurantName || food.storeName || food.windowName || food.stallName || '暂无店铺/窗口信息';
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" /></div>;
+  }
 
   return (
-    <div className="content-wrapper" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
-      <div className="page-header" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '32px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
-        marginBottom: '32px',
-        textAlign: 'center',
-        color: 'white',
-      }}>
-        <Title level={2} style={{ margin: 0, color: 'white', fontSize: '28px', fontWeight: 'bold' }}>
-          <ShopOutlined style={{ marginRight: 12, fontSize: '32px' }} />
-          美食搜索
-        </Title>
-        <Text style={{ fontSize: 16, color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', display: 'block' }}>
-          支持美食名称、菜系、饭店名称和窗口名称模糊搜索，按热度、评分或距离排序
-        </Text>
+    <div className="max-w-screen-xl mx-auto px-6 py-12">
+      <SectionLabel>Cuisine</SectionLabel>
+      <h1 className="font-serif text-3xl text-heading mb-8">美食搜索</h1>
+
+      <div className="flex flex-col md:flex-row gap-4 mb-8 pb-6 border-b border-neutral-100">
+        <div className="flex-1 relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            placeholder="搜索美食..."
+            value={searchText}
+            onChange={(e) => { setSearchText(e.target.value); setPage(1); }}
+            className="w-full pl-9 pr-4 py-2 border border-neutral-200 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none"
+          />
+        </div>
+        <select value={selectedPlace} onChange={(e) => setSelectedPlace(e.target.value)}
+          className="border border-neutral-200 px-3 py-2 text-sm font-sans bg-white">
+          <option value="">全部景区</option>
+          {places.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+        <select value={selectedCuisine} onChange={(e) => setSelectedCuisine(e.target.value)}
+          className="border border-neutral-200 px-3 py-2 text-sm font-sans bg-white" disabled={!selectedPlace}>
+          <option value="">全部菜系</option>
+          {cuisines.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+          className="border border-neutral-200 px-3 py-2 text-xs font-sans uppercase tracking-widest bg-white">
+          {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
       </div>
-      
-      <Card style={{
-        background: 'white',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        marginBottom: '32px',
-        border: 'none',
-      }}>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={6}>
-            <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>选择场所：</Text>
-            <Select
-              style={{ width: '100%', marginTop: '8px', borderRadius: '12px' }}
-              value={selectedPlace}
-              onChange={handlePlaceChange}
-              placeholder="选择场所"
-              size="large"
-              showSearch
-              optionFilterProp="children"
-            >
-              {places.map(place => (
-                <Option key={place.id} value={place.id}>
-                  <Space>
-                    <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                    {place.name}
-                  </Space>
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          
-          <Col xs={24} sm={12} md={6}>
-            <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>菜系筛选：</Text>
-            <Select
-              style={{ width: '100%', marginTop: '8px', borderRadius: '12px' }}
-              value={selectedCuisine}
-              onChange={handleCuisineChange}
-              placeholder="选择菜系"
-              allowClear
-              size="large"
-            >
-              {cuisines.map(cuisine => (
-                <Option key={cuisine} value={cuisine}>
-                  <Space>
-                    <FireOutlined style={{ color: '#fa8c16' }} />
-                    {cuisine}
-                  </Space>
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          
-          <Col xs={24} sm={12} md={6}>
-            <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>排序方式：</Text>
-            <Select
-              style={{ width: '100%', marginTop: '8px', borderRadius: '12px' }}
-              value={sortBy}
-              onChange={handleSortChange}
-              size="large"
-            >
-              <Option value="popularity">按热度排序</Option>
-              <Option value="rating">按评分排序</Option>
-              <Option value="distance">按距离排序</Option>
-            </Select>
-          </Col>
 
-          <Col xs={24} sm={24} md={6}>
-            <Text strong style={{ color: '#2c3e50', fontSize: '16px' }}>美食搜索：</Text>
-            <Input.Search
-              style={{ marginTop: '8px', borderRadius: '12px' }}
-              placeholder="美食 / 菜系 / 饭店 / 窗口"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onSearch={handleSearch}
-              enterButton={
-                <Button 
-                  type="primary" 
-                  icon={<SearchOutlined />}
-                  style={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    border: 'none',
-                  }}
-                >
-                  搜索
-                </Button>
-              }
-              size="large"
-            />
-          </Col>
-        </Row>
-      </Card>
-
-      <div style={{
-        borderRadius: '16px',
-        border: 'none',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        background: 'white',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
-          padding: '20px 24px',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '80px',
-            height: '80px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '50%',
-            opacity: 0.6,
-          }} />
-          <div style={{
-            position: 'absolute',
-            bottom: '-15px',
-            left: '-15px',
-            width: '60px',
-            height: '60px',
-            background: 'rgba(255, 255, 255, 0.08)',
-            borderRadius: '50%',
-          }} />
-          
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <Space size="middle" align="center">
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '10px',
-                padding: '10px',
-                backdropFilter: 'blur(10px)',
-              }}>
-                <ShopOutlined style={{ color: '#faad14', fontSize: '20px' }} />
+      {paginated.length === 0 ? (
+        <EmptyState icon={Coffee} title="未找到美食" description="试试调整搜索条件" />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginated.map((f, i) => (
+              <div key={f.id || f.foodId || i} className="border border-neutral-100 p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-serif text-lg text-heading">{f.name || f.foodName}</h3>
+                    <p className="font-sans text-xs text-muted">{f.cuisine || '美食'}</p>
+                  </div>
+                  {f.rating && <StarRating value={f.rating} size={12} />}
+                </div>
+                {f.description && <p className="font-sans text-xs text-muted mb-3 line-clamp-2">{f.description}</p>}
+                <div className="flex flex-wrap gap-2 text-xs text-muted">
+                  {f.price && <span className="px-2 py-0.5 border border-neutral-200">{f.price}</span>}
+                  {f.popularity > 5 && <span className="flex items-center gap-1"><Flame size={10} /> 热门</span>}
+                  {f.distance != null && <span>{f.distance}m</span>}
+                </div>
               </div>
-              <div>
-                <Title level={4} style={{ 
-                  margin: 0, 
-                  color: 'white', 
-                  fontSize: '20px', 
-                  fontWeight: 'bold',
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                }}>
-                  🍽️ 搜索结果
-                </Title>
-                <Text style={{ 
-                  color: 'rgba(255, 255, 255, 0.9)', 
-                  fontSize: '13px',
-                  display: 'block',
-                  marginTop: '2px'
-                }}>
-                  共找到 {total} 道美食，当前按{sortLabels[sortBy]}展示前 {Math.min(foods.length, 12)} 名
-                </Text>
-              </div>
-            </Space>
+            ))}
           </div>
-        </div>
-
-        <div style={{ padding: '24px' }}>
-          <Spin spinning={loading}>
-            {foods.length === 0 ? (
-              <Empty 
-                description="暂无美食数据"
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
-            ) : (
-              <List
-                grid={{ 
-                  gutter: 16, 
-                  xs: 1, 
-                  sm: 2, 
-                  md: 2, 
-                  lg: 3, 
-                  xl: 3, 
-                  xxl: 4 
-                }}
-                dataSource={foods}
-                renderItem={(food, index) => {
-                  const popularityInfo = getPopularityLevel(food.popularity);
-                  return (
-                    <List.Item>
-                      <Card
-                        hoverable
-                        style={{ height: '100%' }}
-                        bodyStyle={{ padding: '16px' }}
-                      >
-                        <div style={{ marginBottom: '12px' }}>
-                          <Space>
-                            <Tag color="gold">#{index + 1}</Tag>
-                            <Tag color={getCuisineColor(food.cuisine)}>
-                              {food.cuisine}
-                            </Tag>
-                            <Tag color={popularityInfo.color}>
-                              {popularityInfo.text}
-                            </Tag>
-                          </Space>
-                        </div>
-                        
-                        <Title level={4} style={{ marginBottom: '8px' }}>
-                          {food.name}
-                        </Title>
-                        
-                        <Text type="secondary" style={{ display: 'block', marginBottom: '12px' }}>
-                          {food.description}
-                        </Text>
-                        
-                        <div style={{ marginBottom: '8px' }}>
-                          <Space>
-                            <FireOutlined style={{ color: '#ff4d4f' }} />
-                            <Text strong style={{ color: '#ff4d4f' }}>
-                              热度: {food.popularity}
-                            </Text>
-                          </Space>
-                        </div>
-
-                        <div style={{ marginBottom: '8px' }}>
-                          <Space>
-                            <StarOutlined style={{ color: '#faad14' }} />
-                            <Text strong style={{ color: '#faad14' }}>
-                              评分: {food.rating ?? '暂无评分'}
-                            </Text>
-                          </Space>
-                        </div>
-                        
-                        <div style={{ marginBottom: '8px' }}>
-                          <Space>
-                            <Text strong style={{ color: '#52c41a' }}>
-                              价格: {food.price}
-                            </Text>
-                          </Space>
-                        </div>
-                        
-                        <div>
-                          <Space>
-                            <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                            <Text type="secondary">{food.location}</Text>
-                          </Space>
-                        </div>
-
-                        <div style={{ marginTop: '8px' }}>
-                          <Space direction="vertical" size={2}>
-                            <Text type="secondary">店铺/窗口: {getShopText(food)}</Text>
-                            <Text type="secondary">距离: {formatDistance(food.distance)}</Text>
-                          </Space>
-                        </div>
-                      </Card>
-                    </List.Item>
-                  );
-                }}
-              />
-            )}
-          </Spin>
-        </div>
-      </div>
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button key={i} onClick={() => setPage(i + 1)}
+                  className={`w-10 h-10 text-sm border ${page === i + 1 ? 'bg-black text-white border-black' : 'border-neutral-200 hover:border-black text-muted'}`}>
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
-};
+}
 
-export default FoodSearchPage; 
+export default FoodSearchPage;

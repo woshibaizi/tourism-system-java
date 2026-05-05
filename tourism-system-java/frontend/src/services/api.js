@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { message } from 'antd';
+
+const toastEmitter = new EventTarget();
+export { toastEmitter };
 
 const DEFAULT_LIST_SIZE = 1000;
 
@@ -547,7 +549,7 @@ api.interceptors.response.use(
   (error) => {
     const errorMessage = error.response?.data?.message || '网络错误，请稍后重试';
     if (!error.config?.skipErrorMessage) {
-      message.error(errorMessage);
+      toastEmitter.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: errorMessage } }));
     }
     return Promise.reject(error);
   }
