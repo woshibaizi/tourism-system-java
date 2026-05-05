@@ -1,5 +1,8 @@
 .DS_Store
 
+tourism-system/
+*.iml
+
 # --- React Frontend (Vite) ---
 # Logs
 logs
