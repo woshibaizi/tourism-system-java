@@ -51,7 +51,7 @@ def _get_llm():
 def _llm_available() -> bool:
     """LLM 是否可用。"""
     client = _get_llm()
-    return client is not None and settings.llm_api_key
+    return client is not None and bool(settings.llm_api_key)
 
 
 # ======================== 意图识别 ========================
@@ -276,7 +276,7 @@ def process_chat(request: ChatRequest) -> ChatResponse:
             "session_id": session_detail.session_id,
             "intent": intent,
             "confidence": intent_result.get("confidence", 0),
-            "llm_mode": _llm_available(),
+            "llm_mode": bool(_llm_available()),
             "message": request.message,
             "reply": reply_content,
             "tools_used": tools_used,

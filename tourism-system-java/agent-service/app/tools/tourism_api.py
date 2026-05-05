@@ -18,25 +18,51 @@ class TourismApiClient:
     timeout_ms: int = settings.backend_timeout_ms
 
     def get_places(self, size: int = 6) -> list[dict[str, Any]]:
-        """
-        拉取少量场所数据作为闲聊兜底提示。
-
-        这里只读调用，不带鉴权；如果 Java 服务不可用，直接降级为空列表。
-        """
         query = urlencode({"page": 1, "size": size})
         try:
             payload = self._get_json(f"/api/places?{query}")
         except URLError:
             return []
-
         records = payload.get("data", {}).get("records")
         if isinstance(records, list):
             return records
         return []
 
+    def create_diary(
+        self,
+        title: str,
+        content: str,
+        user_id: str,
+        images: list[str] | None = None,
+        tags: list[str] | None = None,
+        place_id: str = "",
+    ) -> dict[str, Any]:
+        """调用 Java 后端创建旅行日记。"""
+        body = json.dumps({
+            "title": title,
+            "content": content,
+            "authorId": user_id,
+            "images": images or [],
+            "tags": tags or [],
+            "placeId": place_id,
+        }).encode("utf-8")
+        try:
+            return self._post_json("/api/diaries", body)
+        except URLError:
+            return {}
+
     def _get_json(self, path: str) -> dict[str, Any]:
-        """执行最轻量的 GET 请求并解析 JSON。"""
         request = Request(f"{self.base_url}{path}", headers={"Accept": "application/json"})
+        with urlopen(request, timeout=self.timeout_ms / 1000) as response:
+            return json.loads(response.read().decode("utf-8"))
+
+    def _post_json(self, path: str, body: bytes) -> dict[str, Any]:
+        request = Request(
+            f"{self.base_url}{path}",
+            data=body,
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            method="POST",
+        )
         with urlopen(request, timeout=self.timeout_ms / 1000) as response:
             return json.loads(response.read().decode("utf-8"))
 
