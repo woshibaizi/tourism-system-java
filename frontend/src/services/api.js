@@ -4,6 +4,7 @@ const toastEmitter = new EventTarget();
 export { toastEmitter };
 
 const DEFAULT_LIST_SIZE = 1000;
+const MEDIA_CACHE_VERSION = '20260509';
 
 const normalizeEnvelope = (payload) => {
   if (payload && typeof payload.code === 'number') {
@@ -128,8 +129,12 @@ const normalizeLngLatPair = (value) => {
   }
 
   if (value && typeof value === 'object') {
-    const lng = toCoordinateNumber(value.lng ?? value.longitude ?? value.lon ?? value.x);
-    const lat = toCoordinateNumber(value.lat ?? value.latitude ?? value.y);
+    const lng = toCoordinateNumber(
+      typeof value.getLng === 'function' ? value.getLng() : value.lng ?? value.longitude ?? value.lon ?? value.x
+    );
+    const lat = toCoordinateNumber(
+      typeof value.getLat === 'function' ? value.getLat() : value.lat ?? value.latitude ?? value.y
+    );
     return lng != null && lat != null ? [lng, lat] : null;
   }
 
@@ -281,7 +286,27 @@ const extractMapPath = (payload = {}, segments = []) => {
     return routePolyline;
   }
 
-  return flattenPolylineSegments(segments);
+  const segmentPath = flattenPolylineSegments(segments);
+  if (segmentPath.length > 0) {
+    return segmentPath;
+  }
+
+  const nodeCoordinates = payload.nodeCoordinates ?? payload.node_coordinates ?? {};
+  if (Array.isArray(payload.path) && nodeCoordinates && typeof nodeCoordinates === 'object') {
+    return payload.path
+      .map((nodeId) => {
+        const coordinate = nodeCoordinates[nodeId];
+        if (!Array.isArray(coordinate) || coordinate.length < 2) {
+          return null;
+        }
+        const lat = toCoordinateNumber(coordinate[0]);
+        const lng = toCoordinateNumber(coordinate[1]);
+        return lat != null && lng != null ? [lng, lat] : null;
+      })
+      .filter(Boolean);
+  }
+
+  return [];
 };
 
 const extractRouteInstructions = (payload = {}, segments = []) => {
@@ -316,6 +341,10 @@ const normalizeRouteResponse = (payload = {}, fallback = {}) => {
   return {
     ...payload,
     path: normalizedPath,
+    coordinates: mapPath,
+    steps: segments,
+    distance: totalDistance,
+    duration: totalTime,
     vehicle: payload.vehicle ?? fallback.vehicle ?? '步行',
     strategy: payload.strategy ?? fallback.strategy ?? 'distance',
     total_distance: totalDistance,
@@ -367,6 +396,60 @@ const parseJsonArray = (value) => {
   }
 };
 
+const normalizeMediaPath = (value) => {
+  if (!value) {
+    return '';
+  }
+  if (typeof value === 'object') {
+    return value.url ?? value.path ?? value.videoPath ?? value.imagePath ?? '';
+  }
+
+  const text = String(value).trim();
+  if (!text) {
+    return '';
+  }
+
+  const pathMatch = text.match(/(?:^|[,{\s])path=([^,}\s]+)/);
+  if (pathMatch?.[1]) {
+    return pathMatch[1];
+  }
+  const urlMatch = text.match(/(?:^|[,{\s])url=([^,}\s]+)/);
+  if (urlMatch?.[1]) {
+    return urlMatch[1];
+  }
+  return text;
+};
+
+const normalizeMediaList = (value) => {
+  if (Array.isArray(value)) {
+    return value.map(normalizeMediaPath).filter(Boolean);
+  }
+  if (value == null) {
+    return [];
+  }
+
+  const text = String(value).trim();
+  if (!text) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed.map(normalizeMediaPath).filter(Boolean) : [];
+  } catch {
+    const extracted = Array.from(text.matchAll(/(?:path|url|videoPath|imagePath)=([^,}\]\s]+)/g))
+      .map((match) => match[1])
+      .filter(Boolean);
+    if (extracted.length > 0) {
+      return extracted;
+    }
+    return text
+      .split(/[，,]/)
+      .map(normalizeMediaPath)
+      .filter(Boolean);
+  }
+};
+
 const normalizeUser = (user) => {
   if (!user || typeof user !== 'object') {
     return user;
@@ -395,8 +478,8 @@ const normalizeDiary = (diary) => {
   }
   return {
     ...diary,
-    images: parseJsonArray(diary.images),
-    videos: parseJsonArray(diary.videos),
+    images: normalizeMediaList(diary.images),
+    videos: normalizeMediaList(diary.videos),
     tags: parseJsonArray(diary.tags),
   };
 };
@@ -469,9 +552,26 @@ const normalizeArrayItems = (items, normalizer) =>
 
 const getApiFileUrl = (path) => {
   if (!path) return null;
-  if (path.startsWith('http') || path.startsWith('/api/')) return path;
-  const basePath = path.startsWith('/') ? path : `/${path}`;
-  return `${import.meta.env.VITE_APP_API_URL || '/api'}${basePath}`;
+  const normalizedPath = normalizeMediaPath(path);
+  if (!normalizedPath) return null;
+  const appendMediaVersion = (url) => {
+    if (!url.includes('/uploads/')) {
+      return url;
+    }
+    return `${url}${url.includes('?') ? '&' : '?'}v=${MEDIA_CACHE_VERSION}`;
+  };
+  if (
+    normalizedPath.startsWith('http') ||
+    normalizedPath.startsWith('blob:') ||
+    normalizedPath.startsWith('data:')
+  ) {
+    return normalizedPath;
+  }
+  if (normalizedPath.startsWith('/api/')) {
+    return appendMediaVersion(encodeURI(normalizedPath));
+  }
+  const basePath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+  return appendMediaVersion(`${import.meta.env.VITE_APP_API_URL || '/api'}${encodeURI(basePath)}`);
 };
 
 const normalizeIndoorBuildingInfo = (payload = {}) => {
@@ -499,16 +599,25 @@ const normalizeIndoorNavigationResult = (payload = {}, options = {}) => {
   }));
 
   const destination = payload.destination || {};
+  const destinationName = typeof destination === 'string'
+    ? destination
+    : destination.name ?? destination.roomName ?? destination.id ?? '';
+  const totalDistance = toNumber(payload.totalDistance ?? payload.total_distance);
+  const estimatedTime = toNumber(payload.estimatedTimeMinutes ?? payload.estimated_time);
   return {
     ...payload,
     destination,
+    destinationName,
     path: Array.isArray(payload.path) ? payload.path : [],
     navigation_steps: normalizedSteps,
     navigationSteps: normalizedSteps,
-    total_distance: toNumber(payload.totalDistance ?? payload.total_distance),
-    totalDistance: toNumber(payload.totalDistance ?? payload.total_distance),
-    estimated_time: toNumber(payload.estimatedTimeMinutes ?? payload.estimated_time),
-    estimatedTimeMinutes: toNumber(payload.estimatedTimeMinutes ?? payload.estimated_time),
+    steps: normalizedSteps,
+    total_distance: totalDistance,
+    totalDistance,
+    distance: totalDistance,
+    estimated_time: estimatedTime,
+    estimatedTimeMinutes: estimatedTime,
+    duration: estimatedTime,
     avoid_congestion: options.avoidCongestion ?? payload.avoidCongestion ?? payload.avoid_congestion,
     path_description: normalizedSteps.length > 0
       ? normalizedSteps.map((step) => step.description).filter(Boolean).join('，')
@@ -961,7 +1070,7 @@ export const routeAPI = {
             vehicle: data?.vehicle,
             strategy: data?.strategy,
             placeType: data?.placeType,
-            provider: data?.provider ?? 'amap',
+            provider: data?.provider ?? 'local',
           });
 
       if (!response.success) {
@@ -1013,6 +1122,8 @@ export const routeAPI = {
       return failResult('当前后端未实现多目标路径规划接口', 501);
     }
   },
+
+  planSingleRoute: async (data) => routeAPI.calculateShortestRoute(data),
 };
 
 // 简化的API导出

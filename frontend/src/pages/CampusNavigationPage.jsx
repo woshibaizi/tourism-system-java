@@ -4,6 +4,7 @@ import { getPlaces, getBuildings, getFacilities, routeAPI } from '../services/ap
 import AMapView from '../components/Map/AMapView';
 import CTAButton from '../components/ui/CTAButton';
 import SectionLabel from '../components/ui/SectionLabel';
+import IndoorNavigationPage from './IndoorNavigationPage';
 
 function CampusNavigationPage() {
   const [loading, setLoading] = useState(true);
@@ -37,10 +38,17 @@ function CampusNavigationPage() {
 
   const allNodes = useMemo(() => {
     const nodes = [];
-    buildings.forEach((b) => nodes.push({ id: b.id, name: b.name, type: '建筑', group: 'buildings' }));
-    facilities.forEach((f) => nodes.push({ id: f.id, name: f.name, type: f.type || '设施', group: 'facilities' }));
+    buildings.forEach((b) => nodes.push({ ...b, id: b.id, name: b.name, type: '建筑', group: 'buildings' }));
+    facilities.forEach((f) => nodes.push({ ...f, id: f.id, name: f.name, type: f.type || '设施', group: 'facilities' }));
     return nodes;
   }, [buildings, facilities]);
+
+  const selectedMapMarkers = useMemo(
+    () => [selectedStart, selectedEnd]
+      .map((id) => allNodes.find((node) => node.id === id))
+      .filter(Boolean),
+    [allNodes, selectedStart, selectedEnd]
+  );
 
   const groupedNodes = useMemo(() => {
     const groups = { 门: [], 教学楼: [], 宿舍: [], 服务: [], 其他: [] };
@@ -120,12 +128,7 @@ function CampusNavigationPage() {
       </div>
 
       {activeTab === 'indoor' ? (
-        <div className="text-center py-16">
-          <Building size={48} className="mx-auto mb-4 text-neutral-200" />
-          <h2 className="font-serif text-xl text-heading mb-2">室内导航</h2>
-          <p className="font-sans text-sm text-muted mb-4">室内导航功能开发中，敬请期待</p>
-          <CTAButton variant="secondary" onClick={() => setActiveTab('campus')}>返回校内导航</CTAButton>
-        </div>
+        <IndoorNavigationPage embedded />
       ) : (
         <>
           {/* Controls */}
@@ -152,10 +155,11 @@ function CampusNavigationPage() {
 
           <AMapView
             routeResult={routeResult}
-            buildings={buildings}
-            facilities={facilities}
+            buildings={selectedMapMarkers}
+            facilities={[]}
             currentLocation={currentLocation}
             onLocationChange={setCurrentLocation}
+            showRouteMarkers={false}
             mapHeight={500}
           />
 

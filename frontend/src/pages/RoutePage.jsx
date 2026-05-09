@@ -12,6 +12,21 @@ const TRAVEL_MODES = [
   { key: 'cycling', label: '骑行', icon: Bike },
 ];
 
+const toAmapLngLat = (AMap, location) => {
+  if (!location) {
+    return null;
+  }
+  if (typeof location.getLng === 'function' && typeof location.getLat === 'function') {
+    return location;
+  }
+  if (Array.isArray(location) && location.length >= 2) {
+    return new AMap.LngLat(Number(location[0]), Number(location[1]));
+  }
+  const lng = Number(location.lng ?? location.longitude);
+  const lat = Number(location.lat ?? location.latitude);
+  return Number.isFinite(lng) && Number.isFinite(lat) ? new AMap.LngLat(lng, lat) : null;
+};
+
 function RoutePage() {
   const location = useLocation();
   const [amapReady, setAmapReady] = useState(false);
@@ -33,7 +48,7 @@ function RoutePage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const AMap = await loadAMap();
+        const AMap = await loadAMap({ plugins: ['AMap.AutoComplete', 'AMap.Driving', 'AMap.Walking', 'AMap.Riding'] });
         autoCompleteRef.current = new AMap.AutoComplete({ city: '全国' });
         setAmapReady(true);
       } catch (e) { console.error(e); }
@@ -50,7 +65,7 @@ function RoutePage() {
     try {
       autoCompleteRef.current.search(keyword, (status, result) => {
         if (status === 'complete') {
-          setOptions((result.tips || []).slice(0, 10));
+          setOptions((result.tips || []).filter((tip) => tip.location).slice(0, 10));
         }
         setSearching(false);
       });
@@ -64,8 +79,16 @@ function RoutePage() {
       const AMap = (await loadAMap());
       const modeMap = { driving: 'Driving', walking: 'Walking', cycling: 'Riding' };
       const service = new AMap[modeMap[travelMode]]({ policy: 0 });
+      const origin = toAmapLngLat(AMap, selectedStart.location);
+      const destination = toAmapLngLat(AMap, selectedEnd.location);
+      if (!origin || !destination) {
+        setRouteResult(null);
+        setLoading(false);
+        return;
+      }
       service.search(
-        { origin: selectedStart.location, destination: selectedEnd.location },
+        origin,
+        destination,
         (status, result) => {
           if (status === 'complete') {
             const route = result.routes?.[0];
@@ -80,12 +103,18 @@ function RoutePage() {
                   coordinates: s.path?.[0] || s.start_location,
                 })),
               });
+            } else {
+              setRouteResult(null);
+              console.warn('路线规划未返回有效路径', result);
             }
+          } else {
+            setRouteResult(null);
+            console.error('路线规划失败', status, result?.info || result);
           }
+          setLoading(false);
         }
       );
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch (e) { console.error(e); setLoading(false); }
   };
 
   const handleLocate = () => {

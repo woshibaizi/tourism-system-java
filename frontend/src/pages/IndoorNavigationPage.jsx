@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Building, Navigation, AlertCircle, Switch, Layers } from 'lucide-react';
+import { Building, Navigation, AlertCircle, Layers } from 'lucide-react';
 import { indoorNavigationAPI } from '../services/api';
 import CTAButton from '../components/ui/CTAButton';
 import SectionLabel from '../components/ui/SectionLabel';
+import AMapView from '../components/Map/AMapView';
 
-function IndoorNavigationPage() {
+function IndoorNavigationPage({ embedded = false }) {
   const [loading, setLoading] = useState(true);
   const [buildingInfo, setBuildingInfo] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -12,6 +13,7 @@ function IndoorNavigationPage() {
   const [avoidCongestion, setAvoidCongestion] = useState(false);
   const [navResult, setNavResult] = useState(null);
   const [navigating, setNavigating] = useState(false);
+  const [buildingLocation] = useState({ lng: 116.3577, lat: 39.9577 });
 
   useEffect(() => {
     const load = async () => {
@@ -47,9 +49,13 @@ function IndoorNavigationPage() {
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto px-6 py-12">
-      <SectionLabel>Indoor Navigation</SectionLabel>
-      <h1 className="font-serif text-3xl text-heading mb-8">室内导航</h1>
+    <div className={embedded ? '' : 'max-w-screen-xl mx-auto px-6 py-12'}>
+      {!embedded && (
+        <>
+          <SectionLabel>Indoor Navigation</SectionLabel>
+          <h1 className="font-serif text-3xl text-heading mb-8">室内导航</h1>
+        </>
+      )}
 
       {!buildingInfo ? (
         <div className="text-center py-16">
@@ -66,7 +72,7 @@ function IndoorNavigationPage() {
               </div>
               {buildingInfo.floors && (
                 <div className="flex flex-wrap gap-2">
-                  {(buildingInfo.floors || []).map((f) => (
+                  {(Array.isArray(buildingInfo.floors) ? buildingInfo.floors : Array.from({ length: buildingInfo.floors }, (_, i) => `${i + 1}楼`)).map((f) => (
                     <span key={f} className="px-3 py-1 text-xs border border-border font-sans">{f}</span>
                   ))}
                 </div>
@@ -101,21 +107,26 @@ function IndoorNavigationPage() {
             </CTAButton>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            <AMapView
+              currentLocation={buildingLocation}
+              mapHeight={300}
+              showControls={false}
+            />
             {navResult ? (
               <div className="border border-border p-6 space-y-6">
                 <div className="flex items-center gap-6">
                   <div>
                     <span className="font-sans text-xs uppercase tracking-widest text-muted">目的地</span>
-                    <p className="font-serif text-lg text-heading">{navResult.destination || selectedRoom}</p>
+                    <p className="font-serif text-lg text-heading">{navResult.destinationName || selectedRoom}</p>
                   </div>
                   <div>
                     <span className="font-sans text-xs uppercase tracking-widest text-muted">距离</span>
-                    <p className="font-serif text-lg text-heading">{navResult.distance || '-'}</p>
+                    <p className="font-serif text-lg text-heading">{navResult.distance ? `${Math.round(navResult.distance)} m` : '-'}</p>
                   </div>
                   <div>
                     <span className="font-sans text-xs uppercase tracking-widest text-muted">预计时间</span>
-                    <p className="font-serif text-lg text-heading">{navResult.duration || '-'}</p>
+                    <p className="font-serif text-lg text-heading">{navResult.duration ? `${navResult.duration} min` : '-'}</p>
                   </div>
                 </div>
 

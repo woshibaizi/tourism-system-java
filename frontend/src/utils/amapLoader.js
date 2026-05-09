@@ -1,6 +1,6 @@
 const AMAP_SCRIPT_ID = 'travel-system-amap-jsapi';
 const AMAP_VERSION = '2.0';
-const DEFAULT_PLUGINS = ['AMap.ToolBar', 'AMap.Scale', 'AMap.Geolocation'];
+const DEFAULT_PLUGINS = ['AMap.ToolBar', 'AMap.Scale', 'AMap.Geolocation', 'AMap.AutoComplete', 'AMap.Driving', 'AMap.Walking', 'AMap.Riding'];
 const DEFAULT_AMAP_KEY = '90ed758f5f6d47861c3989854c899423';
 const DEFAULT_AMAP_SECURITY_CODE = '6bc29aff276766a3ef4413e52baed6f0';
 
@@ -17,6 +17,10 @@ export const loadAMap = async ({ key = import.meta.env.VITE_AMAP_KEY || DEFAULT_
   }
 
   if (window.AMap) {
+    const neededPlugins = Array.from(new Set([...DEFAULT_PLUGINS, ...plugins]));
+    if (typeof window.AMap.plugin === 'function' && neededPlugins.length > 0) {
+      await new Promise((resolve) => window.AMap.plugin(neededPlugins, resolve));
+    }
     return window.AMap;
   }
 

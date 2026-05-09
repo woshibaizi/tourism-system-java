@@ -11,8 +11,23 @@ const toNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-const isLngLat = (value) =>
-  Array.isArray(value) && value.length >= 2 && Number.isFinite(Number(value[0])) && Number.isFinite(Number(value[1]));
+const toLngLat = (value) => {
+  if (Array.isArray(value) && value.length >= 2) {
+    const lng = toNumber(value[0]);
+    const lat = toNumber(value[1]);
+    return lng != null && lat != null ? [lng, lat] : null;
+  }
+  if (value && typeof value === 'object') {
+    const lng = toNumber(
+      typeof value.getLng === 'function' ? value.getLng() : value.lng ?? value.longitude ?? value.lon ?? value.x
+    );
+    const lat = toNumber(
+      typeof value.getLat === 'function' ? value.getLat() : value.lat ?? value.latitude ?? value.y
+    );
+    return lng != null && lat != null ? [lng, lat] : null;
+  }
+  return null;
+};
 
 export default function AMapView({
   routeResult,
@@ -21,6 +36,7 @@ export default function AMapView({
   currentLocation,
   onLocationChange,
   showControls = true,
+  showRouteMarkers = false,
   mapHeight = 500,
 }) {
   const containerRef = useRef(null);
@@ -69,18 +85,28 @@ export default function AMapView({
   }, []);
 
   useEffect(() => {
-    if (!mapReady || !routeResult) return;
+    if (!mapReady) return;
     const { map, AMap } = mapRef.current;
 
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
 
-    const path = routeResult.coordinates || routeResult.path || [];
-    const steps = routeResult.steps || [];
+    const path = routeResult?.mapPath || routeResult?.coordinates || [];
+    const steps = routeResult?.steps || [];
+
+    if (currentLocation) {
+      const current = toLngLat(currentLocation);
+      if (current) {
+        const marker = new AMap.Marker({ position: current, title: '当前位置' });
+        marker.setMap(map);
+        markersRef.current.push(marker);
+        map.setCenter(current);
+      }
+    }
 
     if (path.length > 0) {
-      const lnglatPath = path.filter(isLngLat).map((c) => [Number(c[0]), Number(c[1])]);
+      const lnglatPath = path.map(toLngLat).filter(Boolean);
       if (lnglatPath.length >= 2) {
         polylineRef.current = new AMap.Polyline({
           path: lnglatPath,
@@ -93,33 +119,44 @@ export default function AMapView({
       }
     }
 
-    steps.forEach((step, i) => {
-      if (step.coordinates && isLngLat(step.coordinates)) {
-        const marker = new AMap.Marker({
-          position: [Number(step.coordinates[0]), Number(step.coordinates[1])],
-          title: step.name || `Step ${i + 1}`,
-        });
-        marker.setMap(map);
-        markersRef.current.push(marker);
-      }
-    });
+    if (showRouteMarkers) {
+      steps.forEach((step, i) => {
+        const coordinate = toLngLat(step.coordinates);
+        if (coordinate) {
+          const marker = new AMap.Marker({
+            position: coordinate,
+            title: step.name || `Step ${i + 1}`,
+          });
+          marker.setMap(map);
+          markersRef.current.push(marker);
+        }
+      });
+    }
 
     buildings.forEach((b) => {
-      if (b.longitude && b.latitude) {
-        const m = new AMap.Marker({ position: [Number(b.longitude), Number(b.latitude)], title: b.name });
+      const lng = b.mapLng || b.lng || b.longitude;
+      const lat = b.mapLat || b.lat || b.latitude;
+      if (lng != null && lat != null) {
+        const m = new AMap.Marker({ position: [Number(lng), Number(lat)], title: b.name });
         m.setMap(map);
         markersRef.current.push(m);
       }
     });
 
     facilities.forEach((f) => {
-      if (f.longitude && f.latitude) {
-        const m = new AMap.Marker({ position: [Number(f.longitude), Number(f.latitude)], title: f.name });
+      const lng = f.mapLng || f.lng || f.longitude;
+      const lat = f.mapLat || f.lat || f.latitude;
+      if (lng != null && lat != null) {
+        const m = new AMap.Marker({ position: [Number(lng), Number(lat)], title: f.name });
         m.setMap(map);
         markersRef.current.push(m);
       }
     });
-  }, [mapReady, routeResult]);
+
+    if (!polylineRef.current && markersRef.current.length > 0) {
+      map.setFitView(markersRef.current);
+    }
+  }, [mapReady, routeResult, buildings, facilities, currentLocation]);
 
   const handleLocate = async () => {
     setLocating(true);

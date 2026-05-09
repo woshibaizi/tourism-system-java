@@ -88,8 +88,14 @@ function DiariesPage() {
     try {
       let imgs = [];
       let vids = [];
-      for (const f of imageList) { const r = await uploadImage(f); if (r.success) imgs.push(r.data); }
-      for (const f of videoList) { const r = await uploadImage(f); if (r.success) vids.push(r.data); }
+      for (const f of imageList) {
+        const r = await uploadImage(f);
+        if (r.success && r.data?.path) imgs.push(r.data.path);
+      }
+      for (const f of videoList) {
+        const r = await uploadVideo(f);
+        if (r.success && r.data?.path) vids.push(r.data.path);
+      }
       await createDiary({ ...formData, images: imgs, videos: vids, authorId: JSON.parse(localStorage.getItem('user') || '{}').id });
       showToast('success', '创建成功');
       setCreateOpen(false);

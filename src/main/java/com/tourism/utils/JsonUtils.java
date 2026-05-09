@@ -76,11 +76,9 @@ public final class JsonUtils {
         if (value instanceof Collection<?> collection) {
             List<String> result = new ArrayList<>();
             for (Object item : collection) {
-                if (item != null) {
-                    String text = String.valueOf(item).trim();
-                    if (!text.isEmpty()) {
-                        result.add(text);
-                    }
+                String text = stringListItemValue(item);
+                if (!text.isEmpty()) {
+                    result.add(text);
                 }
             }
             return result;
@@ -105,5 +103,21 @@ public final class JsonUtils {
             }
             return result;
         }
+    }
+
+    private static String stringListItemValue(Object item) {
+        if (item == null) {
+            return "";
+        }
+        if (item instanceof Map<?, ?> mapItem) {
+            Object path = mapItem.get("path");
+            if (path == null) path = mapItem.get("url");
+            if (path == null) path = mapItem.get("videoPath");
+            if (path == null) path = mapItem.get("imagePath");
+            if (path != null) {
+                return String.valueOf(path).trim();
+            }
+        }
+        return String.valueOf(item).trim();
     }
 }
