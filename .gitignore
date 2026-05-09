@@ -1,4 +1,11 @@
-.DS_Store
+﻿.DS_Store
+*.iml
+
+# Build artifacts
+target/
+**/__pycache__/
+*.pyc
+*.db
 
 # --- React Frontend (Vite) ---
 # Logs
@@ -25,3 +32,5 @@ dist-ssr
 *.sln
 *.sw?
 .omx/
+
+.venv/
