@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Building, Search, Star, Coffee, ShoppingCart, Library, Store } from 'lucide-react';
-import { getPlaces, getBuildingsByPlace, getNearestFacilities, getFileUrl } from '../services/api';
+import { getPlaces, getBuildingsByPlace, getNearestFacilities } from '../services/api';
 import { useToast } from '../components/ui/Toast';
 import CTAButton from '../components/ui/CTAButton';
 import SectionLabel from '../components/ui/SectionLabel';

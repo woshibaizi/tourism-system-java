@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -8,19 +8,19 @@ import LeftSidebar from './components/Shell/LeftSidebar';
 import TopBar from './components/Shell/TopBar';
 import MobileMenuOverlay from './components/Shell/MobileMenuOverlay';
 
-import HomePage from './pages/HomePage';
-import LoadingPage from './pages/LoadingPage';
-import LocationSearchPage from './pages/LocationSearchPage';
-import PlaceDetailPage from './pages/PlaceDetailPage';
-import DiariesPage from './pages/DiariesPage';
-import DiaryDetailPage from './pages/DiaryDetailPage';
-import RoutePage from './pages/RoutePage';
-import StatsPage from './pages/StatsPage';
-import LoginPage from './pages/LoginPage';
-import DiaryManagementPage from './pages/DiaryManagementPage';
-import CampusNavigationPage from './pages/CampusNavigationPage';
-import ConcurrencyTestPage from './pages/ConcurrencyTestPage';
-import PersonalTravelAssistantPage from './pages/PersonalTravelAssistantPage';
+const HomePage = lazy(() => import('./pages/HomePage'));
+const LoadingPage = lazy(() => import('./pages/LoadingPage'));
+const LocationSearchPage = lazy(() => import('./pages/LocationSearchPage'));
+const PlaceDetailPage = lazy(() => import('./pages/PlaceDetailPage'));
+const DiariesPage = lazy(() => import('./pages/DiariesPage'));
+const DiaryDetailPage = lazy(() => import('./pages/DiaryDetailPage'));
+const RoutePage = lazy(() => import('./pages/RoutePage'));
+const StatsPage = lazy(() => import('./pages/StatsPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const DiaryManagementPage = lazy(() => import('./pages/DiaryManagementPage'));
+const CampusNavigationPage = lazy(() => import('./pages/CampusNavigationPage'));
+const ConcurrencyTestPage = lazy(() => import('./pages/ConcurrencyTestPage'));
+const PersonalTravelAssistantPage = lazy(() => import('./pages/PersonalTravelAssistantPage'));
 
 const PAGE_TRANSITION = {
   initial: { opacity: 0, y: 12 },
@@ -118,8 +118,9 @@ function App() {
               exit={PAGE_TRANSITION.exit}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              <Routes location={location}>
-                <Route path="/" element={<HomePage />} />
+              <Suspense fallback={<div className="flex items-center justify-center py-24"><div className="w-6 h-6 border-2 border-border border-t-accent rounded-full animate-spin" /></div>}>
+                <Routes location={location}>
+                  <Route path="/" element={<HomePage />} />
                 <Route path="/location-search" element={<LocationSearchPage />} />
                 <Route path="/places" element={<Navigate to="/location-search" replace />} />
                 <Route path="/places/:placeId" element={<PlaceDetailPage />} />
@@ -168,6 +169,7 @@ function App() {
                 } />
                 <Route path="/concurrency-test" element={<ConcurrencyTestPage />} />
               </Routes>
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </main>

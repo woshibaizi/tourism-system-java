@@ -26,7 +26,7 @@ export default defineConfig([
       'no-unused-vars': ['error', {
         args: 'none',
         caughtErrors: 'none',
-        varsIgnorePattern: '^[A-Z_]'
+        varsIgnorePattern: '^[A-Z_]|^motion$|^AnimatePresence$'
       }],
       'react-hooks/set-state-in-effect': 'off',
     },

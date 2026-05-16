@@ -47,10 +47,10 @@ export default function AMapView({
   const [locating, setLocating] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
 
-  const [animationEnabled, setAnimationEnabled] = useState(false);
+  const [animationEnabled] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1000);
-  const [visibleNodes, setVisibleNodes] = useState(0);
+  const [, setVisibleNodes] = useState(0);
   const [animTimer, setAnimTimer] = useState(null);
 
   const markersRef = useRef([]);
@@ -82,6 +82,7 @@ export default function AMapView({
     };
     init();
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -156,7 +157,7 @@ export default function AMapView({
     if (!polylineRef.current && markersRef.current.length > 0) {
       map.setFitView(markersRef.current);
     }
-  }, [mapReady, routeResult, buildings, facilities, currentLocation]);
+  }, [mapReady, routeResult, buildings, facilities, currentLocation, showRouteMarkers]);
 
   const handleLocate = async () => {
     setLocating(true);

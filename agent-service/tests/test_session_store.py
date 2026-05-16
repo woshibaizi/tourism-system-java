@@ -8,17 +8,19 @@ PROJECT_ROOT = CURRENT_DIR.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.agent.memory import SessionStore
+from app.db.sqlite_store import SessionDB
 
 
-class SessionStoreTests(unittest.TestCase):
-    """回归测试会话归属和基础会话行为。"""
+class SessionDBTests(unittest.TestCase):
+    """回归测试会话归属和基础会话行为（SQLite 持久化）。"""
 
     def setUp(self):
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.store = SessionStore(Path(self.temp_dir.name))
+        self.temp_dir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        self.db_path = Path(self.temp_dir.name) / "test_agent.db"
+        self.store = SessionDB(self.db_path)
 
     def tearDown(self):
+        self.store = None
         self.temp_dir.cleanup()
 
     def test_existing_session_must_belong_to_same_user(self):
@@ -30,7 +32,7 @@ class SessionStoreTests(unittest.TestCase):
             first_message="你好",
         )
 
-        self.assertEqual("user-1", session.user_id)
+        self.assertEqual("user-1", session["user_id"])
 
         with self.assertRaises(PermissionError):
             self.store.create_or_get_session(
@@ -49,12 +51,13 @@ class SessionStoreTests(unittest.TestCase):
             first_message="规划路线",
         )
 
-        detail = self.store.append_messages(session, "规划路线", "这里是一条建议路线")
+        sid = session["session_id"]
+        detail = self.store.append_messages(sid, "规划路线", "这里是一条建议路线")
 
-        self.assertEqual(2, detail.message_count)
-        self.assertEqual("这里是一条建议路线", detail.preview)
-        self.assertEqual("user", detail.messages[0].role)
-        self.assertEqual("assistant", detail.messages[1].role)
+        self.assertEqual(2, detail["message_count"])
+        self.assertEqual("这里是一条建议路线", detail["preview"])
+        self.assertEqual("user", detail["messages"][0]["role"])
+        self.assertEqual("assistant", detail["messages"][1]["role"])
 
 
 if __name__ == "__main__":

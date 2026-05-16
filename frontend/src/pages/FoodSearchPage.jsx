@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Star, Flame, Coffee } from 'lucide-react';
 import { foodAPI, getPlaces } from '../services/api';
-import { getFileUrl } from '../services/api';
 import SectionLabel from '../components/ui/SectionLabel';
 import StarRating from '../components/ui/StarRating';
 import EmptyState from '../components/ui/EmptyState';
@@ -27,14 +26,14 @@ function FoodSearchPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [p, f] = await Promise.all([getPlaces(), foodAPI.searchFoods(undefined, { limit: 500, sortBy: 'popularity' })]);
+        const [p, f] = await Promise.all([getPlaces(), foodAPI.searchFoods(undefined, { limit: 500, sortBy })]);
         setPlaces(p.data || []);
         setFoods(f.data || []);
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     };
     load();
-  }, []);
+  }, [sortBy]);
 
   useEffect(() => {
     if (!selectedPlace) { setCuisines([]); return; }
@@ -61,6 +60,7 @@ function FoodSearchPage() {
 
   if (sortBy === 'rating') filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
   else if (sortBy === 'popularity') filtered.sort((a, b) => (b.popularity || b.clickCount || 0) - (a.popularity || a.clickCount || 0));
+  else if (sortBy === 'distance') filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
 
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(filtered.length / pageSize);

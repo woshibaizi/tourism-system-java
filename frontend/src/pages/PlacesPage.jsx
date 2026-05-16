@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Input, Button, Select, Tag, Rate, Spin, message, Pagination, Typography, Space } from 'antd';
 import { SearchOutlined, EnvironmentOutlined, EyeOutlined, ClearOutlined, ReloadOutlined, StarOutlined, FireOutlined } from '@ant-design/icons';
@@ -25,7 +25,7 @@ function PlacesPage() {
 
   useEffect(() => {
     loadPlacesAndRecommend();
-  }, []);
+  }, [loadPlacesAndRecommend]);
 
   // 重置分页
   const resetPagination = () => {
@@ -45,7 +45,7 @@ function PlacesPage() {
   };
 
   // 加载场所数据并进行推荐
-  const loadPlacesAndRecommend = async () => {
+  const loadPlacesAndRecommend = useCallback(async () => {
     setLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -104,7 +104,7 @@ function PlacesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // 搜索处理
   const handleSearch = async () => {

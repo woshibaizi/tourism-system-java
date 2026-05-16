@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search, MapPin, Navigation, Car, Footprints, Bike } from 'lucide-react';
 import { loadAMap } from '../utils/amapLoader';
@@ -29,7 +29,6 @@ const toAmapLngLat = (AMap, location) => {
 
 function RoutePage() {
   const location = useLocation();
-  const [amapReady, setAmapReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [startKeyword, setStartKeyword] = useState('');
@@ -41,8 +40,6 @@ function RoutePage() {
   const [travelMode, setTravelMode] = useState('driving');
   const [routeResult, setRouteResult] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [searchingStart, setSearchingStart] = useState(false);
-  const [searchingEnd, setSearchingEnd] = useState(false);
   const autoCompleteRef = useRef(null);
 
   useEffect(() => {
@@ -50,26 +47,24 @@ function RoutePage() {
       try {
         const AMap = await loadAMap({ plugins: ['AMap.AutoComplete', 'AMap.Driving', 'AMap.Walking', 'AMap.Riding'] });
         autoCompleteRef.current = new AMap.AutoComplete({ city: '全国' });
-        setAmapReady(true);
       } catch (e) { console.error(e); }
     };
     init();
     if (location.state?.presetDestinationKeyword) {
       setEndKeyword(location.state.presetDestinationKeyword);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const searchPois = async (keyword, setOptions, setSearching) => {
+  const searchPois = async (keyword, setOptions) => {
     if (!keyword.trim() || !autoCompleteRef.current) return;
-    setSearching(true);
     try {
       autoCompleteRef.current.search(keyword, (status, result) => {
         if (status === 'complete') {
           setOptions((result.tips || []).filter((tip) => tip.location).slice(0, 10));
         }
-        setSearching(false);
       });
-    } catch { setSearching(false); }
+    } catch { /* ignore */ }
   };
 
   const handlePlanRoute = async () => {
@@ -147,7 +142,7 @@ function RoutePage() {
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input
                 value={startKeyword}
-                onChange={(e) => { setStartKeyword(e.target.value); searchPois(e.target.value, setStartOptions, setSearchingStart); }}
+                onChange={(e) => { setStartKeyword(e.target.value); searchPois(e.target.value, setStartOptions); }}
                 placeholder="输入起点"
                 className="w-full pl-9 pr-4 py-2 border border-neutral-200 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none"
               />
@@ -168,7 +163,7 @@ function RoutePage() {
               <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input
                 value={endKeyword}
-                onChange={(e) => { setEndKeyword(e.target.value); searchPois(e.target.value, setEndOptions, setSearchingEnd); }}
+                onChange={(e) => { setEndKeyword(e.target.value); searchPois(e.target.value, setEndOptions); }}
                 placeholder="输入终点"
                 className="w-full pl-9 pr-4 py-2 border border-neutral-200 text-sm font-sans focus:border-black focus:ring-0 focus:outline-none"
               />

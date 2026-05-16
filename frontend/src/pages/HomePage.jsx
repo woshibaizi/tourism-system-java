@@ -2,7 +2,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  MapPin, BookOpen, Users, GitBranch, Star, Eye, ArrowRight, Flame
+  MapPin, BookOpen, Users, GitBranch, Star, Eye, ArrowRight, Flame,
+  MessageCircle, Sparkles, Dice1, Brain,
 } from 'lucide-react';
 import { getStatistics, getRecommendedPlaces, getRecommendedDiaries, getPlaces, getFileUrl } from '../services/api';
 import CTAButton from '../components/ui/CTAButton';
@@ -89,6 +90,10 @@ function HomePage() {
     { title: '写游记', desc: '记录美好时光', icon: BookOpen, route: '/diaries?create=true' },
     { title: '校内导航', desc: '北邮校园步行导航', icon: MapPin, route: '/campus-navigation' },
     { title: '统计分析', desc: '数据洞察分析', icon: Flame, route: '/stats' },
+    { title: 'AI 助手', desc: '智能旅游搭子陪你玩', icon: MessageCircle, route: '/travel-assistant' },
+    { title: '智能路线', desc: '一句话生成行程规划', icon: Sparkles, route: '/route-planning' },
+    { title: '旅行人格', desc: '测测你的旅行画像', icon: Brain, route: '/travel-assistant?action=personality' },
+    { title: '扔骰子', desc: '随机冒险任务', icon: Dice1, route: '/travel-assistant?action=dice' },
   ];
 
   return (
@@ -378,8 +383,8 @@ function HomePage() {
       {/* ========== Quick Actions ========== */}
       <section className="max-w-screen-xl mx-auto px-6 lg:px-12 pb-24">
         <div className="border-t border-border pt-16">
-          <SectionLabel className="text-center">快速操作</SectionLabel>
-          <h2 className="font-serif text-3xl text-heading text-center mb-12">快速开始</h2>
+          <SectionLabel className="text-center">功能入口</SectionLabel>
+          <h2 className="font-serif text-3xl text-heading text-center mb-12">探索所有功能</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {quickActions.map((action, idx) => {
               const Icon = action.icon;

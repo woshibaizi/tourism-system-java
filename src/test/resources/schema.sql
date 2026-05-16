@@ -87,9 +87,9 @@ CREATE TABLE spot_facility (
 );
 
 CREATE TABLE spot_road_edge (
-  id VARCHAR(50) NOT NULL,
-  from_node VARCHAR(50) NOT NULL,
-  to_node VARCHAR(50) NOT NULL,
+  id VARCHAR(80) NOT NULL,
+  from_node VARCHAR(80) NOT NULL,
+  to_node VARCHAR(80) NOT NULL,
   distance DECIMAL(10,2) NOT NULL,
   ideal_speed DECIMAL(5,1) DEFAULT 4.0,
   congestion_rate DECIMAL(3,2) DEFAULT 1.0,

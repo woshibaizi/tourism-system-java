@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Eye, Pencil, Upload, BookOpen, Star, Flame, Trash2, X } from 'lucide-react';
 import {
   getDiaries, searchDiariesByTitle, searchDiariesByContent, searchDiariesByDestination,
@@ -21,7 +21,6 @@ const SORT_OPTIONS = [
 
 function DiariesPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { showToast } = useToast();
   const [diaries, setDiaries] = useState([]);
   const [originalDiaries, setOriginalDiaries] = useState([]);
@@ -42,9 +41,7 @@ function DiariesPage() {
   // Form state
   const [formData, setFormData] = useState({ title: '', content: '', destination: '', placeId: '' });
 
-  useEffect(() => { loadData(); }, [sortType]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const userId = JSON.parse(localStorage.getItem('user') || '{}').id || 'user_001';
@@ -67,7 +64,9 @@ function DiariesPage() {
       if (placesR.status === 'fulfilled') setPlaces(placesR.value.data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  };
+  }, [sortType]);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   const handleSearch = async () => {
     if (!searchKeyword.trim()) { setIsSearchMode(false); setDiaries(originalDiaries); return; }

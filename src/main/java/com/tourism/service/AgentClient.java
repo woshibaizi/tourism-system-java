@@ -26,13 +26,16 @@ public class AgentClient {
         this.objectMapper = objectMapper;
     }
 
+    // ==================== 健康检查 ====================
+
     public Map<String, Object> getHealth() {
         return getForMap("/health");
     }
 
+    // ==================== 会话管理 ====================
+
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> listSessions(String userId) {
-        // Python 侧返回的是数组结构，这里直接按列表接收并转成 Map 列表即可。
         try {
             ResponseEntity<List> response = agentRestTemplate.exchange(
                     "/agent/sessions?user_id={userId}",
@@ -53,8 +56,26 @@ public class AgentClient {
         return getForMap("/agent/sessions/{sessionId}?user_id={userId}", sessionId, userId);
     }
 
+    public Map<String, Object> deleteSession(String sessionId, String userId) {
+        try {
+            ResponseEntity<Map> response = agentRestTemplate.exchange(
+                    "/agent/sessions/{sessionId}?user_id={userId}",
+                    HttpMethod.DELETE,
+                    null,
+                    Map.class,
+                    sessionId, userId
+            );
+            return response.getBody();
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    // ==================== 聊天 ====================
+
     public Map<String, Object> chat(Map<String, Object> payload) {
-        // Java 后端不在这里解释业务语义，只做鉴权后透传和错误翻译。
         try {
             return agentRestTemplate.postForObject("/agent/chat", new HttpEntity<>(payload), Map.class);
         } catch (HttpStatusCodeException exception) {
@@ -63,6 +84,103 @@ public class AgentClient {
             throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
         }
     }
+
+    // ==================== 出游搭子 ====================
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> listBuddies(String userId) {
+        try {
+            ResponseEntity<List> response = agentRestTemplate.exchange(
+                    "/agent/user/buddy?user_id={userId}",
+                    HttpMethod.GET,
+                    null,
+                    List.class,
+                    userId
+            );
+            return (List<Map<String, Object>>) response.getBody();
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    public Map<String, Object> upsertBuddy(Map<String, Object> payload) {
+        try {
+            return agentRestTemplate.exchange(
+                    "/agent/user/buddy",
+                    HttpMethod.PUT,
+                    new HttpEntity<>(payload),
+                    Map.class
+            ).getBody();
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    public Map<String, Object> deleteBuddy(String buddyId, String userId) {
+        try {
+            ResponseEntity<Map> response = agentRestTemplate.exchange(
+                    "/agent/user/buddy/{buddyId}?user_id={userId}",
+                    HttpMethod.DELETE,
+                    null,
+                    Map.class,
+                    buddyId, userId
+            );
+            return response.getBody();
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    public Map<String, Object> useBuddy(String buddyId, String userId) {
+        try {
+            return agentRestTemplate.postForObject(
+                    "/agent/user/buddy/{buddyId}/use?user_id={userId}",
+                    null,
+                    Map.class,
+                    buddyId, userId
+            );
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    // ==================== 日记生成 ====================
+
+    public Map<String, Object> generateDiary(Map<String, Object> payload) {
+        try {
+            return agentRestTemplate.postForObject("/agent/diary/generate", new HttpEntity<>(payload), Map.class);
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    public Map<String, Object> getDiaryTaskStatus(String taskId) {
+        return getForMap("/agent/diary/status/{taskId}", taskId);
+    }
+
+    // ==================== 路线规划 ====================
+
+    public Map<String, Object> planRoute(Map<String, Object> payload) {
+        try {
+            return agentRestTemplate.postForObject("/agent/route/plan", new HttpEntity<>(payload), Map.class);
+        } catch (HttpStatusCodeException exception) {
+            throw new BusinessException(exception.getStatusCode().value(), extractErrorMessage(exception));
+        } catch (RestClientException exception) {
+            throw new BusinessException(503, "个性化旅游助手服务不可用: " + exception.getMessage());
+        }
+    }
+
+    // ==================== 内部方法 ====================
 
     private Map<String, Object> getForMap(String path, Object... uriVariables) {
         try {
@@ -75,7 +193,6 @@ public class AgentClient {
     }
 
     private String extractErrorMessage(HttpStatusCodeException exception) {
-        // 尽量保留 Python agent 的原始报错，便于前端定位是权限问题、会话问题还是服务异常。
         String body = exception.getResponseBodyAsString();
         if (body != null && !body.isBlank()) {
             try {
@@ -91,7 +208,6 @@ public class AgentClient {
                     return "个性化旅游助手请求失败: " + text;
                 }
             } catch (Exception ignored) {
-                // 如果不是 JSON，就继续走原始字符串兜底。
             }
             return "个性化旅游助手请求失败: " + body;
         }

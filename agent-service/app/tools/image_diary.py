@@ -1,22 +1,42 @@
 from __future__ import annotations
 
+import logging
+from typing import Any
 
-def build_diary_draft(prompt: str, images: list[str]) -> dict:
+from app.tools.tourism_api import tourism_api_client
+
+logger = logging.getLogger(__name__)
+
+
+def build_diary_draft(
+    prompt: str,
+    images: list[str] | None = None,
+    user_id: str = "anonymous",
+    style: str = "小红书",
+    place_id: str = "",
+) -> dict[str, Any]:
     """
-    生成日记草稿占位结果。
+    创建日记草稿并持久化到 Java 后端。
 
-    这里暂时不做图像理解，只根据用户 prompt 生成一个可演示的结构化返回，
-    目的是先验证 Java -> Python -> Frontend 的闭环链路。
+    DiaryAgent 通过此函数将 LLM 生成的日记正文保存到 MySQL。
     """
-    title = "旅途片段记录"
-    if "校园" in prompt:
-        title = "校园散步日记"
-    elif "湖" in prompt:
-        title = "湖边慢游日记"
+    tags = _extract_tags(prompt)
+    result = tourism_api_client.create_diary(
+        title=prompt[:30] or "旅行日记",
+        content=f"[{style}风格] {prompt}",
+        user_id=user_id,
+        images=images or [],
+        tags=tags,
+        place_id=place_id,
+    )
+    if result:
+        return {"ok": True, "diary": result.get("data", result)}
+    return {"ok": False, "error": "diary creation failed"}
 
-    return {
-        "title": title,
-        "content": f"根据你的提示“{prompt}”，我先生成了一版适合继续润色的旅行日记草稿。",
-        "tags": ["旅行", "记录", "草稿"],
-        "images": images,
-    }
+
+def _extract_tags(prompt: str) -> list[str]:
+    tags = []
+    for kw in ["校园", "旅行", "美食", "拍照", "散步", "日记", "杭州", "西湖"]:
+        if kw in prompt:
+            tags.append(kw)
+    return tags[:5] if tags else ["旅行", "日记"]

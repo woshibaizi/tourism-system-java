@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Building, ChevronLeft, Star, Eye } from 'lucide-react';
-import { getPlace, recordVisit, ratePlace, getBuildings, getFacilities, getFileUrl } from '../services/api';
+import { getPlace, recordVisit, ratePlace, getFileUrl } from '../services/api';
 import { useToast } from '../components/ui/Toast';
 import CTAButton from '../components/ui/CTAButton';
 import StarRating from '../components/ui/StarRating';

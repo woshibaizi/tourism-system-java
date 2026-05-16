@@ -15,7 +15,7 @@ function DiaryDetailPage() {
   const [diary, setDiary] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [ratingLoading, setRatingLoading] = useState(false);
+  const [, setRatingLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
   useEffect(() => {

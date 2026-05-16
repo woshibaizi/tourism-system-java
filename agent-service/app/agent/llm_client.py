@@ -5,12 +5,12 @@
 - openai_compatible: OpenAI / DeepSeek / Qwen / 本地模型 等兼容接口
 - anthropic: Anthropic Claude API
 
-所有 provider 暴露相同的方法签名，切换模型只需改环境变量，
-不需要改动 orchestrator 业务代码。
+所有 provider 暴露相同的方法签名，切换模型只需改环境变量。
 
 用法:
-    from app.agent.llm_client import llm_client
-    reply = llm_client.chat([
+    from app.agent.llm_client import get_llm_client
+    client = get_llm_client()
+    reply = client.chat([
         {"role": "system", "content": "你是旅游助手"},
         {"role": "user", "content": "帮我规划杭州一日游"},
     ])
@@ -21,9 +21,64 @@ from __future__ import annotations
 import json
 import re
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from typing import Any, Iterator
 
 from app.config import settings
+
+
+# ======================== 数据结构 ========================
+
+
+@dataclass
+class ChatResult:
+    """LLM 调用结果。content 和 tool_calls 互斥：调用方必须先检查 tool_calls。"""
+    content: str | None  # tool_calls 非空时为 None
+    tool_calls: list[dict[str, Any]] | None = None
+
+
+def _extract_json(text: str) -> dict[str, Any] | None:
+    """从 LLM 文本中提取 JSON 对象，支持嵌套结构。"""
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or start >= end:
+        return None
+    try:
+        return json.loads(text[start:end + 1])
+    except (json.JSONDecodeError, TypeError):
+        return None
+
+
+# ======================== Vision 工具函数 ========================
+
+
+def build_vision_content(text: str, image_urls: list[str]) -> list[dict[str, Any]]:
+    """构建多模态 vision content blocks（OpenAI 格式）。
+
+    返回的 list 可直接作为 message["content"] 传入 chat()。
+    Anthropic provider 内部会自动转换。
+    """
+    blocks: list[dict[str, Any]] = [{"type": "text", "text": text}]
+    for url in image_urls:
+        blocks.append({"type": "image_url", "image_url": {"url": url}})
+    return blocks
+
+
+def _convert_vision_to_anthropic(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """将 OpenAI 格式的 vision content blocks 转为 Anthropic 格式。"""
+    converted: list[dict[str, Any]] = []
+    for block in blocks:
+        if block.get("type") == "text":
+            converted.append({"type": "text", "text": block["text"]})
+        elif block.get("type") == "image_url":
+            url = block.get("image_url", {}).get("url", "")
+            converted.append({
+                "type": "image",
+                "source": {"type": "url", "url": url},
+            })
+        else:
+            converted.append(block)
+    return converted
 
 
 # ======================== 抽象接口 ========================
@@ -35,19 +90,20 @@ class BaseLLMProvider(ABC):
     @abstractmethod
     def chat(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         temperature: float | None = None,
         max_tokens: int | None = None,
         stop: list[str] | None = None,
-    ) -> str:
-        """发送消息，返回模型回复文本。"""
+        tools: list[dict[str, Any]] | None = None,
+    ) -> ChatResult:
+        """发送消息，返回 ChatResult（含 content 和可选 tool_calls）。"""
         ...
 
     @abstractmethod
     def chat_stream(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         temperature: float | None = None,
         max_tokens: int | None = None,
@@ -82,24 +138,18 @@ class BaseLLMProvider(ABC):
             },
             {"role": "user", "content": message},
         ]
-        raw = self.chat(full_messages, temperature=0.0, max_tokens=256)
-        return self._parse_json_safely(raw, intents)
+        result = self.chat(full_messages, temperature=0.0, max_tokens=256)
+        return self._parse_json_safely(result.content or "", intents)
 
     def _parse_json_safely(self, raw: str, intents: dict[str, str]) -> dict[str, Any]:
-        """容错解析模型返回的 JSON，避免非 JSON 输出导致崩溃。"""
-        # 尝试提取 {...} 块
-        match = re.search(r"\{[^{}]*\}", raw, re.DOTALL)
-        if match:
-            try:
-                parsed = json.loads(match.group())
-                if parsed.get("intent") in intents:
-                    return {
-                        "intent": parsed["intent"],
-                        "confidence": float(parsed.get("confidence", 0.5)),
-                        "missing_context": parsed.get("missing_context", []),
-                    }
-            except (json.JSONDecodeError, TypeError):
-                pass
+        """容错解析模型返回的 JSON，支持嵌套结构。"""
+        parsed = _extract_json(raw)
+        if parsed and parsed.get("intent") in intents:
+            return {
+                "intent": parsed["intent"],
+                "confidence": float(parsed.get("confidence", 0.5)),
+                "missing_context": parsed.get("missing_context", []),
+            }
         # 降级：在 message 中搜索 intent key
         for key in intents:
             if key in raw:
@@ -141,6 +191,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         temperature: float | None,
         max_tokens: int | None,
         stop: list[str] | None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         kwargs: dict[str, Any] = {
             "model": self._model,
@@ -149,23 +200,37 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         }
         if stop:
             kwargs["stop"] = stop
+        if tools:
+            kwargs["tools"] = tools
         return kwargs
 
     def chat(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         temperature: float | None = None,
         max_tokens: int | None = None,
         stop: list[str] | None = None,
-    ) -> str:
-        kwargs = self._build_kwargs(temperature, max_tokens, stop)
+        tools: list[dict[str, Any]] | None = None,
+    ) -> ChatResult:
+        kwargs = self._build_kwargs(temperature, max_tokens, stop, tools)
         resp = self._client.chat.completions.create(messages=messages, **kwargs)
-        return resp.choices[0].message.content or ""
+        choice = resp.choices[0]
+        if choice.message.tool_calls:
+            tool_calls = [
+                {
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {"name": tc.function.name, "arguments": tc.function.arguments},
+                }
+                for tc in choice.message.tool_calls
+            ]
+            return ChatResult(content=None, tool_calls=tool_calls)
+        return ChatResult(content=choice.message.content or "")
 
     def chat_stream(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         temperature: float | None = None,
         max_tokens: int | None = None,
@@ -206,12 +271,13 @@ class AnthropicProvider(BaseLLMProvider):
 
     def chat(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         temperature: float | None = None,
         max_tokens: int | None = None,
         stop: list[str] | None = None,
-    ) -> str:
+        tools: list[dict[str, Any]] | None = None,
+    ) -> ChatResult:
         system, user_messages = self._split_messages(messages)
         kwargs: dict[str, Any] = {
             "model": self._model,
@@ -223,12 +289,14 @@ class AnthropicProvider(BaseLLMProvider):
             kwargs["system"] = system
         if stop:
             kwargs["stop_sequences"] = stop
+        if tools:
+            kwargs["tools"] = self._to_anthropic_tools(tools)
         resp = self._client.messages.create(**kwargs)
-        return resp.content[0].text
+        return self._parse_anthropic_response(resp)
 
     def chat_stream(
         self,
-        messages: list[dict[str, str]],
+        messages: list[dict[str, Any]],
         *,
         temperature: float | None = None,
         max_tokens: int | None = None,
@@ -250,17 +318,57 @@ class AnthropicProvider(BaseLLMProvider):
                 yield text
 
     def _split_messages(
-        self, messages: list[dict[str, str]]
-    ) -> tuple[str, list[dict[str, str]]]:
+        self, messages: list[dict[str, Any]]
+    ) -> tuple[str, list[dict[str, Any]]]:
         """Anthropic API 的 system 是独立参数，需要从 messages 中分离出来。"""
         system_parts: list[str] = []
-        user_messages: list[dict[str, str]] = []
+        user_messages: list[dict[str, Any]] = []
         for msg in messages:
             if msg["role"] == "system":
-                system_parts.append(msg["content"])
+                content = msg["content"]
+                system_parts.append(content if isinstance(content, str) else str(content))
+            elif isinstance(msg.get("content"), list):
+                user_messages.append({
+                    "role": msg["role"],
+                    "content": _convert_vision_to_anthropic(msg["content"]),
+                })
             else:
                 user_messages.append(msg)
         return "\n\n".join(system_parts), user_messages
+
+    @staticmethod
+    def _to_anthropic_tools(tools: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """将 OpenAI function calling schema 转为 Anthropic tool format。"""
+        result: list[dict[str, Any]] = []
+        for tool in tools:
+            func = tool.get("function", tool)
+            result.append({
+                "name": func["name"],
+                "description": func.get("description", ""),
+                "input_schema": func.get("parameters", {"type": "object", "properties": {}, "required": []}),
+            })
+        return result
+
+    @staticmethod
+    def _parse_anthropic_response(resp) -> ChatResult:
+        """解析 Anthropic 响应，提取文本和 tool_use 块。"""
+        text_parts: list[str] = []
+        tool_calls: list[dict[str, Any]] = []
+        for block in resp.content:
+            if block.type == "text":
+                text_parts.append(block.text)
+            elif block.type == "tool_use":
+                tool_calls.append({
+                    "id": block.id,
+                    "type": "function",
+                    "function": {
+                        "name": block.name,
+                        "arguments": json.dumps(block.input, ensure_ascii=False),
+                    },
+                })
+        if tool_calls:
+            return ChatResult(content=None, tool_calls=tool_calls)
+        return ChatResult(content="\n".join(text_parts))
 
 
 # ======================== 工厂函数 ========================
@@ -286,5 +394,13 @@ def create_llm_provider() -> BaseLLMProvider:
     )
 
 
-# 模块级单例，业务代码直接 import 使用
-llm_client: BaseLLMProvider = create_llm_provider()
+# 懒加载单例，避免 import 时即创建连接
+_llm_client: BaseLLMProvider | None = None
+
+
+def get_llm_client() -> BaseLLMProvider:
+    """获取 LLM 客户端单例（懒加载，首次调用时才创建连接）。"""
+    global _llm_client
+    if _llm_client is None:
+        _llm_client = create_llm_provider()
+    return _llm_client

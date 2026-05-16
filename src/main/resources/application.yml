@@ -49,7 +49,7 @@ jwt:
 app:
   cors:
     allowed-origins: ${TOURISM_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173}
-  upload-dir: ${TOURISM_UPLOAD_DIR:${user.dir}/../tourism-system/backend/uploads}
+  upload-dir: ${TOURISM_UPLOAD_DIR:${user.dir}}
   aigc:
     python-command: ${TOURISM_AIGC_PYTHON:python3}
   amap:
@@ -68,7 +68,7 @@ app:
   agent:
     base-url: ${TOURISM_AGENT_BASE_URL:http://127.0.0.1:9000}
     connect-timeout-ms: ${TOURISM_AGENT_CONNECT_TIMEOUT_MS:3000}
-    read-timeout-ms: ${TOURISM_AGENT_READ_TIMEOUT_MS:15000}
+    read-timeout-ms: ${TOURISM_AGENT_READ_TIMEOUT_MS:120000}
 
 # Swagger
 springdoc:

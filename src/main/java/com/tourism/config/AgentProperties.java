@@ -12,7 +12,7 @@ public class AgentProperties {
     private int connectTimeoutMs = 3000;
 
     /** 读取响应体的超时时间，给后续模型调用预留更长时间。 */
-    private int readTimeoutMs = 15000;
+    private int readTimeoutMs = 60000;
 
     public String getBaseUrl() {
         return baseUrl;

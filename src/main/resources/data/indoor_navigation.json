@@ -2,7 +2,7 @@
   "building": {
     "id": "teaching_building_001",
     "name": "教学楼A",
-    "floors": 6,
+    "floors": 3,
     "description": "3层教学楼，包含30个房间"
   },
   "nodes": [

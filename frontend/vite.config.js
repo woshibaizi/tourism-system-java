@@ -7,15 +7,28 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/api/agent': {
-        target: 'http://localhost:9000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-      }
+      },
+      '/agent': {
+        target: 'http://localhost:9000',
+        changeOrigin: true,
+      },
     }
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('framer-motion')) return 'vendor-motion';
+          if (id.includes('recharts')) return 'vendor-charts';
+          if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-map';
+          if (id.includes('lucide-react')) return 'vendor-icons';
+          if (id.includes('react-router') || id.includes('react-dom') || id.includes('/react/')) return 'vendor-react';
+        },
+      },
+    },
+  },
 })

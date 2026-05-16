@@ -1,7 +1,5 @@
 """
 意图分发器 — 意图识别 → Agent 路由 → 统一响应。
-
-LLM 可用时走模型分类，不可用时降级为关键词规则。
 """
 
 from __future__ import annotations
@@ -11,17 +9,28 @@ import uuid
 from typing import Any
 
 from app.agent.base_agent import AgentContext, AgentResponse, BaseAgent
-from app.agent.prompts import DIARY_FOLLOW_UP, INTENT_CLASSIFY_PROMPT, ROUTE_FOLLOW_UP
+from app.agent.prompts import DIARY_FOLLOW_UP, ROUTE_FOLLOW_UP
+from app.core.intent import classify_intent
+from app.core.llm import llm_available
 from app.db.sqlite_store import session_db
 
 logger = logging.getLogger(__name__)
 
-_AVAILABLE_INTENTS = {
-    "plan_trip_route": "路线规划",
-    "generate_diary": "生成旅行日记",
-    "recommend_place": "地点推荐",
-    "general_chat": "闲聊/其他",
-}
+
+def _session_summary(session: dict[str, Any]) -> dict[str, Any]:
+    """Build a lightweight session summary for SSE done events."""
+    msgs = session.get("messages") or []
+    first = msgs[0].get("content", "")[:30] if msgs else ""
+    last = msgs[-1].get("content", "")[:40] if msgs else ""
+    return {
+        "sessionId": session.get("session_id", ""),
+        "title": session.get("title") or first or "新对话",
+        "preview": last,
+        "mode": session.get("mode", "travel_assistant"),
+        "messageCount": len(msgs),
+        "createdAt": session.get("created_at"),
+        "updatedAt": session.get("updated_at"),
+    }
 
 
 class Dispatcher:
@@ -48,10 +57,8 @@ class Dispatcher:
         ]
 
     def detect_intent(self, message: str) -> dict[str, Any]:
-        """意图识别。LLM 可用时走模型分类，否则关键词规则。"""
-        if _llm_available():
-            return _llm_classify(message)
-        return _rule_classify(message)
+        """意图识别 + 槽位抽取。"""
+        return classify_intent(message)
 
     def process_chat(
         self,
@@ -80,7 +87,10 @@ class Dispatcher:
         # 意图识别
         intent_result = self.detect_intent(message)
         intent = intent_result["intent"]
-        missing = intent_result.get("missing_context", [])
+        confidence = intent_result.get("confidence", 0)
+        missing_slots = intent_result.get("missingSlots", [])
+        should_ask = intent_result.get("shouldAskClarifyingQuestion", False)
+        clarifying_question = intent_result.get("clarifyingQuestion", "")
 
         # 构建 Agent 上下文
         context = AgentContext(
@@ -90,20 +100,26 @@ class Dispatcher:
                 {"role": m["role"], "content": m["content"]}
                 for m in session_messages[-10:]
             ] if session_messages else [],
-            metadata=metadata or {},
+            metadata={
+                **(metadata or {}),
+                "intent": intent,
+                "intent_slots": intent_result.get("slots", {}),
+            },
         )
 
-        # 路由到 Agent
-        if missing:
+        # 低置信度追问
+        if should_ask and missing_slots:
             follow_up_map = {
                 "plan_trip_route": ROUTE_FOLLOW_UP,
                 "generate_diary": DIARY_FOLLOW_UP,
             }
-            reply_content = follow_up_map.get(intent, f"为了更好地帮你，请补充以下信息：{'、'.join(missing)}")
+            reply_content = clarifying_question or follow_up_map.get(
+                intent, f"为了更好地帮你，请补充以下信息：{'、'.join(missing_slots)}"
+            )
             response = AgentResponse(
                 content=reply_content,
                 intent=intent,
-                suggestions=[f"补充{m}" for m in missing],
+                suggestions=[f"补充{m}" for m in missing_slots],
                 tools_used=["intent_classifier"],
             )
         else:
@@ -127,17 +143,20 @@ class Dispatcher:
         # 持久化消息
         updated_session = session_db.append_messages(sid, message, response.content)
 
-        # 写入 trace
+        # 写入 trace（含增强字段）
         session_db.append_trace({
             "trace_id": trace_id,
             "user_id": user_id,
             "session_id": sid,
             "intent": intent,
-            "confidence": intent_result.get("confidence", 0),
-            "llm_mode": bool(_llm_available()),
+            "confidence": confidence,
+            "router_decision": self._intent_agent_map.get(intent, "fallback"),
+            "slots": intent_result.get("slots", {}),
+            "llm_mode": bool(llm_available()),
             "message": message,
             "reply": response.content,
             "tools_used": response.tools_used,
+            "tool_latencies": response.metadata.get("tool_latencies", []),
             "metadata": metadata,
         })
 
@@ -154,55 +173,216 @@ class Dispatcher:
         }
 
 
-# ==================== 意图识别 ====================
+    async def process_chat_stream(
+        self,
+        user_id: str,
+        message: str,
+        session_id: str | None,
+        mode: str = "travel_assistant",
+        metadata: dict[str, Any] | None = None,
+    ):
+        """
+        流式聊天入口 — 异步生成器，逐 SSE 事件产出。
+        事件格式: {"event": "token"|"tool_call"|"tool_result"|"done"|"error", "data": {...}}
+        """
+        import asyncio
 
-_llm_client: Any = None
+        trace_id = f"trace_{uuid.uuid4().hex[:12]}"
 
-
-def _get_llm():
-    global _llm_client
-    if _llm_client is None:
         try:
-            from app.agent.llm_client import llm_client as client
-            _llm_client = client
-        except ImportError as e:
-            logger.warning("LLM 客户端初始化失败，降级为规则模式: %s", e)
-            _llm_client = False
-    return _llm_client if _llm_client is not False else None
+            session = await asyncio.to_thread(
+                session_db.create_or_get_session,
+                user_id=user_id,
+                session_id=session_id,
+                mode=mode,
+                first_message=message,
+            )
+        except PermissionError as e:
+            yield {"event": "error", "data": {"message": "非法会话访问"}}
+            return
 
+        sid = session["session_id"]
+        session_messages = session.get("messages", [])
 
-def _llm_available() -> bool:
-    client = _get_llm()
-    return client is not None and bool(settings.llm_api_key)
+        # 意图识别
+        intent_result = await asyncio.to_thread(self.detect_intent, message)
+        intent = intent_result["intent"]
+        confidence = intent_result.get("confidence", 0)
+        missing_slots = intent_result.get("missingSlots", [])
+        should_ask = intent_result.get("shouldAskClarifyingQuestion", False)
+        clarifying_question = intent_result.get("clarifyingQuestion", "")
 
+        context = AgentContext(
+            user_id=user_id,
+            session_id=sid,
+            session_messages=[
+                {"role": m["role"], "content": m["content"]}
+                for m in session_messages[-10:]
+            ] if session_messages else [],
+            metadata={
+                **(metadata or {}),
+                "intent": intent,
+                "intent_slots": intent_result.get("slots", {}),
+            },
+        )
 
-def _llm_classify(message: str) -> dict[str, Any]:
-    client = _get_llm()
-    assert client is not None
-    return client.classify_intent(message, _AVAILABLE_INTENTS, system_prompt=INTENT_CLASSIFY_PROMPT)
+        # 低置信度追问
+        if should_ask and missing_slots:
+            follow_up_map = {
+                "plan_trip_route": ROUTE_FOLLOW_UP,
+                "generate_diary": DIARY_FOLLOW_UP,
+            }
+            reply_content = clarifying_question or follow_up_map.get(
+                intent, f"为了更好地帮你，请补充以下信息：{'、'.join(missing_slots)}"
+            )
+            yield {
+                "event": "done",
+                "data": {
+                    "content": reply_content,
+                    "intent": intent,
+                    "trace_id": trace_id,
+                    "session_id": sid,
+                    "session": _session_summary(session),
+                    "suggestions": [f"补充{m}" for m in missing_slots],
+                    "tools_used": ["intent_classifier"],
+                },
+            }
+            await asyncio.to_thread(session_db.append_messages, sid, message, reply_content)
+            return
 
+        # 路由到 Agent 流式处理
+        agent_name = self._intent_agent_map.get(intent, "chat")
+        agent = self._agents.get(agent_name, self._agents.get("chat"))
 
-def _rule_classify(message: str) -> dict[str, Any]:
-    lowered = message.lower()
-    if any(kw in message for kw in ["路线", "行程", "导航", "怎么走", "规划"]) or "route" in lowered:
-        missing = []
-        if not any(kw in message for kw in ["今天", "明天", "半天", "一天", "两天", "校园", "景区"]):
-            missing.append("duration")
-        if not any(kw in message for kw in ["校园", "景区", "西湖", "杭州", "从", "到"]):
-            missing.append("destination")
-        return {"intent": "plan_trip_route", "confidence": 0.6, "missing_context": missing}
-    if any(kw in message for kw in ["日记", "游记", "文案", "小红书"]):
-        missing = []
-        if not any(kw in message for kw in ["图片", "照片", "图"]):
-            missing.append("images")
-        return {"intent": "generate_diary", "confidence": 0.7, "missing_context": missing}
-    if any(kw in message for kw in ["推荐", "好吃的", "好玩的", "附近", "有什么"]):
-        return {"intent": "recommend_place", "confidence": 0.5, "missing_context": []}
-    return {"intent": "general_chat", "confidence": 0.3, "missing_context": []}
+        full_content = ""
+        if agent and hasattr(agent, "stream_process"):
+            async for sse_event in agent.stream_process(message, context):
+                if sse_event["event"] == "token":
+                    full_content += sse_event["data"].get("content", "")
+                elif sse_event["event"] == "done":
+                    full_content = sse_event["data"].get("content", full_content)
+                    sse_event["data"]["trace_id"] = trace_id
+                    sse_event["data"]["session_id"] = sid
+                    sse_event["data"]["session"] = _session_summary(session)
+                elif sse_event["event"] == "error":
+                    pass
+                yield sse_event
+        elif agent:
+            # 降级：无流式能力的 Agent 走同步模式
+            response = await asyncio.to_thread(agent.process, message, context)
+            full_content = response.content
+            yield {
+                "event": "done",
+                "data": {
+                    "content": full_content,
+                    "intent": response.intent,
+                    "trace_id": trace_id,
+                    "session_id": sid,
+                    "session": _session_summary(session),
+                    "suggestions": response.suggestions,
+                    "tools_used": response.tools_used,
+                },
+            }
+        else:
+            yield {
+                "event": "done",
+                "data": {
+                    "content": f"我是个性化旅游助手，可以帮你规划路线、推荐地点、生成旅行日记。你说的是：{message}",
+                    "intent": "general_chat",
+                    "trace_id": trace_id,
+                    "session_id": sid,
+                    "session": _session_summary(session),
+                    "suggestions": ["路线规划", "地点推荐"],
+                    "tools_used": ["fallback"],
+                },
+            }
 
+        # 持久化消息
+        await asyncio.to_thread(session_db.append_messages, sid, message, full_content)
 
-# 模块级延迟导入避免循环依赖
-from app.config import settings  # noqa: E402
+        # 写入 trace
+        await asyncio.to_thread(session_db.append_trace, {
+            "trace_id": trace_id,
+            "user_id": user_id,
+            "session_id": sid,
+            "intent": intent,
+            "confidence": confidence,
+            "router_decision": agent_name or "fallback",
+            "slots": intent_result.get("slots", {}),
+            "llm_mode": bool(llm_available()),
+            "message": message,
+            "reply": full_content,
+            "tools_used": [],
+            "metadata": metadata,
+        })
+
+    def process_with_intent(
+        self,
+        user_id: str,
+        message: str,
+        forced_intent: str,
+        session_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """使用指定意图处理请求（跳过意图检测），用于 diary/route 等专用端点。"""
+        trace_id = f"trace_{uuid.uuid4().hex[:12]}"
+        intent = forced_intent
+        confidence = 1.0
+
+        context = AgentContext(
+            user_id=user_id,
+            session_id=session_id,
+            session_messages=[],
+            metadata={
+                "intent": forced_intent,
+                **(metadata or {}),
+            },
+        )
+
+        agent_name = self._intent_agent_map.get(intent)
+        if agent_name and agent_name in self._agents:
+            agent = self._agents[agent_name]
+            response = agent.process(message, context)
+        else:
+            chat_agent = self._agents.get("chat")
+            if chat_agent:
+                response = chat_agent.process(message, context)
+            else:
+                response = AgentResponse(
+                    content=f"无法处理意图 {intent}: {message}",
+                    intent="general_chat",
+                    suggestions=[],
+                    tools_used=["fallback"],
+                )
+
+        # 写入 trace
+        session_db.append_trace({
+            "trace_id": trace_id,
+            "user_id": user_id,
+            "session_id": session_id or "none",
+            "intent": intent,
+            "confidence": confidence,
+            "router_decision": agent_name or "fallback",
+            "slots": {},
+            "llm_mode": bool(llm_available()),
+            "message": message,
+            "reply": response.content,
+            "tools_used": response.tools_used,
+            "tool_latencies": response.metadata.get("tool_latencies", []),
+            "metadata": metadata,
+        })
+
+        return {
+            "reply": {
+                "content": response.content,
+                "intent": response.intent,
+                "trace_id": trace_id,
+                "suggestions": response.suggestions,
+                "tools_used": response.tools_used,
+                "metadata": response.metadata,
+            },
+        }
+
 
 # 全局单例
 dispatcher = Dispatcher()

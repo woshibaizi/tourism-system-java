@@ -109,7 +109,34 @@ class SessionDeleteRequest(BaseModel):
     user_id: str = Field(default="anonymous", alias="userId")
 
 
-# ==================== 路线规划 (骨架) ====================
+# ==================== 意图识别 ====================
+
+
+class IntentSlots(BaseModel):
+    destination: str | None = None
+    days: float | None = None
+    budget: str | None = None
+    interests: list[str] = Field(default_factory=list)
+    transport: str | None = None
+    pace: str | None = None
+    images: bool | None = None
+    location: str | None = None
+    style: str | None = None
+    preference: str | None = None
+    keyword: str | None = None
+    place_type: str | None = None
+
+
+class IntentResult(BaseModel):
+    intent: str
+    confidence: float
+    slots: dict[str, Any] = Field(default_factory=dict)
+    missing_slots: list[str] = Field(default_factory=list, alias="missingSlots")
+    should_ask_clarifying_question: bool = Field(default=False, alias="shouldAskClarifyingQuestion")
+    clarifying_question: str = Field(default="", alias="clarifyingQuestion")
+
+
+# ==================== 路线规划 ====================
 
 
 class RoutePlanRequest(BaseModel):
@@ -122,3 +149,23 @@ class RoutePlanRequest(BaseModel):
 class RoutePlanResponse(BaseModel):
     status: str
     result: dict[str, Any] = Field(default_factory=dict)
+
+
+# ==================== 出游搭子 ====================
+
+
+class BuddyProfile(BaseModel):
+    id: str
+    name: str
+    personality: str = ""
+    speaking_style: str = ""
+    is_preset: bool = False
+    preference_score: float = 0
+
+
+class CreateBuddyRequest(BaseModel):
+    user_id: str = Field(default="anonymous", alias="userId")
+    buddy_id: str | None = Field(default=None, alias="buddyId")
+    name: str = Field(..., min_length=1, max_length=20)
+    personality: str = Field(default="", max_length=500)
+    speaking_style: str = Field(default="", max_length=500)

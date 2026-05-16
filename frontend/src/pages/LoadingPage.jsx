@@ -247,7 +247,7 @@ function PlanSlide({ isActive }) {
 const SLIDES = [
   {
     id: 'brand',
-    render: (viewportH, slideY, isActive) => (
+    render: (viewportH, slideY, isActive, logoY) => (
       <div className="flex flex-col items-center justify-center h-full px-8 relative">
         {/* Layered mountain landscape with mist */}
         <svg
@@ -292,7 +292,7 @@ const SLIDES = [
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
 
-        <motion.div style={slideY ? { y: useTransform(slideY, [0, viewportH], [0, -30]) } : {}}>
+        <motion.div style={logoY ? { y: logoY } : {}}>
           <LogoText />
         </motion.div>
 
@@ -374,6 +374,7 @@ export default function LoadingPage({ onAutoEnter, onGoLogin }) {
 
   const viewportH = dimensions.h;
   const dragY = useMotionValue(0);
+  const brandLogoY = useTransform(dragY, [0, viewportH], [0, -30]);
   const totalSlides = SLIDES.length;
 
   useEffect(() => {
@@ -436,7 +437,7 @@ export default function LoadingPage({ onAutoEnter, onGoLogin }) {
       >
         {SLIDES.map((slide, i) => (
           <div key={slide.id} className="relative" style={{ height: viewportH }}>
-            {slide.render(viewportH, dragY, i === activeIndex)}
+            {slide.render(viewportH, dragY, i === activeIndex, i === 0 ? brandLogoY : undefined)}
           </div>
         ))}
       </motion.div>

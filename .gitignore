@@ -34,3 +34,12 @@ dist-ssr
 .omx/
 
 .venv/
+
+# --- Agent service ---
+agent-service/.env
+agent-service/data/
+
+# --- Startup scripts (may contain local passwords/config) ---
+run/
+scripts/start-*.sh
+scripts/stop-*.sh
