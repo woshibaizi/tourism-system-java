@@ -1,0 +1,44 @@
+﻿.DS_Store
+*.iml
+
+# Build artifacts
+target/
+**/__pycache__/
+*.pyc
+*.db
+
+# --- React Frontend (Vite) ---
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.omx/
+
+.venv/
+
+# --- Agent service ---
+agent-service/.env
+agent-service/data/
+
+# --- Startup scripts (may contain local passwords/config) ---
+scripts/start-*.sh
+scripts/stop-*.sh

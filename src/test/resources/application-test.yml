@@ -1,0 +1,6 @@
+# ===== 测试环境配置 =====
+# H2 内存数据库，禁用 Flyway（MySQL 迁移脚本不兼容 H2）
+
+spring:
+  flyway:
+    enabled: false

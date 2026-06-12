@@ -1,0 +1,19 @@
+{
+  "updated": "2026-06-09T16:13:08.578738",
+  "schools": {
+    "place_001": {
+      "name": "北京邮电大学",
+      "total_raw": 1225,
+      "by_category": {
+        "restaurant": 200,
+        "shopping": 200,
+        "service": 200,
+        "entertainment": 200,
+        "hotel": 200,
+        "transport": 225
+      },
+      "maxItems": 0
+    }
+  },
+  "total_raw_pois": 1225
+}

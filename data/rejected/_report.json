@@ -1,0 +1,25 @@
+{
+  "updated": "2026-06-10T15:53:08.829254",
+  "schools": {
+    "place_001": {
+      "name": "北京邮电大学",
+      "ok": 379,
+      "fail": 0,
+      "duplicates": 0,
+      "categories": {
+        "restaurant": 180,
+        "shopping": 50,
+        "service": 33,
+        "entertainment": 50,
+        "hotel": 33,
+        "transport": 33
+      },
+      "warnings": []
+    }
+  },
+  "total": {
+    "ok": 379,
+    "fail": 0,
+    "pass_rate": "100.0%"
+  }
+}

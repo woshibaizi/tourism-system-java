@@ -1,0 +1,10 @@
+{
+  "_comment": "校园周边数据人工微调模板 — 可选文件，不存在时跳过",
+  "_usage": "force_include: 强制包含（即使AI精选没选上）; force_exclude: 强制排除; replace_name: 名称修正",
+
+  "place_001": {
+    "force_include": [],
+    "force_exclude": [],
+    "replace_name": {}
+  }
+}
