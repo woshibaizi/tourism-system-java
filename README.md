@@ -1,4 +1,4 @@
-# 个性化旅游系统 — Java 重构版
+# 个性化旅游系统 
 
 基于 **Spring Boot 3.3.5 + MyBatis-Plus + MySQL 8 + Redis** 的旅游系统后端。
 
